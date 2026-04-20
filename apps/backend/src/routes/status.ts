@@ -22,7 +22,7 @@ const router = Router();
  */
 router.get("/:sessionId", async (req, res) => {
   const sessionId = req.params.sessionId;
-  const session = getSession(sessionId);
+  const session = await getSession(sessionId);
   if (!session) {
     res.status(404).json({ error: "Session not found" });
     return;
@@ -36,15 +36,23 @@ router.get("/:sessionId", async (req, res) => {
     res.write(`data: ${JSON.stringify(data)}\n\n`);
   };
   const poll = async () => {
+    const latestSession = await getSession(sessionId);
+    if (!latestSession) {
+      clearInterval(pollInterval);
+      clearInterval(heartbeat);
+      res.end();
+      return;
+    }
+
     const status = await getSessionStatus(
       sessionId,
-      session.members.map((m) => m.address as `0x${string}`)
+      latestSession.members.map((m) => m.address as `0x${string}`)
     );
     send({
       members: status.members.map((m) => ({
         address: m.address,
         paid: m.paid,
-        paidAt: session.members.find((mem) => mem.address.toLowerCase() === m.address.toLowerCase())?.paidAt ?? null
+        paidAt: latestSession.members.find((mem) => mem.address.toLowerCase() === m.address.toLowerCase())?.paidAt ?? null
       })),
       allPaid: status.allPaid
     });
