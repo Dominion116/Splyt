@@ -41,7 +41,7 @@ export interface DashboardSessionApiRecord {
     subtotal: string;
     tax: string;
     total: string;
-    currency: "USDC";
+    currency: "cUSD";
   };
   allPaid: boolean;
 }

@@ -19,7 +19,7 @@ const createSchema = z.object({
     subtotal: z.string(),
     tax: z.string(),
     total: z.string(),
-    currency: z.literal("USDC")
+    currency: z.literal("cUSD")
   }),
   expiresInMinutes: z.number().int().min(1).max(240).optional()
 });

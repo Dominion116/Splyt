@@ -5,7 +5,7 @@ import { LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DashboardBadge } from "@/components/dashboard/badge";
 import { truncateAddress, formatUsdc } from "@/lib/dashboard";
-import { getUSDCBalance, isMiniPay } from "@/lib/minipay";
+import { getCUSDBalance, isMiniPay } from "@/lib/minipay";
 import { useDashboardWallet } from "@/components/dashboard/use-wallet";
 import { useRouter } from "next/navigation";
 
@@ -31,7 +31,7 @@ export default function DashboardProfilePage() {
       if (!isMiniPay()) return;
       try {
         if (!address) return;
-        setBalance(await getUSDCBalance(address as `0x${string}`));
+        setBalance(await getCUSDBalance(address as `0x${string}`));
       } catch {
         setBalance(0n);
       }
@@ -62,9 +62,9 @@ export default function DashboardProfilePage() {
         </div>
         <div className="h-px bg-zinc-800" />
         <div className="space-y-2 font-mono text-[10px] text-zinc-500">
-          <div className="flex items-center justify-between"><span>USDC balance</span><span>${formatUsdc(balance)}</span></div>
+          <div className="flex items-center justify-between"><span>cUSD balance</span><span>${formatUsdc(balance)}</span></div>
           <div className="flex items-center justify-between"><span>Network</span><DashboardBadge variant="settled">celo</DashboardBadge></div>
-          <div className="flex items-center justify-between"><span>Gas token</span><span>USDC</span></div>
+          <div className="flex items-center justify-between"><span>Gas token</span><span>cUSD</span></div>
         </div>
       </section>
 

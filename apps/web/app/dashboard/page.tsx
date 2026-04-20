@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ProgressBar } from "@/components/dashboard/progress-bar";
 import { DashboardBadge } from "@/components/dashboard/badge";
 import { useDashboardWallet } from "@/components/dashboard/use-wallet";
-import { getUSDCBalance, isMiniPay } from "@/lib/minipay";
+import { getCUSDBalance, isMiniPay } from "@/lib/minipay";
 import { cn } from "@/lib/utils";
 import {
   formatUsdc,
@@ -44,7 +44,7 @@ export default function DashboardHomePage() {
     const load = async () => {
       if (isMiniPay()) {
         try {
-          setBalanceMicros(await getUSDCBalance(address as `0x${string}`));
+          setBalanceMicros(await getCUSDBalance(address as `0x${string}`));
         } catch {
           setBalanceMicros(0n);
         }
@@ -71,7 +71,7 @@ export default function DashboardHomePage() {
 
   const stats = useMemo(
     () => [
-      { label: "usdc balance", value: `$${formatUsdc(balanceMicros)}` },
+      { label: "cUSD balance", value: `$${formatUsdc(balanceMicros)}` },
       { label: "active sessions", value: String(sessions.filter((session) => session.status !== "settled").length) },
       { label: "total settled", value: `$${formatUsdc(sessions.filter((session) => session.status === "settled").reduce((sum, session) => sum + session.collectedMicros, 0n))}` },
       { label: "fees paid", value: "$0.00" }

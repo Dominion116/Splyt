@@ -11,7 +11,7 @@ Splyt is a MiniPay-native app that turns any shared receipt into on-chain paymen
 ## Tech Stack
 | Layer | Technology | Why |
 | --- | --- | --- |
-| Frontend | Next.js 15, TypeScript, Tailwind, shadcn/ui | Fast MiniPay-ready UX |
+| Frontend | Next.js 16, TypeScript, Tailwind, shadcn/ui | Fast MiniPay-ready UX |
 | Backend | Node.js, Express, Zod, Swagger | Strict APIs and docs |
 | Smart Contracts | Solidity 0.8.24, Foundry | Deterministic settlement state |
 | Payments | thirdweb x402 | Per-request stablecoin gating |
@@ -48,7 +48,7 @@ Frontend and backend are deployed separately.
 - Host: Vercel or any Next.js-capable platform.
 - Build command: `npm run build -w apps/web`
 - Start command: `npm run start -w apps/web`
-- Required env vars: `NEXT_PUBLIC_BACKEND_URL`, `NEXT_PUBLIC_CELO_RPC_URL`, `NEXT_PUBLIC_THIRDWEB_CLIENT_ID`, `NEXT_PUBLIC_CONTRACT_ADDRESS`.
+- Required env vars: `NEXT_PUBLIC_BACKEND_URL`, `NEXT_PUBLIC_CELO_RPC_URL`, `NEXT_PUBLIC_THIRDWEB_CLIENT_ID`, `NEXT_PUBLIC_CONTRACT_ADDRESS`, `NEXT_PUBLIC_CUSD_ADDRESS`.
 
 ### Backend
 - Host: Render, Fly.io, Railway, or a small Node VM/container.
@@ -61,6 +61,10 @@ Frontend and backend are deployed separately.
 - Update `NEXT_PUBLIC_CONTRACT_ADDRESS` and `SPLYT_SESSION_CONTRACT` to the deployed address.
 - If you want on-chain verification, set `CELOSCAN_API_KEY`.
 
+### Token
+- Mainnet cUSD address: `0x765de816845861e75a25fca122bb6898b8b1282a`
+- Use that value for `NEXT_PUBLIC_CUSD_ADDRESS` locally and in your frontend host.
+
 ### Before shipping
 - Ensure CORS allows the frontend origin in the backend.
 - Confirm the backend can reach the Celo RPC endpoint.
@@ -70,7 +74,7 @@ Frontend and backend are deployed separately.
 See `docs/ARCHITECTURE.md`.
 
 ## Proof of Ship Tracks
-- [x] MiniPay (mini-app detection, USDC payments)
+- [x] MiniPay (mini-app detection, cUSD payments)
 - [x] AI Agent (Claude vision, split computation)
 - [x] x402 (payment-gated endpoints, per-member collection)
 

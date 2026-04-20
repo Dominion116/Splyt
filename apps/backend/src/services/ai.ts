@@ -33,7 +33,7 @@ export async function parseReceipt(imageBase64: string, mimeType: string): Promi
       subtotal: "25.000000",
       tax: "2.000000",
       total: "27.000000",
-      currency: "USDC"
+      currency: "cUSD"
     };
   }
 
@@ -49,7 +49,7 @@ export async function parseReceipt(imageBase64: string, mimeType: string): Promi
             type: "text",
             text: [
               "Extract this receipt into JSON using schema:",
-              '{"items":[{"name":"string","amount":"string"}],"subtotal":"string","tax":"string","total":"string","currency":"USDC"}',
+              '{"items":[{"name":"string","amount":"string"}],"subtotal":"string","tax":"string","total":"string","currency":"cUSD"}',
               "All amounts must have 6 decimals."
             ].join("\n")
           },
@@ -78,7 +78,7 @@ export async function parseReceipt(imageBase64: string, mimeType: string): Promi
       subtotal: raw.subtotal,
       tax: raw.tax,
       total: raw.total,
-      currency: "USDC"
+      currency: "cUSD"
     };
   } catch {
     throw new ParseError("Claude did not return valid JSON");
