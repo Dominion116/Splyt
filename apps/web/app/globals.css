@@ -1,0 +1,75 @@
+@config "../tailwind.config.ts";
+@import "tailwindcss";
+
+:root {
+  --background: 9 9 11;
+  --foreground: 244 244 245;
+  --primary: 99 102 241;
+  --muted: 39 39 42;
+  --muted-foreground: 161 161 170;
+  --border: 39 39 42;
+  --card: 24 24 27;
+}
+
+html {
+  color-scheme: dark;
+}
+
+html.dark body {
+  background: rgb(var(--background));
+  color: rgb(var(--foreground));
+}
+
+body {
+  min-height: 100vh;
+  background: rgb(9 9 11);
+  color: rgb(244 244 245);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.dashboard-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(139 92 246) transparent;
+}
+
+.dashboard-scrollbar::-webkit-scrollbar {
+  width: 10px;
+}
+
+.dashboard-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dashboard-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgb(139 92 246);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.dashboard-scrollbar::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+@keyframes type-in {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.terminal-line {
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 1px solid rgb(99 102 241);
+  animation: type-in 1.3s steps(35, end) forwards, blink 0.8s step-end infinite;
+}
