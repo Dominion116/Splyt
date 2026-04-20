@@ -1,0 +1,20 @@
+# Dependencies
+node_modules
+**/node_modules
+contracts/lib
+
+# Build output
+.next
+dist
+out
+coverage
+
+# Foundry output
+artifacts
+cache
+broadcast
+
+# Environment files
+.env
+.env.*
+!.env.example
