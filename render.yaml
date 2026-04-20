@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: splyt-backend
+    runtime: node
+    rootDir: apps/backend
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: PORT
+        value: 3001
+      - key: CELO_RPC_URL
+        value: https://forno.celo.org
+      - key: THIRDWEB_SECRET_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: HOST_WALLET_ADDRESS
+        sync: false
+      - key: HOST_WALLET_PRIVATE_KEY
+        sync: false
+      - key: SPLYT_SESSION_CONTRACT
+        sync: false
+      - key: REDIS_URL
+        value: redis://localhost:6379
