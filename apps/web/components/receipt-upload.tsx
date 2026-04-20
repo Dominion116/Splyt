@@ -11,7 +11,7 @@ type ParsedReceipt = {
   subtotal: string;
   tax: string;
   total: string;
-  currency: "USDC";
+  currency: "cUSD";
 };
 
 export function ReceiptUpload({ onParsed }: { onParsed?: (receipt: ParsedReceipt) => void }) {

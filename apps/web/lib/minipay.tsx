@@ -12,7 +12,7 @@ declare global {
   }
 }
 
-export const USDC_ADDRESS = "0xcebA9300f2b948710d2653dD7B07f33A8B32118C" as const;
+export const CUSD_ADDRESS = (process.env.NEXT_PUBLIC_CUSD_ADDRESS ?? "0x765de816845861e75a25fca122bb6898b8b1282a") as Address;
 const erc20Abi = [
   {
     type: "function",
@@ -35,12 +35,14 @@ export function getMiniPayPublicClient() {
   });
 }
 
-export async function getUSDCBalance(address: Address): Promise<bigint> {
+export async function getCUSDBalance(address: Address): Promise<bigint> {
   const client = getMiniPayPublicClient();
   return client.readContract({
-    address: USDC_ADDRESS,
+    address: CUSD_ADDRESS,
     abi: erc20Abi,
     functionName: "balanceOf",
     args: [address]
   });
 }
+
+export const getUSDCBalance = getCUSDBalance;

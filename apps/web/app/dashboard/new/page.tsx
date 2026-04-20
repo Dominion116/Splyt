@@ -175,7 +175,7 @@ export default function DashboardNewSplitPage() {
         <div className="rounded-xl border border-dashed border-zinc-700 p-8 text-center hover:border-indigo-500">
           <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-md bg-zinc-800"><Camera size={24} className="text-zinc-600" strokeWidth={1.8} /></div>
           <div className="text-sm text-zinc-100">Upload receipt</div>
-          <div className="mt-1 font-mono text-[10px] uppercase tracking-widest text-zinc-600">$0.01 USDC via x402</div>
+          <div className="mt-1 font-mono text-[10px] uppercase tracking-widest text-zinc-600">$0.01 cUSD via x402</div>
           <div className="mt-4"><Input type="file" accept="image/*" capture="environment" onChange={onFileSelect} /></div>
         </div>
 
