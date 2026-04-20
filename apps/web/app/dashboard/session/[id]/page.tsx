@@ -1,5 +1,6 @@
 "use client";
 
+import { use } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { ClipboardCopy, Play } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -8,22 +9,19 @@ import { Avatar } from "@/components/ui/avatar";
 import { ProgressBar } from "@/components/dashboard/progress-bar";
 import { DashboardBadge } from "@/components/dashboard/badge";
 import { TerminalLog, type TerminalLine } from "@/components/dashboard/terminal-log";
-import { formatUsdcPrecise, mockWalletAddress, truncateAddress } from "@/lib/dashboard";
-import { useDashboardWallet } from "@/components/dashboard/use-wallet";
+import { formatUsdcPrecise, truncateAddress } from "@/lib/dashboard";
 
 type MemberStatus = { address: string; paid: boolean; amountDue: bigint };
 
-export default function DashboardSessionPage({ params }: { params: { id: string } }) {
+export default function DashboardSessionPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
-  const { address } = useDashboardWallet();
   const [members, setMembers] = useState<MemberStatus[]>([]);
   const [allPaid, setAllPaid] = useState(false);
   const [logLines, setLogLines] = useState<TerminalLine[]>([{ tag: "[chain]", tagColor: "text-indigo-400", text: "Waiting for payment updates..." }]);
   const [streamOpen, setStreamOpen] = useState(false);
 
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:3001";
-  const sessionId = params.id;
-  const shareAddress = address || mockWalletAddress;
+  const { id: sessionId } = use(params);
 
   useEffect(() => {
     const source = new EventSource(`${backendUrl}/api/status/${sessionId}`);

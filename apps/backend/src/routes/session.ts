@@ -4,7 +4,7 @@ import { z } from "zod";
 import { validateBody } from "../middleware/validate.js";
 import { computeSplit } from "../services/ai.js";
 import { createSessionOnChain, getSessionStatus } from "../services/contract.js";
-import { ParsedReceipt, putSession, getSession, serializeSession } from "../services/db.js";
+import { ParsedReceipt, putSession, getSession, listSessions, serializeSession } from "../services/db.js";
 
 const router = Router();
 
@@ -34,6 +34,23 @@ const createSchema = z.object({
  *     responses:
  *       201:
  *         description: Session created
+ */
+router.get("/", (req, res) => {
+  const host = typeof req.query.host === "string" ? req.query.host : undefined;
+  const sessions = listSessions(host).map(serializeSession).sort((left, right) => right.createdAt - left.createdAt);
+  res.json({ sessions });
+});
+
+/**
+ * @openapi
+ * /api/session:
+ *   get:
+ *     tags: [session]
+ *     summary: List split sessions
+ *     operationId: listSessions
+ *     responses:
+ *       200:
+ *         description: Session list
  */
 router.post("/", validateBody(createSchema), async (req, res, next) => {
   try {

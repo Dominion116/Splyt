@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DashboardBadge } from "@/components/dashboard/badge";
-import { mockContractAddress, mockNotifications, mockWalletAddress, truncateAddress, formatUsdc } from "@/lib/dashboard";
+import { truncateAddress, formatUsdc } from "@/lib/dashboard";
 import { getUSDCBalance, isMiniPay } from "@/lib/minipay";
 import { useDashboardWallet } from "@/components/dashboard/use-wallet";
 import { useRouter } from "next/navigation";
@@ -17,6 +17,7 @@ export default function DashboardProfilePage() {
   const [balance, setBalance] = useState(0n);
   const [defaultMode, setDefaultMode] = useState<SettingMode>("equal");
   const [expiry, setExpiry] = useState("6h");
+  const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
 
   useEffect(() => {
     const storedMode = window.localStorage.getItem("splyt.defaultSplitMode") as SettingMode | null;
@@ -29,7 +30,8 @@ export default function DashboardProfilePage() {
     const loadBalance = async () => {
       if (!isMiniPay()) return;
       try {
-        setBalance(await getUSDCBalance((address || mockWalletAddress) as `0x${string}`));
+        if (!address) return;
+        setBalance(await getUSDCBalance(address as `0x${string}`));
       } catch {
         setBalance(0n);
       }
@@ -38,7 +40,7 @@ export default function DashboardProfilePage() {
     void loadBalance();
   }, [address]);
 
-  const initials = useMemo(() => (address || mockWalletAddress).slice(0, 2), [address]);
+  const initials = useMemo(() => (address ? address.slice(0, 2) : "--"), [address]);
 
   const onDisconnect = () => {
     window.localStorage.removeItem("splyt.wallet");
@@ -55,30 +57,20 @@ export default function DashboardProfilePage() {
           <div className="flex h-11 w-11 items-center justify-center rounded-md border border-indigo-500/20 bg-indigo-500/10 font-mono text-indigo-400">{initials}</div>
           <div className="min-w-0 flex-1">
             <div className="text-sm text-zinc-100">MiniPay wallet</div>
-            <div className="truncate font-mono text-[10px] text-zinc-500">{address || mockWalletAddress}</div>
+            <div className="truncate font-mono text-[10px] text-zinc-500">{address || "connect wallet"}</div>
           </div>
         </div>
         <div className="h-px bg-zinc-800" />
         <div className="space-y-2 font-mono text-[10px] text-zinc-500">
           <div className="flex items-center justify-between"><span>USDC balance</span><span>${formatUsdc(balance)}</span></div>
           <div className="flex items-center justify-between"><span>Network</span><DashboardBadge variant="settled">celo</DashboardBadge></div>
-          <div className="flex items-center justify-between"><span>Gas token</span><span>USDC adapter</span></div>
+          <div className="flex items-center justify-between"><span>Gas token</span><span>USDC</span></div>
         </div>
       </section>
 
       <section className="space-y-2 rounded-lg border border-zinc-800 bg-zinc-900 p-3">
         <div className="font-medium text-zinc-100">Notifications</div>
-        <div className="space-y-2">
-          {mockNotifications.map((notification) => (
-            <div key={notification.id} className="flex items-start gap-2 rounded-lg border border-zinc-800 bg-zinc-950 p-2 text-[11px] text-zinc-400">
-              <span className={`mt-1 h-2 w-2 rounded-md ${notification.unread ? "bg-indigo-400" : "bg-zinc-700"}`} />
-              <div className="min-w-0 flex-1">
-                <div className="text-zinc-300">{notification.message}</div>
-                <div className="font-mono text-[9px] uppercase tracking-widest text-zinc-600">{notification.timeAgo}</div>
-              </div>
-            </div>
-          ))}
-        </div>
+        <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 font-mono text-xs text-zinc-600">No notifications yet.</div>
       </section>
 
       <section className="space-y-2 rounded-lg border border-zinc-800 bg-zinc-900 p-3">
@@ -86,10 +78,16 @@ export default function DashboardProfilePage() {
           <div className="font-medium text-zinc-100">Contract info</div>
           <DashboardBadge variant="paid">verified</DashboardBadge>
         </div>
-        <div className="font-mono text-[10px] text-zinc-500">{truncateAddress(mockContractAddress, 8, 6)}</div>
-        <Button variant="outline" className="w-full border-zinc-700 font-mono text-[10px] uppercase tracking-widest" onClick={() => window.open(`https://celoscan.io/address/${mockContractAddress}`, "_blank")}>
-          view on Celoscan
-        </Button>
+        {contractAddress ? (
+          <>
+            <div className="font-mono text-[10px] text-zinc-500">{truncateAddress(contractAddress, 8, 6)}</div>
+            <Button variant="outline" className="w-full border-zinc-700 font-mono text-[10px] uppercase tracking-widest" onClick={() => window.open(`https://celoscan.io/address/${contractAddress}`, "_blank")}>
+              view on Celoscan
+            </Button>
+          </>
+        ) : (
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 font-mono text-xs text-zinc-600">No contract address configured.</div>
+        )}
       </section>
 
       <section className="space-y-3 rounded-lg border border-zinc-800 bg-zinc-900 p-3">

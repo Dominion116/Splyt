@@ -4,7 +4,9 @@ import { useMemo, useState } from "react";
 import { AlertTriangle, CheckCircle2, Clock3 } from "lucide-react";
 import { DashboardBadge } from "@/components/dashboard/badge";
 import { ProgressBar } from "@/components/dashboard/progress-bar";
-import { formatUsdc, getPendingMicros, getSessionProgress, mockDashboardSessions, type DashboardSessionStatus } from "@/lib/dashboard";
+import { formatUsdc, getPendingMicros, getSessionProgress, normalizeSessionRecord, type DashboardSessionApiRecord, type DashboardSessionRecord, type DashboardSessionStatus } from "@/lib/dashboard";
+import { useEffect } from "react";
+import { useDashboardWallet } from "@/components/dashboard/use-wallet";
 
 function StatusIcon({ status }: { status: DashboardSessionStatus }) {
   if (status === "settled") return <CheckCircle2 size={16} className="text-green-500" />;
@@ -14,7 +16,29 @@ function StatusIcon({ status }: { status: DashboardSessionStatus }) {
 
 export default function DashboardHistoryPage() {
   const [filter, setFilter] = useState<"all" | DashboardSessionStatus>("all");
-  const sessions = mockDashboardSessions;
+  const { address } = useDashboardWallet();
+  const [sessions, setSessions] = useState<DashboardSessionRecord[]>([]);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const backend = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:3001";
+        const response = await fetch(`${backend}/api/session?host=${address}`);
+        if (!response.ok) return;
+
+        const data = await response.json();
+        if (Array.isArray(data)) {
+          setSessions((data as DashboardSessionApiRecord[]).map(normalizeSessionRecord));
+        } else if (Array.isArray(data.sessions)) {
+          setSessions((data.sessions as DashboardSessionApiRecord[]).map(normalizeSessionRecord));
+        }
+      } catch {
+        setSessions([]);
+      }
+    };
+
+    void load();
+  }, [address]);
 
   const filteredSessions = useMemo(() => (filter === "all" ? sessions : sessions.filter((session) => session.status === filter)), [filter, sessions]);
 
@@ -44,7 +68,7 @@ export default function DashboardHistoryPage() {
       </section>
 
       <section className="space-y-2 rounded-lg border border-zinc-800 bg-zinc-900 p-3">
-        {filteredSessions.map((session) => (
+        {filteredSessions.length ? filteredSessions.map((session) => (
           <div key={session.id} className="flex items-stretch gap-3 border-b border-zinc-800 py-3 last:border-b-0 last:pb-0 first:pt-0">
             <div className="flex items-center justify-center rounded-md bg-zinc-800 p-2">
               <StatusIcon status={session.status} />
@@ -59,7 +83,7 @@ export default function DashboardHistoryPage() {
               <DashboardBadge variant={session.status === "settled" ? "settled" : session.status === "pending" ? "pending" : "expired"}>{session.status}</DashboardBadge>
             </div>
           </div>
-        ))}
+        )) : <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 font-mono text-xs text-zinc-600">No sessions yet.</div>}
       </section>
 
       <section className="space-y-3 rounded-lg border border-zinc-800 bg-zinc-900 p-3">

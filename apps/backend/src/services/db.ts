@@ -34,6 +34,12 @@ export interface SessionRecord {
 
 const sessions = new Map<string, SessionRecord>();
 
+export function listSessions(host?: string): SessionRecord[] {
+  const items = Array.from(sessions.values());
+  if (!host) return items;
+  return items.filter((session) => session.host.toLowerCase() === host.toLowerCase());
+}
+
 export function putSession(session: SessionRecord): SessionRecord {
   sessions.set(session.id, session);
   return session;

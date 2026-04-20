@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { isMiniPay } from "@/lib/minipay";
-import { mockWalletAddress, truncateAddress } from "@/lib/dashboard";
+import { truncateAddress } from "@/lib/dashboard";
 
 export function useDashboardWallet() {
-  const [address, setAddress] = useState(mockWalletAddress);
+  const [address, setAddress] = useState("");
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -45,6 +45,6 @@ export function useDashboardWallet() {
   return {
     address,
     ready,
-    truncatedAddress: truncateAddress(address)
+    truncatedAddress: address ? truncateAddress(address) : "connect wallet"
   };
 }

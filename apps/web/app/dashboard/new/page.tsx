@@ -7,7 +7,7 @@ import { useFetchWithPayment } from "thirdweb/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TerminalLog, type TerminalLine } from "@/components/dashboard/terminal-log";
-import { formatUsdcPrecise, isValidEthAddress, mockWalletAddress } from "@/lib/dashboard";
+import { formatUsdcPrecise, isValidEthAddress } from "@/lib/dashboard";
 import { isMiniPay } from "@/lib/minipay";
 import { cn } from "@/lib/utils";
 
@@ -37,7 +37,7 @@ export default function DashboardNewSplitPage() {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [parsedReceipt, setParsedReceipt] = useState<ParsedReceipt | null>(null);
-  const [members, setMembers] = useState<MemberAllocation[]>([{ address: mockWalletAddress, percentage: 100 }]);
+  const [members, setMembers] = useState<MemberAllocation[]>([{ address: "", percentage: 100 }]);
   const [itemAssignments, setItemAssignments] = useState<number[]>([]);
   const [terminalLines, setTerminalLines] = useState<TerminalLine[]>([{ tag: "[agent]", tagColor: "text-indigo-400", text: "Awaiting receipt upload." }]);
   const [loading, setLoading] = useState(false);

@@ -12,9 +12,9 @@ import {
   formatUsdc,
   getPendingMicros,
   getSessionProgress,
+  normalizeSessionRecord,
   type DashboardActivityRecord,
-  mockDashboardSessions,
-  mockRecentActivity,
+  type DashboardSessionApiRecord,
   type DashboardSessionRecord
 } from "@/lib/dashboard";
 
@@ -38,7 +38,7 @@ function ActivityIcon({ kind }: { kind: string }) {
 export default function DashboardHomePage() {
   const { address, truncatedAddress } = useDashboardWallet();
   const [balanceMicros, setBalanceMicros] = useState(0n);
-  const [sessions, setSessions] = useState<DashboardSessionRecord[]>(mockDashboardSessions);
+  const [sessions, setSessions] = useState<DashboardSessionRecord[]>([]);
 
   useEffect(() => {
     const load = async () => {
@@ -56,13 +56,13 @@ export default function DashboardHomePage() {
         if (response.ok) {
           const data = await response.json();
           if (Array.isArray(data)) {
-            setSessions(data as DashboardSessionRecord[]);
+            setSessions((data as DashboardSessionApiRecord[]).map(normalizeSessionRecord));
           } else if (Array.isArray(data.sessions)) {
-            setSessions(data.sessions as DashboardSessionRecord[]);
+            setSessions((data.sessions as DashboardSessionApiRecord[]).map(normalizeSessionRecord));
           }
         }
       } catch {
-        setSessions(mockDashboardSessions);
+        setSessions([]);
       }
     };
 
@@ -78,6 +78,17 @@ export default function DashboardHomePage() {
     ],
     [balanceMicros, sessions]
   );
+
+  const recentActivity = useMemo<DashboardActivityRecord[]>(() => {
+    if (!sessions.length) return [];
+
+    return sessions.slice(0, 5).map((session, index) => ({
+      id: `${session.id}-${index}`,
+      kind: session.status === "settled" ? "done" : session.status === "expired" ? "wait" : "chain",
+      description: `${session.name} • ${session.memberCount} members`,
+      amountMicros: session.collectedMicros
+    }));
+  }, [sessions]);
 
   return (
     <div className="space-y-4">
@@ -118,7 +129,7 @@ export default function DashboardHomePage() {
       <section className="space-y-2">
         <h2 className="font-mono text-[10px] uppercase tracking-widest text-zinc-500">recent activity</h2>
         <div className="space-y-2">
-          {mockRecentActivity.slice(0, 5).map((entry: DashboardActivityRecord) => (
+          {recentActivity.length ? recentActivity.map((entry: DashboardActivityRecord) => (
             <div key={entry.id} className="flex items-center gap-3 rounded-lg border border-zinc-800 bg-zinc-900 p-3">
               <div className="rounded-md bg-zinc-800 p-1.5"><ActivityIcon kind={entry.kind} /></div>
               <div className="min-w-0 flex-1">
@@ -127,7 +138,7 @@ export default function DashboardHomePage() {
               </div>
               <div className={cn("font-mono text-xs", entry.amountMicros > 0n ? "text-zinc-100" : "text-zinc-500")}>{entry.amountMicros > 0n ? `$${formatUsdc(entry.amountMicros)}` : "—"}</div>
             </div>
-          ))}
+          )) : <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-3 font-mono text-xs text-zinc-600">No recent activity yet.</div>}
         </div>
       </section>
     </div>
