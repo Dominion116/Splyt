@@ -15,7 +15,9 @@ HOST_WALLET_ADDRESS=               # your Celo wallet address
 HOST_WALLET_PRIVATE_KEY=           # NEVER commit this
 SPLYT_SESSION_CONTRACT=            # deployed contract address
 CELO_RPC_URL=https://forno.celo.org
-REDIS_URL=redis://localhost:6379   # optional, falls back to memory
+MONGODB_URI=                       # MongoDB Atlas connection string
+MONGODB_DB_NAME=splyt             # optional, defaults to splyt
+REDIS_URL=redis://localhost:6379   # optional
 
 ## Contracts (contracts/.env)
 PRIVATE_KEY=                       # deployer wallet key

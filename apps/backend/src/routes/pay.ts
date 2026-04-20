@@ -25,7 +25,7 @@ const router = Router();
  */
 router.get("/:sessionId/:memberAddress", async (req, res, next) => {
   const { sessionId, memberAddress } = req.params;
-  const session = getSession(sessionId);
+  const session = await getSession(sessionId);
   if (!session) {
     res.status(404).json({ error: "NotFound", message: "Session not found", statusCode: 404 });
     return;
@@ -46,7 +46,7 @@ router.get("/:sessionId/:memberAddress", async (req, res, next) => {
   await gate(req, res, async () => {
     try {
       const txHash = await markMemberPaid(sessionId, memberAddress as `0x${string}`);
-      markPaidLocally(sessionId, memberAddress, txHash);
+      await markPaidLocally(sessionId, memberAddress, txHash);
       res.json({ paid: true, txHash, amount: memberEntry.amount.toString() });
     } catch (error) {
       next(error);

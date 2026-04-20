@@ -1,3 +1,5 @@
+import { getCollection } from "./mongo.js";
+
 export type SplitMode = "equal" | "itemised" | "custom";
 
 export interface ParsedReceiptItem {
@@ -32,32 +34,86 @@ export interface SessionRecord {
   txHash?: string;
 }
 
-const sessions = new Map<string, SessionRecord>();
-
-export function listSessions(host?: string): SessionRecord[] {
-  const items = Array.from(sessions.values());
-  if (!host) return items;
-  return items.filter((session) => session.host.toLowerCase() === host.toLowerCase());
+interface StoredSessionMember {
+  address: string;
+  amount: string;
+  paid: boolean;
+  paidAt?: number;
 }
 
-export function putSession(session: SessionRecord): SessionRecord {
-  sessions.set(session.id, session);
+interface StoredSessionRecord {
+  id: string;
+  host: string;
+  members: StoredSessionMember[];
+  total: string;
+  createdAt: number;
+  expiresAt: number;
+  mode: SplitMode;
+  receipt: ParsedReceipt;
+  txHash?: string;
+}
+
+function toStoredSession(session: SessionRecord): StoredSessionRecord {
+  return {
+    ...session,
+    total: session.total.toString(),
+    members: session.members.map((member) => ({
+      ...member,
+      amount: member.amount.toString()
+    }))
+  };
+}
+
+function fromStoredSession(session: StoredSessionRecord): SessionRecord {
+  return {
+    ...session,
+    total: BigInt(session.total),
+    members: session.members.map((member) => ({
+      ...member,
+      amount: BigInt(member.amount)
+    }))
+  };
+}
+
+async function getSessionsCollection() {
+  return getCollection<StoredSessionRecord>("sessions");
+}
+
+export async function listSessions(host?: string): Promise<SessionRecord[]> {
+  const collection = await getSessionsCollection();
+  const filter = host ? { host: new RegExp(`^${host}$`, "i") } : {};
+  const items = await collection.find(filter).toArray();
+  return items.map(fromStoredSession);
+}
+
+export async function putSession(session: SessionRecord): Promise<SessionRecord> {
+  const collection = await getSessionsCollection();
+  const stored = toStoredSession(session);
+  await collection.updateOne({ id: session.id }, { $set: stored }, { upsert: true });
   return session;
 }
 
-export function getSession(sessionId: string): SessionRecord | undefined {
-  return sessions.get(sessionId);
+export async function getSession(sessionId: string): Promise<SessionRecord | undefined> {
+  const collection = await getSessionsCollection();
+  const session = await collection.findOne({ id: sessionId });
+  return session ? fromStoredSession(session) : undefined;
 }
 
-export function markPaidLocally(sessionId: string, memberAddress: string, txHash: string): SessionRecord | undefined {
-  const session = sessions.get(sessionId);
-  if (!session) return undefined;
-  const member = session.members.find((m) => m.address.toLowerCase() === memberAddress.toLowerCase());
-  if (!member) return undefined;
-  member.paid = true;
-  member.paidAt = Date.now();
-  session.txHash = txHash;
-  return session;
+export async function markPaidLocally(sessionId: string, memberAddress: string, txHash: string): Promise<SessionRecord | undefined> {
+  const collection = await getSessionsCollection();
+  const result = await collection.updateOne(
+    { id: sessionId, "members.address": { $regex: `^${memberAddress}$`, $options: "i" } },
+    {
+      $set: {
+        txHash,
+        "members.$.paid": true,
+        "members.$.paidAt": Date.now()
+      }
+    }
+  );
+
+  if (!result.matchedCount) return undefined;
+  return getSession(sessionId);
 }
 
 export function serializeSession(session: SessionRecord) {

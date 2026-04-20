@@ -35,10 +35,14 @@ const createSchema = z.object({
  *       201:
  *         description: Session created
  */
-router.get("/", (req, res) => {
+router.get("/", async (req, res, next) => {
+  try {
   const host = typeof req.query.host === "string" ? req.query.host : undefined;
-  const sessions = listSessions(host).map(serializeSession).sort((left, right) => right.createdAt - left.createdAt);
-  res.json({ sessions });
+    const sessions = (await listSessions(host)).map(serializeSession).sort((left, right) => right.createdAt - left.createdAt);
+    res.json({ sessions });
+  } catch (error) {
+    next(error);
+  }
 });
 
 /**
@@ -63,7 +67,7 @@ router.post("/", validateBody(createSchema), async (req, res, next) => {
     const amounts = req.body.members.map((m: string) => splits.get(m) ?? 0n);
     const txHash = await createSessionOnChain(id, req.body.members, amounts, Math.floor(expiresAt / 1000));
 
-    const session = putSession({
+    const session = await putSession({
       id,
       createdAt: Date.now(),
       host: process.env.HOST_WALLET_ADDRESS ?? "0x0000000000000000000000000000000000000000",
@@ -104,7 +108,7 @@ router.post("/", validateBody(createSchema), async (req, res, next) => {
  */
 router.get("/:sessionId", async (req, res, next) => {
   try {
-    const session = getSession(req.params.sessionId);
+    const session = await getSession(req.params.sessionId);
     if (!session) {
       res.status(404).json({ error: "Session not found" });
       return;
