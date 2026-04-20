@@ -6,7 +6,7 @@ import { DashboardHeader } from "./header";
 import { DashboardBottomNav } from "./bottom-nav";
 
 function getTitle(pathname: string): string {
-  if (pathname === "/dashboard") return "home";
+  if (pathname === "/dashboard") return "";
   if (pathname === "/dashboard/new") return "new split";
   if (pathname.startsWith("/dashboard/session/")) return "session";
   if (pathname === "/dashboard/history") return "history";
@@ -19,7 +19,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="h-dvh overflow-hidden bg-zinc-950 text-zinc-100">
-      <div className="relative mx-auto flex h-full w-full max-w-93.75 flex-col overflow-hidden bg-zinc-950">
+      <div className="relative mx-auto flex h-full w-full max-w-[420px] flex-col overflow-hidden bg-zinc-950">
         <DashboardHeader title={getTitle(pathname)} />
         <main className="dashboard-scrollbar flex-1 overflow-y-auto px-4 pb-24 pt-4">{children}</main>
         <DashboardBottomNav />

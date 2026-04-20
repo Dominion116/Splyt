@@ -41,6 +41,31 @@ Splyt is a MiniPay-native app that turns any shared receipt into on-chain paymen
 ## API Reference
 Swagger UI: `http://localhost:3001/docs`
 
+## Deployment Checklist
+Frontend and backend are deployed separately.
+
+### Frontend
+- Host: Vercel or any Next.js-capable platform.
+- Build command: `npm run build -w apps/web`
+- Start command: `npm run start -w apps/web`
+- Required env vars: `NEXT_PUBLIC_BACKEND_URL`, `NEXT_PUBLIC_CELO_RPC_URL`, `NEXT_PUBLIC_THIRDWEB_CLIENT_ID`, `NEXT_PUBLIC_CONTRACT_ADDRESS`.
+
+### Backend
+- Host: Render, Fly.io, Railway, or a small Node VM/container.
+- Build command: `npm run build -w apps/backend`
+- Start command: `npm run start -w apps/backend`
+- Required env vars: `PORT`, `THIRDWEB_SECRET_KEY`, `ANTHROPIC_API_KEY`, `HOST_WALLET_ADDRESS`, `HOST_WALLET_PRIVATE_KEY`, `SPLYT_SESSION_CONTRACT`, `CELO_RPC_URL`.
+
+### Contracts
+- Deploy the Solidity contract with Foundry.
+- Update `NEXT_PUBLIC_CONTRACT_ADDRESS` and `SPLYT_SESSION_CONTRACT` to the deployed address.
+- If you want on-chain verification, set `CELOSCAN_API_KEY`.
+
+### Before shipping
+- Ensure CORS allows the frontend origin in the backend.
+- Confirm the backend can reach the Celo RPC endpoint.
+- Verify the frontend can call `/api/parse`, `/api/session`, `/api/pay`, and `/api/status` on the deployed backend.
+
 ## Architecture
 See `docs/ARCHITECTURE.md`.
 
