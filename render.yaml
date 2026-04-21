@@ -3,7 +3,7 @@ services:
     name: splyt-backend
     runtime: node
     rootDir: apps/backend
-    buildCommand: "npm install --no-audit --no-fund && npm install -w apps/backend thirdweb --no-audit --no-fund && npm run build"
+    buildCommand: "npm install --no-audit --no-fund && npm install thirdweb --no-audit --no-fund && npm run build"
     startCommand: npm run start
     healthCheckPath: /health
     envVars:
