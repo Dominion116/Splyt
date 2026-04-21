@@ -17,7 +17,7 @@ const schema = z.object({
  *   post:
  *     tags: [parse]
  *     summary: Parse receipt image
- *     description: x402-gated receipt parsing with Claude Vision.
+ *     description: x402-gated receipt parsing with Groq Vision.
  *     operationId: parseReceipt
  *     responses:
  *       200:
