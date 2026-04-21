@@ -4,7 +4,12 @@ import { settlePayment } from "../services/x402.js";
 export function x402Gate(price: string) {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const proof = req.header("x-x402-proof");
+      // Accept common proof header names used by different x402 clients.
+      const proof =
+        req.header("x-x402-proof") ??
+        req.header("x402-proof") ??
+        req.header("x-payment") ??
+        req.header("x-payment-proof");
       const settlement = await settlePayment(proof, price, req.ip);
       if (!settlement.ok) {
         Object.entries(settlement.challengeHeaders ?? {}).forEach(([k, v]) => {
