@@ -23,7 +23,10 @@ function microsToString(value: bigint): string {
 }
 
 export async function parseReceipt(imageBase64: string, mimeType: string): Promise<ParsedReceipt> {
+  const aiId = `ai-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+  
   if (!groq) {
+    console.warn(`[ai:${aiId}] Groq client not configured (GROQ_API_KEY missing), returning mock receipt`);
     return {
       items: [
         { name: "Pasta", amount: "14.000000" },
@@ -37,6 +40,9 @@ export async function parseReceipt(imageBase64: string, mimeType: string): Promi
     };
   }
 
+  console.info(`[ai:${aiId}] Starting Groq Vision parse: mimeType=${mimeType}, imageSize=${imageBase64.length}`);
+  const startTime = Date.now();
+  
   const response = await groq.chat.completions.create({
     model: "llama-3.2-90b-vision-preview",
     max_tokens: 900,
@@ -67,13 +73,20 @@ export async function parseReceipt(imageBase64: string, mimeType: string): Promi
     ]
   });
 
+  const elapsed = Date.now() - startTime;
+  console.info(`[ai:${aiId}] Groq API response received (${elapsed}ms), processing...`);
+  
   const first = response.choices[0]?.message;
   if (!first || !first.content) {
+    console.error(`[ai:${aiId}] Groq response missing content (choices=${response.choices.length})`);
     throw new ParseError("Groq response missing content");
   }
 
+  console.debug(`[ai:${aiId}] Response content length: ${first.content.length}`);
+  
   try {
     const raw = JSON.parse(first.content) as ParsedReceipt;
+    console.info(`[ai:${aiId}] ✓ Parse successful: ${raw.items.length} items, subtotal=$${raw.subtotal}, total=$${raw.total}`);
     return {
       items: raw.items.map((item) => ({ name: item.name, amount: item.amount })),
       subtotal: raw.subtotal,
@@ -81,7 +94,9 @@ export async function parseReceipt(imageBase64: string, mimeType: string): Promi
       total: raw.total,
       currency: "cUSD"
     };
-  } catch {
+  } catch (jsonErr) {
+    console.error(`[ai:${aiId}] ✗ Failed to parse Groq JSON response`);
+    console.debug(`[ai:${aiId}] Response content:\n${first.content.slice(0, 500)}...`);
     throw new ParseError("Groq did not return valid JSON");
   }
 }
