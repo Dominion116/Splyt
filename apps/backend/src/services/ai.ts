@@ -1,10 +1,10 @@
-import Anthropic from "@anthropic-ai/sdk";
+import Groq from "groq-sdk";
 import { ParsedReceipt, SplitMode } from "./db.js";
 
 export class ParseError extends Error {}
 
-const anthropic = process.env.ANTHROPIC_API_KEY
-  ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+const groq = process.env.GROQ_API_KEY
+  ? new Groq({ apiKey: process.env.GROQ_API_KEY })
   : null;
 
 const MICRO_MULTIPLIER = 1_000_000n;
@@ -23,7 +23,7 @@ function microsToString(value: bigint): string {
 }
 
 export async function parseReceipt(imageBase64: string, mimeType: string): Promise<ParsedReceipt> {
-  if (!anthropic) {
+  if (!groq) {
     return {
       items: [
         { name: "Pasta", amount: "14.000000" },
@@ -37,8 +37,8 @@ export async function parseReceipt(imageBase64: string, mimeType: string): Promi
     };
   }
 
-  const response = await anthropic.messages.create({
-    model: "claude-sonnet-4-20250514",
+  const response = await groq.chat.completions.create({
+    model: "llama-3.2-90b-vision-preview",
     max_tokens: 900,
     system: "You are a receipt parser. Return ONLY valid JSON, no markdown.",
     messages: [
@@ -54,25 +54,23 @@ export async function parseReceipt(imageBase64: string, mimeType: string): Promi
             ].join("\n")
           },
           {
-            type: "image",
-            source: {
-              type: "base64",
-              media_type: mimeType as "image/jpeg" | "image/png" | "image/webp",
-              data: imageBase64
+            type: "image_url",
+            image_url: {
+              url: `data:${mimeType};base64,${imageBase64}`
             }
           }
-        ]
+        ] as any
       }
     ]
   });
 
-  const first = response.content[0];
-  if (!first || first.type !== "text") {
-    throw new ParseError("Claude response missing text");
+  const first = response.choices[0]?.message;
+  if (!first || !first.content) {
+    throw new ParseError("Groq response missing content");
   }
 
   try {
-    const raw = JSON.parse(first.text) as ParsedReceipt;
+    const raw = JSON.parse(first.content) as ParsedReceipt;
     return {
       items: raw.items.map((item) => ({ name: item.name, amount: item.amount })),
       subtotal: raw.subtotal,
@@ -81,7 +79,7 @@ export async function parseReceipt(imageBase64: string, mimeType: string): Promi
       currency: "cUSD"
     };
   } catch {
-    throw new ParseError("Claude did not return valid JSON");
+    throw new ParseError("Groq did not return valid JSON");
   }
 }
 
