@@ -5,7 +5,7 @@ import { LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DashboardBadge } from "@/components/dashboard/badge";
 import { truncateAddress, formatUsdc } from "@/lib/dashboard";
-import { getCUSDBalance, isMiniPay } from "@/lib/minipay";
+import { getCUSDBalance } from "@/lib/minipay";
 import { useDashboardWallet } from "@/components/dashboard/use-wallet";
 import { useRouter } from "next/navigation";
 
@@ -28,7 +28,6 @@ export default function DashboardProfilePage() {
 
   useEffect(() => {
     const loadBalance = async () => {
-      if (!isMiniPay()) return;
       try {
         if (!address) return;
         setBalance(await getCUSDBalance(address as `0x${string}`));
@@ -56,7 +55,7 @@ export default function DashboardProfilePage() {
         <div className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-md border border-indigo-500/20 bg-indigo-500/10 font-mono text-indigo-400">{initials}</div>
           <div className="min-w-0 flex-1">
-            <div className="text-sm text-zinc-100">MiniPay wallet</div>
+            <div className="text-sm text-zinc-100">Connected wallet</div>
             <div className="truncate font-mono text-[10px] text-zinc-500">{address || "connect wallet"}</div>
           </div>
         </div>
