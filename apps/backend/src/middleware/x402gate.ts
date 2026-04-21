@@ -83,7 +83,7 @@ function buildInlineRequirements(price: string, resourceUrl: string) {
   return [
     {
       scheme: "exact",
-      network: "celo",
+      network: "eip155:42220",
       maxAmountRequired: amountInAtomicUnits,
       resource: resourceUrl,
       description: "Splyt payment — bill split fee",
