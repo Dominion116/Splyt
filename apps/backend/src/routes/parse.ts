@@ -28,11 +28,18 @@ const schema = z.object({
  *         description: Parse failed
  */
 router.post("/", x402Gate("$0.01"), validateBody(schema), async (req, res, next) => {
+  const parseId = `parse-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
   try {
+    const imageSize = req.body.imageBase64.length;
+    console.info(`[parse:${parseId}] Parsing receipt: mimeType=${req.body.mimeType}, imageSize=${imageSize}`);
+    
     const parsed = await parseReceipt(req.body.imageBase64, req.body.mimeType);
+    
+    console.info(`[parse:${parseId}] ✓ Parse succeeded: ${parsed.items.length} items, total=$${parsed.total}`);
     res.json(parsed);
   } catch (error) {
     if (error instanceof ParseError) {
+      console.error(`[parse:${parseId}] Parse error: ${error.message}`);
       res.status(422).json({
         error: "ParseError",
         message: error.message,
@@ -40,6 +47,8 @@ router.post("/", x402Gate("$0.01"), validateBody(schema), async (req, res, next)
       });
       return;
     }
+    const errMsg = error instanceof Error ? error.message : String(error);
+    console.error(`[parse:${parseId}] Unexpected error: ${errMsg}`);
     next(error);
   }
 });
