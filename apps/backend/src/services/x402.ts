@@ -117,8 +117,6 @@ export async function settlePayment(
 ): Promise<X402Result> {
   const settleId = `settle-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
   console.info(`[x402:${settleId}] settlePayment called: price=${price}, hasProof=${!!x402Proof}, resource=${context.resourceUrl}`);
-  
-  const runtime = await loadThirdwebRuntime();
 
   // No proof provided — always return a challenge regardless of runtime availability.
   if (!x402Proof) {
@@ -127,9 +125,13 @@ export async function settlePayment(
   }
   console.info(`[x402:${settleId}] Payment proof found (${x402Proof.slice(0, 30)}...)`);
 
+  // Only load the thirdweb runtime when we actually have a proof to settle.
+  // This keeps the initial 402 challenge fast and avoids client-side timeouts.
+  const runtime = await loadThirdwebRuntime();
+
   // No runtime (missing env vars or import failed) — can't settle, return challenge.
   if (!runtime || !hostWalletAddress) {
-    console.warn(`[x402:${settleId}] Runtime unavailable (runtime=${!!runtime}, hostWallet=${!!hostWalletAddress}) ->> returning challenge`);
+    console.warn(`[x402:${settleId}] Runtime unavailable (runtime=${!!runtime}, hostWallet=${!!hostWalletAddress}) -> returning challenge`);
     return fallbackChallenge(price, context.resourceUrl);
   }
   console.info(`[x402:${settleId}] Runtime available, attempting to settle payment...`);
