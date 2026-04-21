@@ -106,8 +106,7 @@ function buildPaymentRequiredBody(paymentRequirements: unknown[], resourceUrl: s
  * Mirrors the logic in x402.ts buildPaymentRequirements.
  */
 function buildInlineRequirements(price: string, resourceUrl: string) {
-  const numericAmount = parseFloat(price.replace("$", ""));
-  const amountInAtomicUnits = String(Math.round(numericAmount * 1_000_000));
+  const amountInAtomicUnits = decimalToAtomic(price.replace("$", "").trim(), 18);
   const cusdAddress = process.env.CUSD_ADDRESS ?? "0x765de816845861e75a25fca122bb6898b8b1282a";
   const hostWalletAddress = process.env.HOST_WALLET_ADDRESS ?? "";
 
@@ -123,11 +122,25 @@ function buildInlineRequirements(price: string, resourceUrl: string) {
       maxTimeoutSeconds: 300,
       asset: cusdAddress,
       extra: {
-        name: "Celo Dollar",
+        name: "Mento Dollar",
         version: "1",
-        symbol: "cUSD",
-        decimals: "6"
+        symbol: "USDm",
+        decimals: "18"
       }
     }
   ];
+}
+
+function decimalToAtomic(value: string, decimals: number): string {
+  const normalized = value.trim();
+  if (!normalized) return "0";
+
+  const [wholePartRaw, fractionalPartRaw = ""] = normalized.split(".");
+  const wholePart = wholePartRaw === "" ? "0" : wholePartRaw;
+  const fractionalPadded = (fractionalPartRaw + "0".repeat(decimals)).slice(0, decimals);
+
+  const base = 10n ** BigInt(decimals);
+  const wholeAtomic = BigInt(wholePart) * base;
+  const fractionalAtomic = BigInt(fractionalPadded === "" ? "0" : fractionalPadded);
+  return (wholeAtomic + fractionalAtomic).toString();
 }

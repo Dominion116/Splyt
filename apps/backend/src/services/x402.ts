@@ -77,9 +77,9 @@ async function loadThirdwebRuntime(): Promise<ThirdwebRuntime | null> {
  * This is what thirdweb's useFetchWithPayment hook reads from a 402 response body.
  */
 function buildPaymentRequirements(price: string, resourceUrl: string) {
-  const numericAmount = parseFloat(price.replace("$", ""));
-  // cUSD has 6 decimal places (same as USDC)
-  const amountInAtomicUnits = String(Math.round(numericAmount * 1_000_000));
+  // cUSD has 18 decimals on Celo.
+  // Use string math to avoid IEEE float issues when scaling to 1e18.
+  const amountInAtomicUnits = decimalToAtomic(price.replace("$", "").trim(), 18);
 
   return [
     {
@@ -94,14 +94,30 @@ function buildPaymentRequirements(price: string, resourceUrl: string) {
       asset: cusdAddress,
       extra: {
         // thirdweb uses this to build EIP-2612 permit typed data (EIP-712 domain).
-        // For cUSD on Celo mainnet, the token name is "Celo Dollar" and version is typically "1".
-        name: "Celo Dollar",
+        // The token at 0x765d… reports name="Mento Dollar" and symbol="USDm" on-chain.
+        // Permit signatures are domain-separated by token name, so this must match.
+        name: "Mento Dollar",
         version: "1",
-        symbol: "cUSD",
-        decimals: "6"
+        symbol: "USDm",
+        // Keep as string for compatibility with some x402 clients.
+        decimals: "18"
       }
     }
   ];
+}
+
+function decimalToAtomic(value: string, decimals: number): string {
+  const normalized = value.trim();
+  if (!normalized) return "0";
+
+  const [wholePartRaw, fractionalPartRaw = ""] = normalized.split(".");
+  const wholePart = wholePartRaw === "" ? "0" : wholePartRaw;
+  const fractionalPadded = (fractionalPartRaw + "0".repeat(decimals)).slice(0, decimals);
+
+  const base = 10n ** BigInt(decimals);
+  const wholeAtomic = BigInt(wholePart) * base;
+  const fractionalAtomic = BigInt(fractionalPadded === "" ? "0" : fractionalPadded);
+  return (wholeAtomic + fractionalAtomic).toString();
 }
 
 function fallbackChallenge(price: string, resourceUrl: string): X402Result {
