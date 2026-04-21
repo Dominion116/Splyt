@@ -7,7 +7,7 @@ export default async function PayPage({ params }: { params: Promise<{ id: string
       <h1 className="text-2xl font-medium">Pay your share</h1>
       <p className="font-mono text-xs text-zinc-500">Session: {id}</p>
       <p className="font-mono text-xs text-zinc-500">Member: {addr}</p>
-      <Button>Pay with MiniPay</Button>
+      <Button>Pay now</Button>
     </main>
   );
 }

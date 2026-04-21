@@ -2,7 +2,7 @@
 > Tagline: 'AI-powered bill splitting on Celo. Snap, split, settle.'
 
 ## What it does
-Splyt is a MiniPay-native app that turns any shared receipt into on-chain payment requests in seconds. A Claude vision agent parses the image, computes member shares, and x402 enforces per-call settlement so each user pays only when they execute their payment step.
+Splyt is a MiniPay-first app that also works in regular browser wallets, turning any shared receipt into on-chain payment requests in seconds. A Claude vision agent parses the image, computes member shares, and x402 enforces per-call settlement so each user pays only when they execute their payment step.
 
 ## Demo (gif placeholder or link)
 - Demo link: _coming soon_
