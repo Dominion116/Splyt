@@ -10,7 +10,7 @@ NEXT_PUBLIC_CUSD_ADDRESS=0x765de816845861e75a25fca122bb6898b8b1282a
 ## Backend (apps/backend/.env)
 PORT=3001
 THIRDWEB_SECRET_KEY=               # thirdweb dashboard -> Secret Keys
-ANTHROPIC_API_KEY=                 # console.anthropic.com
+GROQ_API_KEY=                      # console.groq.com -> API Keys
 HOST_WALLET_ADDRESS=               # your Celo wallet address
 HOST_WALLET_PRIVATE_KEY=           # NEVER commit this
 SPLYT_SESSION_CONTRACT=0xf97995E255aFDea78A9aE9ecCc7b48ACb291bBE5
