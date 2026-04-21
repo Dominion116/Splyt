@@ -93,7 +93,11 @@ function buildPaymentRequirements(price: string, resourceUrl: string) {
       maxTimeoutSeconds: 300,
       asset: cusdAddress,
       extra: {
-        name: "cUSD",
+        // thirdweb uses this to build EIP-2612 permit typed data (EIP-712 domain).
+        // For cUSD on Celo mainnet, the token name is "Celo Dollar" and version is typically "1".
+        name: "Celo Dollar",
+        version: "1",
+        symbol: "cUSD",
         decimals: "6"
       }
     }

@@ -123,7 +123,9 @@ function buildInlineRequirements(price: string, resourceUrl: string) {
       maxTimeoutSeconds: 300,
       asset: cusdAddress,
       extra: {
-        name: "cUSD",
+        name: "Celo Dollar",
+        version: "1",
+        symbol: "cUSD",
         decimals: "6"
       }
     }
