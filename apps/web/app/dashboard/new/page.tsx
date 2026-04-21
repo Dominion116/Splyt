@@ -104,7 +104,12 @@ export default function DashboardNewSplitPage() {
       })) as Response;
       window.clearTimeout(timeout);
 
-      if (!response.ok) throw new Error(`Parse failed (${response.status})`);
+      if (!response.ok) {
+        if (response.status === 402) {
+          throw new Error("Payment proof was not completed. Connect wallet and approve the x402 prompt, then retry.");
+        }
+        throw new Error(`Parse failed (${response.status})`);
+      }
 
       const parsed = (await response.json()) as ParsedReceipt;
       setParsedReceipt(parsed);
@@ -115,7 +120,11 @@ export default function DashboardNewSplitPage() {
         { tag: "[done ]", tagColor: "text-green-500", text: `Total: $${parsed.total}  Tax: $${parsed.tax}` }
       ]);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown parse error");
+      if (err instanceof Error && err.name === "AbortError") {
+        setError("Parse request timed out while waiting for payment/response. Please retry.");
+      } else {
+        setError(err instanceof Error ? err.message : "Unknown parse error");
+      }
     } finally {
       setLoading(false);
     }
