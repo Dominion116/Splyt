@@ -6,11 +6,19 @@ export function x402Gate(price: string) {
     try {
       // Accept common proof header names used by different x402 clients.
       const proof =
+        req.header("payment-signature") ??
         req.header("x-x402-proof") ??
         req.header("x402-proof") ??
         req.header("x-payment") ??
         req.header("x-payment-proof");
-      const settlement = await settlePayment(proof, price, req.ip);
+      const host = req.header("x-forwarded-host") ?? req.header("host") ?? "localhost:3001";
+      const proto = req.header("x-forwarded-proto") ?? req.protocol;
+      const resourceUrl = `${proto}://${host}${req.originalUrl}`;
+      const settlement = await settlePayment(proof, price, {
+        payerHint: req.ip,
+        method: req.method,
+        resourceUrl
+      });
       if (!settlement.ok) {
         Object.entries(settlement.challengeHeaders ?? {}).forEach(([k, v]) => {
           res.setHeader(k, v);
