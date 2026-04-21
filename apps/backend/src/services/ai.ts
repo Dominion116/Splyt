@@ -40,8 +40,11 @@ export async function parseReceipt(imageBase64: string, mimeType: string): Promi
   const response = await groq.chat.completions.create({
     model: "llama-3.2-90b-vision-preview",
     max_tokens: 900,
-    system: "You are a receipt parser. Return ONLY valid JSON, no markdown.",
     messages: [
+      {
+        role: "system",
+        content: "You are a receipt parser. Return ONLY valid JSON, no markdown."
+      },
       {
         role: "user",
         content: [
