@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TerminalLog, type TerminalLine } from "@/components/dashboard/terminal-log";
 import { formatUsdcPrecise, isValidEthAddress } from "@/lib/dashboard";
-import { isMiniPay } from "@/lib/minipay";
 import { cn } from "@/lib/utils";
 
 type ParsedReceipt = { items: Array<{ name: string; amount: string }>; subtotal: string; tax: string; total: string };
@@ -83,10 +82,6 @@ export default function DashboardNewSplitPage() {
 
   const onParse = async () => {
     if (!file) return;
-    if (!isMiniPay()) {
-      setError("Open this page in MiniPay to parse and pay with x402.");
-      return;
-    }
 
     setLoading(true);
     setError(null);
