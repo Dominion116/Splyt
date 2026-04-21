@@ -34,19 +34,22 @@ let runtimeCache: ThirdwebRuntime | null | undefined;
 async function loadThirdwebRuntime(): Promise<ThirdwebRuntime | null> {
   if (runtimeCache !== undefined) return runtimeCache;
   if (!thirdwebSecretKey || !hostWalletAddress) {
-    console.warn("[x402] Missing THIRDWEB_SECRET_KEY or HOST_WALLET_ADDRESS — falling back to challenge-only mode.");
+    console.warn("[x402] Missing env vars (THIRDWEB_SECRET_KEY=" + (thirdwebSecretKey ? "set" : "missing") + ", HOST_WALLET_ADDRESS=" + (hostWalletAddress ? "set" : "missing") + ") — falling back to challenge-only mode.");
     runtimeCache = null;
     return runtimeCache;
   }
 
   try {
+    console.info("[x402] Loading thirdweb runtime...");
     // Use indirect dynamic import so local development can run without thirdweb installed.
     const importModule = new Function("specifier", "return import(specifier)") as (specifier: string) => Promise<any>;
+    console.debug("[x402] Starting parallel imports (thirdweb, chains, x402)...");
     const [{ createThirdwebClient }, { celo }, x402] = await Promise.all([
       importModule("thirdweb"),
       importModule("thirdweb/chains"),
       importModule("thirdweb/x402")
     ]);
+    console.debug("[x402] Imports successful, creating client and facilitator...");
 
     const client = createThirdwebClient({ secretKey: thirdwebSecretKey });
     const facilitatorInstance = x402.facilitator({
@@ -60,10 +63,10 @@ async function loadThirdwebRuntime(): Promise<ThirdwebRuntime | null> {
       settlePayment: x402.settlePayment,
       facilitator: facilitatorInstance
     };
-    console.log("[x402] Thirdweb runtime loaded successfully.");
+    console.log("[x402] ✓ Thirdweb runtime loaded successfully (celo chain, facilitator ready).");
     return runtimeCache;
   } catch (err) {
-    console.error("[x402] Failed to load thirdweb runtime — falling back to challenge-only mode:", err);
+    console.error("[x402] ✗ Failed to load thirdweb runtime (falling back to challenge-only):", err instanceof Error ? err.message : err);
     runtimeCache = null;
     return runtimeCache;
   }
@@ -112,20 +115,27 @@ export async function settlePayment(
   price: string,
   context: SettleContext
 ): Promise<X402Result> {
+  const settleId = `settle-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+  console.info(`[x402:${settleId}] settlePayment called: price=${price}, hasProof=${!!x402Proof}, resource=${context.resourceUrl}`);
+  
   const runtime = await loadThirdwebRuntime();
 
   // No proof provided — always return a challenge regardless of runtime availability.
   if (!x402Proof) {
+    console.info(`[x402:${settleId}] No payment proof provided -> returning challenge`);
     return fallbackChallenge(price, context.resourceUrl);
   }
+  console.info(`[x402:${settleId}] Payment proof found (${x402Proof.slice(0, 30)}...)`);
 
   // No runtime (missing env vars or import failed) — can't settle, return challenge.
   if (!runtime || !hostWalletAddress) {
-    console.warn("[x402] Runtime unavailable, returning challenge for resource:", context.resourceUrl);
+    console.warn(`[x402:${settleId}] Runtime unavailable (runtime=${!!runtime}, hostWallet=${!!hostWalletAddress}) ->> returning challenge`);
     return fallbackChallenge(price, context.resourceUrl);
   }
+  console.info(`[x402:${settleId}] Runtime available, attempting to settle payment...`);
 
   try {
+    console.debug(`[x402:${settleId}] Calling runtime.settlePayment with price=${price}, method=${context.method}`);
     const result = await runtime.settlePayment({
       resourceUrl: context.resourceUrl,
       method: context.method,
@@ -136,7 +146,10 @@ export async function settlePayment(
       facilitator: runtime.facilitator
     });
 
+    console.info(`[x402:${settleId}] settlePayment response: status=${result.status}`);
+    
     if (result.status !== 200) {
+      console.warn(`[x402:${settleId}] Settlement rejected (status ${result.status}), returning challenge`);
       return {
         ok: false,
         challengeHeaders: {
@@ -148,6 +161,7 @@ export async function settlePayment(
 
     const paymentReceipt = result.paymentReceipt;
     if (!paymentReceipt?.transaction) {
+      console.warn(`[x402:${settleId}] No transaction in receipt, returning challenge`);
       return {
         ok: false,
         challengeHeaders: {
@@ -157,6 +171,7 @@ export async function settlePayment(
       };
     }
 
+    console.info(`[x402:${settleId}] ✓ Payment settled: tx=${paymentReceipt.transaction.slice(0, 20)}..., payer=${paymentReceipt.payer ?? "unknown"}`);
     return {
       ok: true,
       receipt: {
@@ -166,7 +181,9 @@ export async function settlePayment(
       }
     };
   } catch (err) {
-    console.error("[x402] settlePayment threw:", err);
+    const errMsg = err instanceof Error ? err.message : String(err);
+    console.error(`[x402:${settleId}] ✗ settlePayment threw error: ${errMsg}`);
+    console.debug(`[x402:${settleId}] Error stack:`, err instanceof Error ? err.stack : "(no stack)");
     return fallbackChallenge(price, context.resourceUrl);
   }
 }
