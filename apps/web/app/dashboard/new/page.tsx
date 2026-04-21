@@ -95,7 +95,7 @@ export default function DashboardNewSplitPage() {
     try {
       const imageBase64 = await fileToBase64(file);
       const controller = new AbortController();
-      const timeout = window.setTimeout(() => controller.abort(), 20_000);
+      const timeout = window.setTimeout(() => controller.abort(), 90_000);
       const response = (await fetchWithPayment(`${backendUrl}/api/parse`, {
         method: "POST",
         headers: { "content-type": "application/json" },
