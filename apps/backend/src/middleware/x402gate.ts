@@ -40,8 +40,8 @@ export function x402Gate(price: string) {
           res.setHeader(k, v);
         });
 
-        // Standard x402 response body — this is what thirdweb's useFetchWithPayment reads.
-        res.status(402).json({ paymentRequirements });
+        // Standard x402 v2 response body — thirdweb expects `accepts` here.
+        res.status(402).json(buildPaymentRequiredBody(paymentRequirements, resourceUrl));
         return;
       }
 
@@ -55,6 +55,17 @@ export function x402Gate(price: string) {
         message: message.slice(0, 180),
         statusCode: 500
       });
+    }
+  };
+}
+
+function buildPaymentRequiredBody(paymentRequirements: unknown[], resourceUrl: string) {
+  return {
+    x402Version: 2,
+    error: "Payment required",
+    accepts: paymentRequirements,
+    resource: {
+      url: resourceUrl
     }
   };
 }
