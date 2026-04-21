@@ -3,7 +3,10 @@ import { settlePayment } from "../services/x402.js";
 
 export function x402Gate(price: string) {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const requestId = `req-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
     try {
+      console.info(`[x402gate:${requestId}] Starting payment gate for price: ${price}`);
+      
       // Accept all common proof header names used by different x402 clients.
       const proof =
         req.header("x-payment") ??
@@ -11,45 +14,73 @@ export function x402Gate(price: string) {
         req.header("x-x402-proof") ??
         req.header("x402-proof") ??
         req.header("x-payment-proof");
+      
+      if (proof) {
+        console.info(`[x402gate:${requestId}] Payment proof found (${proof.slice(0, 20)}...)`);
+      } else {
+        console.info(`[x402gate:${requestId}] No payment proof — will return 402 challenge`);
+      }
 
       const host = req.header("x-forwarded-host") ?? req.header("host") ?? "localhost:3001";
       const proto = req.header("x-forwarded-proto") ?? req.protocol;
       const resourceUrl = `${proto}://${host}${req.originalUrl}`;
+      console.debug(`[x402gate:${requestId}] Resource URL: ${resourceUrl}`);
 
       const settlement = await settlePayment(proof, price, {
         payerHint: req.ip,
         method: req.method,
         resourceUrl
       });
+      
+      console.info(`[x402gate:${requestId}] Settlement result: ok=${settlement.ok}`);
 
       if (!settlement.ok) {
+        console.info(`[x402gate:${requestId}] Returning 402 challenge`);
+        
         // Parse the paymentRequirements we stashed in challengeHeaders.
         const { __paymentRequirementsJson, ...httpHeaders } = settlement.challengeHeaders ?? {};
+        console.debug(`[x402gate:${requestId}] Challenge headers keys: ${Object.keys(httpHeaders).join(", ")}`);
 
         let paymentRequirements: unknown[];
         try {
-          paymentRequirements = __paymentRequirementsJson
-            ? (JSON.parse(__paymentRequirementsJson) as unknown[])
-            : buildInlineRequirements(price, resourceUrl);
-        } catch {
+          if (__paymentRequirementsJson) {
+            console.debug(`[x402gate:${requestId}] Parsing paymentRequirements from settlement`);
+            paymentRequirements = JSON.parse(__paymentRequirementsJson) as unknown[];
+          } else {
+            console.warn(`[x402gate:${requestId}] No paymentRequirements in settlement, building inline`);
+            paymentRequirements = buildInlineRequirements(price, resourceUrl);
+          }
+        } catch (parseErr) {
+          console.error(`[x402gate:${requestId}] Failed to parse paymentRequirements, building inline:`, parseErr);
           paymentRequirements = buildInlineRequirements(price, resourceUrl);
+        }
+
+        console.info(`[x402gate:${requestId}] Payment requirements count: ${paymentRequirements.length}`);
+        if (Array.isArray(paymentRequirements) && paymentRequirements.length > 0) {
+          const firstReq = (paymentRequirements[0] as Record<string, unknown>);
+          console.debug(`[x402gate:${requestId}] First requirement: network=${firstReq.network}, scheme=${firstReq.scheme}, asset=${String(firstReq.asset).slice(0, 10)}...`);
         }
 
         // Set any real HTTP headers the runtime returned (e.g. from thirdweb).
         Object.entries(httpHeaders).forEach(([k, v]) => {
           res.setHeader(k, v);
+          console.debug(`[x402gate:${requestId}] Set response header: ${k}`);
         });
 
         // Standard x402 v2 response body — thirdweb expects `accepts` here.
-        res.status(402).json(buildPaymentRequiredBody(paymentRequirements, resourceUrl));
+        const body = buildPaymentRequiredBody(paymentRequirements, resourceUrl);
+        console.info(`[x402gate:${requestId}] Sending 402 response with x402Version=${body.x402Version}, accepts.length=${body.accepts.length}`);
+        res.status(402).json(body);
         return;
       }
 
       req.x402Receipt = settlement.receipt;
+      console.info(`[x402gate:${requestId}] Payment verified, proceeding to next handler`);
       next();
     } catch (error) {
       const message = error instanceof Error ? error.message : "x402 middleware failed";
-      console.error("[x402gate] Unexpected error:", message);
+      const stack = error instanceof Error ? error.stack : "";
+      console.error(`[x402gate:${requestId}] Unexpected error: ${message}\n${stack}`);
       res.status(500).json({
         error: "InternalServerError",
         message: message.slice(0, 180),
