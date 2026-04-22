@@ -93,8 +93,9 @@ function buildPaymentRequirements(price: string, resourceUrl: string) {
       maxTimeoutSeconds: 300,
       asset: cusdAddress,
       extra: {
+        primaryType: "TransferWithAuthorization",
         // thirdweb uses this to build EIP-2612 permit typed data (EIP-712 domain).
-        // The token at 0x765d… reports name="Mento Dollar" and symbol="USDm" on-chain.
+        // The token at 0x765d... reports name="Mento Dollar" and symbol="USDm" on-chain.
         // Permit signatures are domain-separated by token name, so this must match.
         name: "Mento Dollar",
         version: "1",
