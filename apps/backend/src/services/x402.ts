@@ -94,9 +94,9 @@ function buildPaymentRequirements(price: string, resourceUrl: string) {
       asset: cusdAddress,
       extra: {
         primaryType: "TransferWithAuthorization",
-        // thirdweb uses this to build EIP-2612 permit typed data (EIP-712 domain).
-        // The token at 0x765d... reports name="Mento Dollar" and symbol="USDm" on-chain.
-        // Permit signatures are domain-separated by token name, so this must match.
+        // The token at 0x765d... uses EIP-3009 TransferWithAuthorization on Celo.
+        // primaryType bypasses thirdweb ABI auto-detection, which can otherwise fail at runtime.
+        // Name/version/symbol must match token metadata for domain-separated signatures.
         name: "Mento Dollar",
         version: "1",
         symbol: "USDm",
