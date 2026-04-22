@@ -122,6 +122,8 @@ function buildInlineRequirements(price: string, resourceUrl: string) {
       maxTimeoutSeconds: 300,
       asset: cusdAddress,
       extra: {
+        // Keep this aligned with service metadata so fallback challenges remain payable.
+        // Explicit transfer authorization avoids wallet-side method detection failures.
         primaryType: "TransferWithAuthorization",
         name: "Mento Dollar",
         version: "1",
