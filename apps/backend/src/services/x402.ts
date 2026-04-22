@@ -100,6 +100,7 @@ function buildPaymentRequirements(price: string, resourceUrl: string) {
         name: "Mento Dollar",
         version: "1",
         symbol: "USDm",
+        // USDm uses 18 decimals on Celo.
         // Keep as string for compatibility with some x402 clients.
         decimals: "18"
       }

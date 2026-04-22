@@ -128,6 +128,7 @@ function buildInlineRequirements(price: string, resourceUrl: string) {
         name: "Mento Dollar",
         version: "1",
         symbol: "USDm",
+        // USDm uses 18 decimals on Celo.
         decimals: "18"
       }
     }
