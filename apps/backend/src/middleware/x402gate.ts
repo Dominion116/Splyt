@@ -122,6 +122,7 @@ function buildInlineRequirements(price: string, resourceUrl: string) {
       maxTimeoutSeconds: 300,
       asset: cusdAddress,
       extra: {
+        primaryType: "TransferWithAuthorization",
         name: "Mento Dollar",
         version: "1",
         symbol: "USDm",
