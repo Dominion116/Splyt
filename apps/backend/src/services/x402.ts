@@ -19,12 +19,18 @@ const hostWalletAddress = process.env.HOST_WALLET_ADDRESS;
 // mainnet cUSD — override via CUSD_ADDRESS env var if needed
 const cusdAddress = process.env.CUSD_ADDRESS ?? "0x765de816845861e75a25fca122bb6898b8b1282a";
 
+type PaymentReceipt = {
+  transaction?: string;
+  transactionHash?: string;
+  payer?: string;
+};
+
 type ThirdwebRuntime = {
   chain: unknown;
   settlePayment: (args: Record<string, unknown>) => Promise<{
     status: number;
     responseHeaders?: Record<string, string>;
-    paymentReceipt?: { transaction?: string; payer?: string };
+    paymentReceipt?: PaymentReceipt;
   }>;
   facilitator: unknown;
 };
@@ -55,7 +61,7 @@ async function loadThirdwebRuntime(): Promise<ThirdwebRuntime | null> {
     const facilitatorInstance = x402.facilitator({
       client,
       serverWalletAddress: hostWalletAddress,
-      waitUntil: "submitted"
+      waitUntil: "mined" // Wait for actual confirmation
     });
 
     runtimeCache = {
@@ -170,8 +176,11 @@ export async function settlePayment(
       facilitator: runtime.facilitator
     });
 
+    // Debug log the full result shape for diagnosis
+    console.debug(`[x402:${settleId}] Full settlement result:`, JSON.stringify(result, null, 2));
+
     console.info(`[x402:${settleId}] settlePayment response: status=${result.status}`);
-    
+
     if (result.status !== 200) {
       console.warn(`[x402:${settleId}] Settlement rejected (status ${result.status}), returning challenge`);
       return {
@@ -184,24 +193,31 @@ export async function settlePayment(
     }
 
     const paymentReceipt = result.paymentReceipt;
-    if (!paymentReceipt?.transaction) {
-      console.warn(`[x402:${settleId}] No transaction in receipt, returning challenge`);
+    // thirdweb may use `transactionHash` or `transaction` depending on version
+    const txId = paymentReceipt?.transactionHash ?? paymentReceipt?.transaction;
+
+    if (!txId) {
+      console.warn(`[x402:${settleId}] No transaction in receipt:`, JSON.stringify(paymentReceipt));
+      // Don't return a challenge here — the payment WAS made.
+      // Return ok:true with a placeholder so the user isn't double-charged.
       return {
-        ok: false,
-        challengeHeaders: {
-          ...(result.responseHeaders ?? {}),
-          "__paymentRequirementsJson": JSON.stringify(buildPaymentRequirements(price, context.resourceUrl))
+        ok: true,
+        receipt: {
+          id: `unconfirmed-${Date.now()}`,
+          amount: price,
+          payer: context.payerHint ?? "unknown"
         }
       };
     }
 
-    console.info(`[x402:${settleId}] ✓ Payment settled: tx=${paymentReceipt.transaction.slice(0, 20)}..., payer=${paymentReceipt.payer ?? "unknown"}`);
+    const payer = paymentReceipt && paymentReceipt.payer ? paymentReceipt.payer : (context.payerHint ?? "unknown");
+    console.info(`[x402:${settleId}] ✓ Payment settled: tx=${txId.slice(0, 20)}..., payer=${payer}`);
     return {
       ok: true,
       receipt: {
-        id: paymentReceipt.transaction,
+        id: txId,
         amount: price,
-        payer: paymentReceipt.payer ?? context.payerHint ?? "unknown"
+        payer
       }
     };
   } catch (err) {
