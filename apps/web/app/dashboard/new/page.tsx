@@ -2,6 +2,7 @@
 
 import { ChangeEvent, useMemo, useState } from "react";
 import { ArrowRight, Camera, Loader2, Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TerminalLog, type TerminalLine } from "@/components/dashboard/terminal-log";
@@ -35,6 +36,7 @@ function equalSplit(totalMicros: bigint, memberCount: number) {
 }
 
 export default function DashboardNewSplitPage() {
+  const router = useRouter();
   const [splitMode, setSplitMode] = useState<(typeof splitModes)[number]>("equal");
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -164,7 +166,7 @@ export default function DashboardNewSplitPage() {
 
       const data = (await response.json()) as { sessionId: string };
       setSessionMessage(`tx queued • session ${data.sessionId.slice(0, 8)}`);
-      window.location.assign(`/dashboard/session/${data.sessionId}`);
+      router.push(`/dashboard/session/${data.sessionId}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown session error");
     } finally {

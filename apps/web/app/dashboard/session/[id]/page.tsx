@@ -19,29 +19,51 @@ export default function DashboardSessionPage({ params }: { params: Promise<{ id:
   const [allPaid, setAllPaid] = useState(false);
   const [logLines, setLogLines] = useState<TerminalLine[]>([{ tag: "[chain]", tagColor: "text-indigo-400", text: "Waiting for payment updates..." }]);
   const [streamOpen, setStreamOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:3001";
   const { id: sessionId } = use(params);
 
   useEffect(() => {
-    const source = new EventSource(`${backendUrl}/api/status/${sessionId}`);
-    setStreamOpen(true);
+    let source: EventSource | null = null;
 
-    source.onmessage = (event) => {
-      const data = JSON.parse(event.data) as { members: MemberStatus[]; allPaid: boolean };
-      setMembers(data.members);
-      setAllPaid(data.allPaid);
-      setLogLines((current) => [...current, { tag: data.allPaid ? "[done ]" : "[wait ]", tagColor: data.allPaid ? "text-green-500" : "text-amber-500", text: `${data.members.filter((member) => member.paid).length}/${data.members.length} members paid` }]);
-      if (data.allPaid) {
-        source.close();
+    const openStream = async () => {
+      try {
+        const response = await fetch(`${backendUrl}/api/session/${sessionId}`);
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.message || `Session lookup failed (${response.status})`);
+        }
+
+        setError(null);
+        source = new EventSource(`${backendUrl}/api/status/${sessionId}`);
+        setStreamOpen(true);
+
+        source.onmessage = (event) => {
+          const data = JSON.parse(event.data) as { members: MemberStatus[]; allPaid: boolean };
+          setMembers(data.members);
+          setAllPaid(data.allPaid);
+          setLogLines((current) => [...current, { tag: data.allPaid ? "[done ]" : "[wait ]", tagColor: data.allPaid ? "text-green-500" : "text-amber-500", text: `${data.members.filter((member) => member.paid).length}/${data.members.length} members paid` }]);
+          if (data.allPaid) {
+            source?.close();
+            setStreamOpen(false);
+          }
+        };
+
+        source.onerror = () => {
+          setStreamOpen(false);
+          setError("Live session updates are temporarily unavailable.");
+        };
+      } catch (err) {
         setStreamOpen(false);
+        setError(err instanceof Error ? err.message : "Failed to load session.");
       }
     };
 
-    source.onerror = () => setStreamOpen(false);
+    void openStream();
 
     return () => {
-      source.close();
+      source?.close();
       setStreamOpen(false);
     };
   }, [backendUrl, sessionId]);
@@ -93,6 +115,7 @@ export default function DashboardSessionPage({ params }: { params: Promise<{ id:
 
       <section className="space-y-2 rounded-lg border border-zinc-800 bg-zinc-900 p-3">
         <TerminalLog lines={logLines} live className="max-h-64" />
+        {error ? <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-sm text-red-400">{error}</div> : null}
         {allPaid ? <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-sm text-zinc-100">Session settled. All payments confirmed on Celo.</div> : null}
       </section>
 
