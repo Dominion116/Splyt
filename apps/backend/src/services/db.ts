@@ -37,8 +37,6 @@ export interface SessionRecord {
 }
 
 const REQUIRED_ENV_VARS = [
-  "HOST_WALLET_PRIVATE_KEY",
-  "HOST_WALLET_ADDRESS",
   "SPLYT_SESSION_CONTRACT",
   "MONGODB_URI"
 ] as const;
