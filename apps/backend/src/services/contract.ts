@@ -62,9 +62,25 @@ function toBytes32(sessionId: string): Hex {
   return (`0x${trimmed.padEnd(64, "0").slice(0, 64)}`) as Hex;
 }
 
+function normalizePrivateKey(value: string | undefined): Hex {
+  if (!value) {
+    throw new Error("HOST_WALLET_PRIVATE_KEY is required");
+  }
+
+  const trimmed = value.trim().replace(/^['"]|['"]$/g, "");
+  const hex = trimmed.startsWith("0x") ? trimmed : `0x${trimmed}`;
+
+  if (!/^0x[a-fA-F0-9]{64}$/.test(hex)) {
+    throw new Error(
+      "HOST_WALLET_PRIVATE_KEY must be a 32-byte hex string (64 hex characters, with or without 0x prefix)"
+    );
+  }
+
+  return hex as Hex;
+}
+
 function getClients() {
-  const pk = process.env.HOST_WALLET_PRIVATE_KEY as Hex | undefined;
-  if (!pk) throw new Error("HOST_WALLET_PRIVATE_KEY is required");
+  const pk = normalizePrivateKey(process.env.HOST_WALLET_PRIVATE_KEY);
   const account = privateKeyToAccount(pk);
   const transport = http(RPC_URL);
   const publicClient = createPublicClient({ chain: celo, transport });
