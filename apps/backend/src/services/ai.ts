@@ -24,6 +24,31 @@ function microsToString(value: bigint): string {
   return `${whole.toString()}.${frac}`;
 }
 
+function normalizeParsedReceipt(raw: ParsedReceipt): ParsedReceipt {
+  return {
+    items: raw.items.map((item) => {
+      const quantity = item.quantity && Number.isFinite(item.quantity) ? Math.max(1, Math.trunc(item.quantity)) : undefined;
+      const unitPrice = item.unitPrice;
+
+      let amount = item.amount;
+      if (quantity && unitPrice) {
+        amount = microsToString(parseUsdToMicros(unitPrice) * BigInt(quantity));
+      }
+
+      return {
+        name: item.name,
+        amount,
+        quantity,
+        unitPrice
+      };
+    }),
+    subtotal: raw.subtotal,
+    tax: raw.tax,
+    total: raw.total,
+    currency: "cUSD"
+  };
+}
+
 export async function parseReceipt(imageBase64: string, mimeType: string): Promise<ParsedReceipt> {
   const aiId = `ai-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 
@@ -50,8 +75,10 @@ export async function parseReceipt(imageBase64: string, mimeType: string): Promi
             type: "text",
             text: [
               "Extract this receipt into JSON using schema:",
-              '{"items":[{"name":"string","amount":"string"}],"subtotal":"string","tax":"string","total":"string","currency":"cUSD"}',
-              "All amounts must have 6 decimals."
+              '{"items":[{"name":"string","amount":"string","quantity":"number?","unitPrice":"string?"}],"subtotal":"string","tax":"string","total":"string","currency":"cUSD"}',
+              "All amounts must have 6 decimals.",
+              "For each line item, `amount` must be the line total, not the per-unit price.",
+              "If the receipt shows a quantity like `2 x Coffee @ $0.01`, return `name` as `Coffee`, `quantity` as 2, `unitPrice` as `0.010000`, and `amount` as `0.020000`."
             ].join("\n")
           },
           {
@@ -77,14 +104,9 @@ export async function parseReceipt(imageBase64: string, mimeType: string): Promi
   
   try {
     const raw = JSON.parse(first.content) as ParsedReceipt;
-    console.info(`[ai:${aiId}] ✓ Parse successful: ${raw.items.length} items, subtotal=$${raw.subtotal}, total=$${raw.total}`);
-    return {
-      items: raw.items.map((item) => ({ name: item.name, amount: item.amount })),
-      subtotal: raw.subtotal,
-      tax: raw.tax,
-      total: raw.total,
-      currency: "cUSD"
-    };
+    const normalized = normalizeParsedReceipt(raw);
+    console.info(`[ai:${aiId}] ✓ Parse successful: ${normalized.items.length} items, subtotal=$${normalized.subtotal}, total=$${normalized.total}`);
+    return normalized;
   } catch (jsonErr) {
     console.error(`[ai:${aiId}] ✗ Failed to parse Groq JSON response: ${jsonErr}`);
     console.debug(`[ai:${aiId}] Response content:\n${first.content.slice(0, 500)}...`);
