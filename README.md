@@ -15,7 +15,7 @@ Splyt is a MiniPay-first app that also works in regular browser wallets, turning
 | Backend | Node.js, Express, Zod, Swagger | Strict APIs and docs |
 | Smart Contracts | Solidity 0.8.24, Foundry | Deterministic settlement state |
 | Payments | Direct contract calls | On-chain settlement |
-| AI | Claude vision | Reliable receipt extraction |
+| AI | Reliable receipt extraction |
 | Chain | Celo L2 + viem | Low fees and fee abstraction |
 
 ## Quick Start
@@ -75,7 +75,7 @@ See `docs/ARCHITECTURE.md`.
 
 ## Proof of Ship Tracks
 - [x] MiniPay (mini-app detection, cUSD payments)
-- [x] AI Agent (Claude vision, split computation)
+- [x] AI Agent (Split computation)
 - [x] Direct payments (contract calls, per-member collection)
 
 ## License: MIT
