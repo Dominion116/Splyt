@@ -12,19 +12,16 @@ const app = express();
 const port = Number(process.env.PORT ?? "3001");
 
 // ---------------------------------------------------------------------------
-// Startup env checks — log warnings early so Render logs make issues obvious.
+// Startup env checks — strict validation, no mock data fallbacks allowed.
 // ---------------------------------------------------------------------------
-const requiredEnvVars = [
-  "ANTHROPIC_API_KEY",
-  "HOST_WALLET_ADDRESS",
-  "HOST_WALLET_PRIVATE_KEY",
-  "SPLYT_SESSION_CONTRACT",
-  "CELO_RPC_URL"
-];
-for (const key of requiredEnvVars) {
-  if (!process.env[key]) {
-    console.warn(`[startup] WARNING: env var ${key} is not set`);
-  }
+import { validateEnvironment } from "./services/db.js";
+
+try {
+  validateEnvironment();
+  console.log("[startup] ✓ All required environment variables are configured");
+} catch (error) {
+  console.error(`[startup] ✗ Environment validation failed: ${error}`);
+  process.exit(1);
 }
 if (!process.env.CUSD_ADDRESS) {
   console.info("[startup] CUSD_ADDRESS not set — defaulting to mainnet cUSD: 0x765de816845861e75a25fca122bb6898b8b1282a");

@@ -117,22 +117,27 @@ export async function markMemberPaid(sessionId: string, memberAddress: Address):
 
 export async function getSessionStatus(sessionId: string, members: Address[]): Promise<SessionStatus> {
   const { publicClient } = getClients();
-  const statuses = await Promise.all(
-    members.map(async (member) => {
-      const [amountDue, paid] = await publicClient.readContract({
-        address: CONTRACT_ADDRESS,
-        abi: ABI,
-        functionName: "getMemberStatus",
-        args: [toBytes32(sessionId), member]
-      });
-      return { address: member, paid, amountDue };
+
+  // Fetch real-time data from blockchain - no caching or mock data
+  const [statuses, allPaid] = await Promise.all([
+    Promise.all(
+      members.map(async (member) => {
+        const [amountDue, paid] = await publicClient.readContract({
+          address: CONTRACT_ADDRESS,
+          abi: ABI,
+          functionName: "getMemberStatus",
+          args: [toBytes32(sessionId), member]
+        });
+        return { address: member, paid, amountDue };
+      })
+    ),
+    publicClient.readContract({
+      address: CONTRACT_ADDRESS,
+      abi: ABI,
+      functionName: "allPaid",
+      args: [toBytes32(sessionId)]
     })
-  );
-  const allPaid = await publicClient.readContract({
-    address: CONTRACT_ADDRESS,
-    abi: ABI,
-    functionName: "allPaid",
-    args: [toBytes32(sessionId)]
-  });
+  ]);
+
   return { allPaid, members: statuses };
 }

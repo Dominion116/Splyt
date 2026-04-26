@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { markMemberPaid } from "../services/contract.js";
+import { markMemberPaid, getSessionStatus } from "../services/contract.js";
 import { getSession, markPaidLocally } from "../services/db.js";
 
 const router = Router();
@@ -23,6 +23,7 @@ const router = Router();
 router.get("/:sessionId/:memberAddress/price", async (req, res) => {
   const { sessionId, memberAddress } = req.params;
 
+  // Fetch real-time session data from database
   const session = await getSession(sessionId);
   if (!session) {
     res.status(404).json({ error: "NotFound", message: "Session not found", statusCode: 404 });
@@ -37,13 +38,29 @@ router.get("/:sessionId/:memberAddress/price", async (req, res) => {
     return;
   }
 
-  if (memberEntry.paid) {
+  // Check real-time payment status from blockchain
+  const { members: memberStatuses } = await getSessionStatus(sessionId, session.members.map(m => m.address));
+  const blockchainStatus = memberStatuses.find(
+    (m) => m.address.toLowerCase() === memberAddress.toLowerCase()
+  );
+
+  if (!blockchainStatus) {
+    res.status(500).json({ error: "BlockchainError", message: "Could not verify payment status", statusCode: 500 });
+    return;
+  }
+
+  if (blockchainStatus.paid) {
     res.status(409).json({ error: "AlreadyPaid", message: "Member already paid", statusCode: 409 });
     return;
   }
 
-  // Return the price in micro-units
-  res.json({ price: memberEntry.amount.toString(), currency: "cUSD", decimals: 6 });
+  // Return real-time price data
+  res.json({
+    price: memberEntry.amount.toString(),
+    currency: "cUSD",
+    decimals: 6,
+    blockchainAmount: blockchainStatus.amountDue.toString()
+  });
 });
 
 /**
@@ -88,10 +105,28 @@ router.get(
         return;
       }
 
-      // Direct contract call to mark as paid
+      // Real-time contract interaction - no mock transactions
       const txHash = await markMemberPaid(sessionId, memberAddress as `0x${string}`);
+
+      // Update local state after successful blockchain transaction
       await markPaidLocally(sessionId, memberAddress, txHash);
-      res.json({ paid: true, txHash, amount: memberEntry.amount.toString() });
+
+      // Verify transaction was successful
+      const { members: updatedStatuses } = await getSessionStatus(sessionId, session.members.map(m => m.address));
+      const updatedMember = updatedStatuses.find(
+        (m) => m.address.toLowerCase() === memberAddress.toLowerCase()
+      );
+
+      if (!updatedMember?.paid) {
+        throw new Error("Blockchain transaction verification failed");
+      }
+
+      res.json({
+        paid: true,
+        txHash,
+        amount: memberEntry.amount.toString(),
+        verified: true
+      });
     } catch (error) {
       next(error);
     }

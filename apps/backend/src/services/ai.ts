@@ -24,30 +24,9 @@ function microsToString(value: bigint): string {
 
 export async function parseReceipt(imageBase64: string, mimeType: string): Promise<ParsedReceipt> {
   const aiId = `ai-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-  
+
   if (!groq) {
-    console.warn(`[ai:${aiId}] Groq client not configured (GROQ_API_KEY missing), returning mock receipt`);
-    return {
-      items: [
-        { name: "Test Item", amount: "10.000000" },
-        { name: "Another Item", amount: "5.000000" }
-      ],
-      subtotal: "15.000000",
-      tax: "1.500000",
-      total: "16.500000",
-      currency: "cUSD"
-    };
-    return {
-      items: [
-        { name: "Pasta", amount: "14.000000" },
-        { name: "Soda", amount: "3.000000" },
-        { name: "Salad", amount: "8.000000" }
-      ],
-      subtotal: "25.000000",
-      tax: "2.000000",
-      total: "27.000000",
-      currency: "cUSD"
-    };
+    throw new ParseError("AI service not configured - GROQ_API_KEY environment variable is required");
   }
 
     console.info(`[ai:${aiId}] Starting Groq Vision parse: mimeType=${mimeType}, imageSize=${imageBase64.length}`);
@@ -88,20 +67,7 @@ export async function parseReceipt(imageBase64: string, mimeType: string): Promi
   
   const first = response.choices[0]?.message;
     if (!first || !first.content) {
-      console.error(`[ai:${aiId}] Groq response missing content (choices=${response.choices.length})`);
-
-      // Fallback to mock data if no response content
-      console.warn(`[ai:${aiId}] Falling back to mock receipt due to missing content`);
-      return {
-        items: [
-          { name: "Mock Item", amount: "10.000000" },
-          { name: "Another Item", amount: "5.000000" }
-        ],
-        subtotal: "15.000000",
-        tax: "1.500000",
-        total: "16.500000",
-        currency: "cUSD"
-      };
+      throw new ParseError(`Groq API returned empty response (choices=${response.choices.length})`);
     }
 
   console.debug(`[ai:${aiId}] Response content length: ${first.content.length}`);
@@ -119,19 +85,7 @@ export async function parseReceipt(imageBase64: string, mimeType: string): Promi
   } catch (jsonErr) {
     console.error(`[ai:${aiId}] ✗ Failed to parse Groq JSON response: ${jsonErr}`);
     console.debug(`[ai:${aiId}] Response content:\n${first.content.slice(0, 500)}...`);
-
-    // Fallback to mock data on JSON parsing failure
-    console.warn(`[ai:${aiId}] Falling back to mock receipt due to parsing error`);
-    return {
-      items: [
-        { name: "Fallback Item", amount: "10.000000" },
-        { name: "Another Item", amount: "5.000000" }
-      ],
-      subtotal: "15.000000",
-      tax: "1.500000",
-      total: "16.500000",
-      currency: "cUSD"
-    };
+    throw new ParseError(`Invalid JSON response from Groq API: ${jsonErr}`);
   }
 }
 

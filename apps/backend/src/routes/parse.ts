@@ -29,9 +29,9 @@ router.post("/", validateBody(schema), async (req, res, next) => {
   try {
     const imageSize = req.body.imageBase64.length;
     console.info(`[parse:${parseId}] Parsing receipt: mimeType=${req.body.mimeType}, imageSize=${imageSize}`);
-    
+
     const parsed = await parseReceipt(req.body.imageBase64, req.body.mimeType);
-    
+
     console.info(`[parse:${parseId}] ✓ Parse succeeded: ${parsed.items.length} items, total=$${parsed.total}`);
     res.json(parsed);
   } catch (error) {

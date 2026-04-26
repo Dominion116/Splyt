@@ -84,8 +84,8 @@ export default function DashboardNewSplitPage() {
     setSessionMessage(null);
     setTerminalLines([
       { tag: "[agent]", tagColor: "text-indigo-400", text: "Receipt image received" },
-      { tag: "[vision]", tagColor: "text-indigo-400", text: "Parsing receipt image..." },
-      { tag: "[agent]", tagColor: "text-indigo-400", text: "Validating JSON response..." }
+      { tag: "[vision]", tagColor: "text-indigo-400", text: "Connecting to AI service..." },
+      { tag: "[agent]", tagColor: "text-indigo-400", text: "Processing receipt data..." }
     ]);
 
     try {
@@ -101,7 +101,8 @@ export default function DashboardNewSplitPage() {
       window.clearTimeout(timeout);
 
       if (!response.ok) {
-        throw new Error(`Parse failed (${response.status})`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Parse failed (${response.status})`);
       }
 
       const parsed = (await response.json()) as ParsedReceipt;
@@ -109,14 +110,14 @@ export default function DashboardNewSplitPage() {
       setItemAssignments(parsed.items.map(() => 0));
       setTerminalLines([
         { tag: "[agent]", tagColor: "text-indigo-400", text: "Receipt image received" },
-        { tag: "[vision]", tagColor: "text-indigo-400", text: `Parsing ${parsed.items.length} line items...` },
+        { tag: "[vision]", tagColor: "text-indigo-400", text: `AI processed ${parsed.items.length} line items` },
         { tag: "[done ]", tagColor: "text-green-500", text: `Total: $${parsed.total}  Tax: $${parsed.tax}` }
       ]);
     } catch (err) {
       if (err instanceof Error && err.name === "AbortError") {
-        setError("Parse request timed out while waiting for payment/response. Please retry.");
+        setError("Parse request timed out. Please check your internet connection and try again.");
       } else {
-        setError(err instanceof Error ? err.message : "Unknown parse error");
+        setError(err instanceof Error ? err.message : "Failed to parse receipt. Please try again.");
       }
     } finally {
       setLoading(false);
