@@ -12,6 +12,11 @@ declare global {
   }
 }
 
+type WalletProvider = {
+  request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
+  isMiniPay?: boolean;
+};
+
 export const CONTRACT_ADDRESS = (process.env.NEXT_PUBLIC_CONTRACT_ADDRESS ?? "") as Address;
 
 const ABI = [
@@ -40,7 +45,7 @@ const ABI = [
   }
 ] as const;
 
-function getProvider() {
+function getProvider(): WalletProvider {
   if (typeof window === "undefined" || !window.ethereum?.request) {
     throw new Error("No wallet provider detected.");
   }
@@ -49,7 +54,7 @@ function getProvider() {
     throw new Error("NEXT_PUBLIC_CONTRACT_ADDRESS is not configured.");
   }
 
-  return window.ethereum;
+  return window.ethereum as WalletProvider;
 }
 
 export function toBytes32(sessionId: string): Hex {
