@@ -23,17 +23,7 @@ export const openApiDocument = swaggerJSDoc({
         bearerAuth: {
           type: "http",
           scheme: "bearer"
-        },
-        x402Proof: {
-          type: "apiKey",
-          in: "header",
-          name: "x-x402-proof"
         }
-      },
-      headers: {
-        X402Protocol: { schema: { type: "string" }, description: "x402 protocol name" },
-        X402Price: { schema: { type: "string" }, description: "Required payment amount" },
-        X402PayTo: { schema: { type: "string" }, description: "Pay-to wallet address" }
       },
       schemas: {
         ErrorResponse: {
@@ -61,19 +51,11 @@ export const openApiDocument = swaggerJSDoc({
         post: {
           tags: ["parse"],
           summary: "Parse receipt image",
-          description: "x402 gated parse endpoint",
+          description: "Parse a receipt image with Groq Vision and return normalized JSON.",
           operationId: "parseReceipt",
           responses: {
             "200": { description: "Parsed receipt", content: { "application/json": { schema: { $ref: "#/components/schemas/ParsedReceipt" } } } },
             "400": { description: "Invalid request", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
-            "402": {
-              description: "x402 payment required",
-              headers: {
-                "x402-protocol": { $ref: "#/components/headers/X402Protocol" },
-                "x402-price": { $ref: "#/components/headers/X402Price" },
-                "x402-pay-to": { $ref: "#/components/headers/X402PayTo" }
-              }
-            },
             "422": { description: "Parse failed", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
             "500": { description: "Server error", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } }
           }
