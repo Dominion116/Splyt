@@ -36,7 +36,7 @@ export async function parseReceipt(imageBase64: string, mimeType: string): Promi
 
     const response = await groq.chat.completions.create({
       model: GROQ_VISION_MODEL,
-      max_completion_tokens: 900,
+      max_tokens: 900,
       response_format: { type: "json_object" },
     messages: [
       {
