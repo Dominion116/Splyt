@@ -38,7 +38,7 @@ flowchart LR
 
 - `PaymentReceipt`: Transaction hash and on-chain confirmation.
 ## Security Considerations
-- Private key management: host key only in backend env/secret manager.
+- Private key management: host key only in backend env/secret manager, funded with CELO for gas.
 - On-chain replay protection: contract state prevents double-payments.
 - Session expiry enforcement: contract rejects payment updates after expiry.
 - Rate limiting on parse endpoint: protect expensive AI calls from abuse.
