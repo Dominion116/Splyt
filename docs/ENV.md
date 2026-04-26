@@ -3,15 +3,13 @@
 ## Frontend (apps/web/.env.local)
 NEXT_PUBLIC_BACKEND_URL=http://localhost:3001
 NEXT_PUBLIC_CELO_RPC_URL=https://forno.celo.org
-NEXT_PUBLIC_CONTRACT_ADDRESS=0xf97995E255aFDea78A9aE9ecCc7b48ACb291bBE5
+NEXT_PUBLIC_CONTRACT_ADDRESS=0x98f1ca98ba153080433678614F9182221BCdEEa6
 NEXT_PUBLIC_CUSD_ADDRESS=0x765de816845861e75a25fca122bb6898b8b1282a
 
 ## Backend (apps/backend/.env)
 PORT=3001
 GROQ_API_KEY=                      # console.groq.com -> API Keys
-HOST_WALLET_ADDRESS=               # your Celo wallet address
-HOST_WALLET_PRIVATE_KEY=           # 64 hex chars, with or without 0x prefix. NEVER commit this
-SPLYT_SESSION_CONTRACT=0xf97995E255aFDea78A9aE9ecCc7b48ACb291bBE5
+SPLYT_SESSION_CONTRACT=0x98f1ca98ba153080433678614F9182221BCdEEa6
 CELO_RPC_URL=https://forno.celo.org
 MONGODB_URI=                       # MongoDB Atlas connection string
 MONGODB_DB_NAME=splyt             # optional, defaults to splyt
@@ -19,7 +17,6 @@ REDIS_URL=redis://localhost:6379   # optional
 
 ## Contracts (contracts/.env)
 PRIVATE_KEY=                       # deployer wallet key
-HOST_WALLET_ADDRESS=               # host wallet address used by the backend
 CELOSCAN_API_KEY=                  # celoscan.io -> API Keys
 
 ## Tech Reference Table
