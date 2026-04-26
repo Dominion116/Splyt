@@ -136,7 +136,7 @@ export default function LandingPage() {
       <section className="mx-auto max-w-5xl px-6 pb-24">
         <h2 className="mb-6 font-medium">Built with the right tools</h2>
         <div className="flex flex-wrap gap-2">
-          {["Celo L2", "Direct Payments", "MiniPay", "Claude AI", "Solidity", "Next.js"].map((t) => (
+          {["Celo L2", "Direct Payments", "MiniPay", "Groq AI", "Solidity", "Next.js"].map((t) => (
             <Badge key={t} className="rounded-md bg-zinc-800 px-3 py-1.5 font-mono text-xs text-zinc-300">
               {t}
             </Badge>
