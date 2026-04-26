@@ -5,6 +5,8 @@ export type SplitMode = "equal" | "itemised" | "custom";
 export interface ParsedReceiptItem {
   name: string;
   amount: string;
+  quantity?: number;
+  unitPrice?: string;
 }
 
 export interface ParsedReceipt {
