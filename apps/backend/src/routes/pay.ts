@@ -1,6 +1,8 @@
 import { Router } from "express";
 import type { Address } from "viem";
-import { markMemberPaid, getSessionStatus } from "../services/contract.js";
+import { z } from "zod";
+import { getSessionStatus, waitForTransactionReceipt } from "../services/contract.js";
+import { validateBody } from "../middleware/validate.js";
 import { getSession, markPaidLocally } from "../services/db.js";
 
 const router = Router();
@@ -8,6 +10,10 @@ const router = Router();
 function asAddressArray(addresses: string[]): Address[] {
   return addresses as Address[];
 }
+
+const confirmSchema = z.object({
+  txHash: z.string().regex(/^0x[a-fA-F0-9]{64}$/)
+});
 
 /**
  * @openapi
@@ -93,55 +99,60 @@ router.get(
   "/:sessionId/:memberAddress",
   async (req, res, next) => {
     try {
-      const { sessionId, memberAddress } = req.params;
-
-      const session = await getSession(sessionId);
-      if (!session) {
-        res.status(404).json({ error: "NotFound", message: "Session not found", statusCode: 404 });
-        return;
-      }
-
-      const memberEntry = session.members.find(
-        (m) => m.address.toLowerCase() === memberAddress.toLowerCase()
-      );
-      if (!memberEntry) {
-        res.status(404).json({ error: "NotFound", message: "Member not found", statusCode: 404 });
-        return;
-      }
-      if (memberEntry.paid) {
-        res.status(409).json({ error: "AlreadyPaid", message: "Member already paid", statusCode: 409 });
-        return;
-      }
-
-      // Real-time contract interaction - no mock transactions
-      const txHash = await markMemberPaid(sessionId, memberAddress as `0x${string}`);
-
-      // Update local state after successful blockchain transaction
-      await markPaidLocally(sessionId, memberAddress, txHash);
-
-      // Verify transaction was successful
-      const { members: updatedStatuses } = await getSessionStatus(
-        sessionId,
-        asAddressArray(session.members.map((m) => m.address))
-      );
-      const updatedMember = updatedStatuses.find(
-        (m) => m.address.toLowerCase() === memberAddress.toLowerCase()
-      );
-
-      if (!updatedMember?.paid) {
-        throw new Error("Blockchain transaction verification failed");
-      }
-
-      res.json({
-        paid: true,
-        txHash,
-        amount: memberEntry.amount.toString(),
-        verified: true
+      res.status(410).json({
+        error: "DeprecatedEndpoint",
+        message: "Members must now sign the payment transaction from their own wallet, then call /confirm.",
+        statusCode: 410
       });
     } catch (error) {
       next(error);
     }
   }
 );
+
+router.post("/:sessionId/:memberAddress/confirm", validateBody(confirmSchema), async (req, res, next) => {
+  try {
+    const { sessionId, memberAddress } = req.params;
+    const session = await getSession(sessionId);
+    if (!session) {
+      res.status(404).json({ error: "NotFound", message: "Session not found", statusCode: 404 });
+      return;
+    }
+
+    const memberEntry = session.members.find((m) => m.address.toLowerCase() === memberAddress.toLowerCase());
+    if (!memberEntry) {
+      res.status(404).json({ error: "NotFound", message: "Member not found", statusCode: 404 });
+      return;
+    }
+
+    await waitForTransactionReceipt(req.body.txHash as `0x${string}`);
+
+    const { members: updatedStatuses } = await getSessionStatus(
+      sessionId,
+      asAddressArray(session.members.map((m) => m.address))
+    );
+    const updatedMember = updatedStatuses.find((m) => m.address.toLowerCase() === memberAddress.toLowerCase());
+
+    if (!updatedMember?.paid) {
+      res.status(400).json({
+        error: "PaymentNotConfirmed",
+        message: "The member payment transaction is not confirmed on-chain yet.",
+        statusCode: 400
+      });
+      return;
+    }
+
+    await markPaidLocally(sessionId, memberAddress, req.body.txHash);
+
+    res.json({
+      paid: true,
+      txHash: req.body.txHash,
+      amount: memberEntry.amount.toString(),
+      verified: true
+    });
+  } catch (error) {
+    next(error);
+  }
+});
 
 export default router;
