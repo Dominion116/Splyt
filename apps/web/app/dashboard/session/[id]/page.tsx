@@ -2,7 +2,7 @@
 
 import { use } from "react";
 import { useEffect, useMemo, useState } from "react";
-import { ClipboardCopy, Play } from "lucide-react";
+import { ClipboardCopy, Link2, Play } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
@@ -12,6 +12,7 @@ import { TerminalLog, type TerminalLine } from "@/components/dashboard/terminal-
 import { formatUsdcPrecise, truncateAddress } from "@/lib/dashboard";
 
 type MemberStatus = { address: string; paid: boolean; amountDue: string; paidAt?: number | null };
+type SessionRecord = { id: string; members: Array<{ address: string; amount: string; paid: boolean; paidAt: number | null }> };
 
 export default function DashboardSessionPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -20,9 +21,11 @@ export default function DashboardSessionPage({ params }: { params: Promise<{ id:
   const [logLines, setLogLines] = useState<TerminalLine[]>([{ tag: "[chain]", tagColor: "text-indigo-400", text: "Waiting for payment updates..." }]);
   const [streamOpen, setStreamOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sessionRecord, setSessionRecord] = useState<SessionRecord | null>(null);
 
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:3001";
   const { id: sessionId } = use(params);
+  const appOrigin = typeof window !== "undefined" ? window.location.origin : "";
 
   useEffect(() => {
     let source: EventSource | null = null;
@@ -34,6 +37,8 @@ export default function DashboardSessionPage({ params }: { params: Promise<{ id:
           const errorData = await response.json().catch(() => ({}));
           throw new Error(errorData.message || `Session lookup failed (${response.status})`);
         }
+        const sessionData = (await response.json()) as SessionRecord;
+        setSessionRecord(sessionData);
 
         setError(null);
         source = new EventSource(`${backendUrl}/api/status/${sessionId}`);
@@ -43,6 +48,24 @@ export default function DashboardSessionPage({ params }: { params: Promise<{ id:
           const data = JSON.parse(event.data) as { members: MemberStatus[]; allPaid: boolean };
           setMembers(data.members);
           setAllPaid(data.allPaid);
+          setSessionRecord((current) =>
+            current
+              ? {
+                  ...current,
+                  members: current.members.map((entry) => {
+                    const liveMember = data.members.find((member) => member.address.toLowerCase() === entry.address.toLowerCase());
+                    return liveMember
+                      ? {
+                          ...entry,
+                          amount: liveMember.amountDue,
+                          paid: liveMember.paid,
+                          paidAt: liveMember.paidAt ?? null
+                        }
+                      : entry;
+                  })
+                }
+              : current
+          );
           setLogLines((current) => [...current, { tag: data.allPaid ? "[done ]" : "[wait ]", tagColor: data.allPaid ? "text-green-500" : "text-amber-500", text: `${data.members.filter((member) => member.paid).length}/${data.members.length} members paid` }]);
           if (data.allPaid) {
             source?.close();
@@ -119,8 +142,34 @@ export default function DashboardSessionPage({ params }: { params: Promise<{ id:
         {allPaid ? <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-sm text-zinc-100">Session settled. All payments confirmed on Celo.</div> : null}
       </section>
 
+      {sessionRecord?.members?.length ? (
+        <section className="space-y-2 rounded-lg border border-zinc-800 bg-zinc-900 p-3">
+          <div className="flex items-center justify-between border-b border-zinc-800 pb-2">
+            <div className="font-medium text-zinc-100">Member payment links</div>
+            <div className="font-mono text-[10px] uppercase tracking-widest text-zinc-500">share</div>
+          </div>
+          <div className="space-y-2 pt-1">
+            {sessionRecord.members.map((member) => {
+              const payLink = `${appOrigin}/split/${sessionId}/pay/${member.address}`;
+              return (
+                <div key={member.address} className="flex items-center justify-between gap-3 rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+                  <div className="min-w-0 space-y-1">
+                    <div className="truncate font-mono text-[10px] text-zinc-400">{member.address}</div>
+                    <div className="font-mono text-xs text-zinc-100">${formatUsdcPrecise(member.amount)}</div>
+                  </div>
+                  <Button type="button" variant="outline" size="sm" onClick={() => navigator.clipboard.writeText(payLink)}>
+                    <Link2 className="mr-2 h-4 w-4" />
+                    copy pay link
+                  </Button>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      ) : null}
+
       <section className="grid grid-cols-2 gap-2">
-        <Button type="button" className="bg-indigo-600 font-mono text-sm hover:bg-indigo-500" onClick={async () => navigator.clipboard.writeText(`${window.location.origin}/dashboard/session/${sessionId}`)}>
+        <Button type="button" className="bg-indigo-600 font-mono text-sm hover:bg-indigo-500" onClick={async () => navigator.clipboard.writeText(`${appOrigin}/dashboard/session/${sessionId}`)}>
           <ClipboardCopy className="mr-2 h-4 w-4" /> share link
         </Button>
         <Button type="button" variant="outline" className="border-zinc-700 font-mono text-sm" onClick={() => router.push("/dashboard/new")}>
