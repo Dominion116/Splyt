@@ -11,10 +11,12 @@
     "test": "echo \"No tests configured\""
   },
   "dependencies": {
-    "groq-sdk": "^0.6.1",
+    "clarityxo-sdk": "^0.2.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "groq-sdk": "^0.6.1",
+    "hashbet-sdk": "^0.2.2",
     "mongodb": "^7.2.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",

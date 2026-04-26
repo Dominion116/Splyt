@@ -2,8 +2,6 @@
 
 import { ChangeEvent, useMemo, useState } from "react";
 import { ArrowRight, Camera, Loader2, Plus } from "lucide-react";
-import { createThirdwebClient } from "thirdweb";
-import { useFetchWithPayment } from "thirdweb/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TerminalLog, type TerminalLine } from "@/components/dashboard/terminal-log";
@@ -44,8 +42,6 @@ export default function DashboardNewSplitPage() {
   const [error, setError] = useState<string | null>(null);
   const [sessionMessage, setSessionMessage] = useState<string | null>(null);
 
-  const thirdwebClient = useMemo(() => createThirdwebClient({ clientId: process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID ?? "demo-client-id" }), []);
-  const { fetchWithPayment } = useFetchWithPayment(thirdwebClient);
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:3001";
   const receiptMicros = parsedReceipt ? BigInt(Math.round(Number(parsedReceipt.total) * 1_000_000)) : 0n;
 
@@ -96,18 +92,15 @@ export default function DashboardNewSplitPage() {
       const imageBase64 = await fileToBase64(file);
       const controller = new AbortController();
       const timeout = window.setTimeout(() => controller.abort(), 90_000);
-      const response = (await fetchWithPayment(`${backendUrl}/api/parse`, {
+      const response = await fetch(`${backendUrl}/api/parse`, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ imageBase64, mimeType: file.type || "image/jpeg" }),
         signal: controller.signal
-      })) as Response;
+      });
       window.clearTimeout(timeout);
 
       if (!response.ok) {
-        if (response.status === 402) {
-          throw new Error("Payment proof was not completed. Connect wallet and approve the x402 prompt, then retry.");
-        }
         throw new Error(`Parse failed (${response.status})`);
       }
 
@@ -183,7 +176,7 @@ export default function DashboardNewSplitPage() {
         <div className="rounded-xl border border-dashed border-zinc-700 p-8 text-center hover:border-indigo-500">
           <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-md bg-zinc-800"><Camera size={24} className="text-zinc-600" strokeWidth={1.8} /></div>
           <div className="text-sm text-zinc-100">Upload receipt</div>
-          <div className="mt-1 font-mono text-[10px] uppercase tracking-widest text-zinc-600">$0.01 cUSD via x402</div>
+          <div className="mt-1 font-mono text-[10px] uppercase tracking-widest text-zinc-600">Free receipt parsing</div>
           <div className="mt-4"><Input type="file" accept="image/*" capture="environment" onChange={onFileSelect} /></div>
         </div>
 

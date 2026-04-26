@@ -15,7 +15,6 @@ const port = Number(process.env.PORT ?? "3001");
 // Startup env checks — log warnings early so Render logs make issues obvious.
 // ---------------------------------------------------------------------------
 const requiredEnvVars = [
-  "THIRDWEB_SECRET_KEY",
   "ANTHROPIC_API_KEY",
   "HOST_WALLET_ADDRESS",
   "HOST_WALLET_PRIVATE_KEY",

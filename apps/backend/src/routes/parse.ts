@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { z } from "zod";
-import { x402Gate } from "../middleware/x402gate.js";
 import { validateBody } from "../middleware/validate.js";
 import { ParseError, parseReceipt } from "../services/ai.js";
 
@@ -17,17 +16,15 @@ const schema = z.object({
  *   post:
  *     tags: [parse]
  *     summary: Parse receipt image
- *     description: x402-gated receipt parsing with Groq Vision.
+ *     description: Direct receipt parsing with Groq Vision (no payment required).
  *     operationId: parseReceipt
  *     responses:
  *       200:
  *         description: Parsed receipt
- *       402:
- *         description: x402 payment required
  *       422:
  *         description: Parse failed
  */
-router.post("/", x402Gate("$0.01"), validateBody(schema), async (req, res, next) => {
+router.post("/", validateBody(schema), async (req, res, next) => {
   const parseId = `parse-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
   try {
     const imageSize = req.body.imageBase64.length;
