@@ -17,7 +17,9 @@ type WalletProvider = {
   isMiniPay?: boolean;
 };
 
-export const CONTRACT_ADDRESS = (process.env.NEXT_PUBLIC_CONTRACT_ADDRESS ?? "") as Address;
+export const CONTRACT_ADDRESS = (
+  process.env.NEXT_PUBLIC_CONTRACT_ADDRESS ?? "0x98f1ca98ba153080433678614F9182221BCdEEa6"
+) as Address;
 
 const ABI = [
   {
@@ -48,10 +50,6 @@ const ABI = [
 function getProvider(): WalletProvider {
   if (typeof window === "undefined" || !window.ethereum?.request) {
     throw new Error("No wallet provider detected.");
-  }
-
-  if (!CONTRACT_ADDRESS) {
-    throw new Error("NEXT_PUBLIC_CONTRACT_ADDRESS is not configured.");
   }
 
   return window.ethereum as WalletProvider;

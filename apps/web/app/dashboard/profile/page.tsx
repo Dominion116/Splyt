@@ -5,6 +5,7 @@ import { LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DashboardBadge } from "@/components/dashboard/badge";
 import { truncateAddress, formatUsdc } from "@/lib/dashboard";
+import { CONTRACT_ADDRESS } from "@/lib/celo-contract";
 import { getCUSDBalance } from "@/lib/minipay";
 import { useDashboardWallet } from "@/components/dashboard/use-wallet";
 import { useRouter } from "next/navigation";
@@ -17,7 +18,7 @@ export default function DashboardProfilePage() {
   const [balance, setBalance] = useState(0n);
   const [defaultMode, setDefaultMode] = useState<SettingMode>("equal");
   const [expiry, setExpiry] = useState("6h");
-  const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
+  const contractAddress = CONTRACT_ADDRESS;
 
   useEffect(() => {
     const storedMode = window.localStorage.getItem("splyt.defaultSplitMode") as SettingMode | null;
