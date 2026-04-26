@@ -3,6 +3,8 @@ import { ParsedReceipt, SplitMode } from "./db.js";
 
 export class ParseError extends Error {}
 
+const GROQ_VISION_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct";
+
 const groq = process.env.GROQ_API_KEY
   ? new Groq({ apiKey: process.env.GROQ_API_KEY })
   : null;
@@ -33,12 +35,13 @@ export async function parseReceipt(imageBase64: string, mimeType: string): Promi
     const startTime = Date.now();
 
     const response = await groq.chat.completions.create({
-      model: "llama-3.2-90b-vision-preview",
-      max_tokens: 900,
+      model: GROQ_VISION_MODEL,
+      max_completion_tokens: 900,
+      response_format: { type: "json_object" },
     messages: [
       {
         role: "system",
-        content: "You are a receipt parser. Return ONLY valid JSON, no markdown."
+        content: "You are a receipt parser. Return only a valid JSON object matching the requested schema."
       },
       {
         role: "user",
