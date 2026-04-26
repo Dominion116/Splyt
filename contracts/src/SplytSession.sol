@@ -31,6 +31,7 @@ contract SplytSession {
     error MemberNotFound();
     error AlreadyPaid();
     error NotHost();
+    error NotMember();
 
     /// @notice Creates a split session and stores due amounts for each member.
     /// @param id Unique session identifier.
@@ -75,9 +76,10 @@ contract SplytSession {
     /// @param member Member wallet address to mark as paid.
     function markPaid(bytes32 sessionId, address member) external {
         Session storage session = sessions[sessionId];
-        _ensureHost(session);
+        if (session.id == bytes32(0)) revert SessionNotFound();
         if (block.timestamp > session.expiresAt) revert SessionExpired();
         if (!session.active) revert SessionInactive();
+        if (msg.sender != member) revert NotMember();
 
         uint256 idx = memberIndex[sessionId][member];
         if (idx == 0) revert MemberNotFound();
