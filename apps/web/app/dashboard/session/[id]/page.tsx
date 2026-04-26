@@ -11,7 +11,7 @@ import { DashboardBadge } from "@/components/dashboard/badge";
 import { TerminalLog, type TerminalLine } from "@/components/dashboard/terminal-log";
 import { formatUsdcPrecise, truncateAddress } from "@/lib/dashboard";
 
-type MemberStatus = { address: string; paid: boolean; amountDue: bigint };
+type MemberStatus = { address: string; paid: boolean; amountDue: string; paidAt?: number | null };
 
 export default function DashboardSessionPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -73,8 +73,8 @@ export default function DashboardSessionPage({ params }: { params: Promise<{ id:
     return (members.filter((member) => member.paid).length / members.length) * 100;
   }, [members]);
 
-  const collectedMicros = members.reduce((sum, member) => sum + (member.paid ? member.amountDue : 0n), 0n);
-  const pendingMicros = members.reduce((sum, member) => sum + (member.paid ? 0n : member.amountDue), 0n);
+  const collectedMicros = members.reduce((sum, member) => sum + (member.paid ? BigInt(member.amountDue) : 0n), 0n);
+  const pendingMicros = members.reduce((sum, member) => sum + (member.paid ? 0n : BigInt(member.amountDue)), 0n);
 
   return (
     <div className="space-y-4">

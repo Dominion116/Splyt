@@ -51,6 +51,7 @@ router.get("/:sessionId", async (req, res) => {
     send({
       members: status.members.map((m) => ({
         address: m.address,
+        amountDue: m.amountDue.toString(),
         paid: m.paid,
         paidAt: latestSession.members.find((mem) => mem.address.toLowerCase() === m.address.toLowerCase())?.paidAt ?? null
       })),
