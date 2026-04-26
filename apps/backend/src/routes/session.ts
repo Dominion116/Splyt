@@ -3,7 +3,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { validateBody } from "../middleware/validate.js";
 import { computeSplit } from "../services/ai.js";
-import { createSessionOnChain, getSessionStatus } from "../services/contract.js";
+import { getSessionStatus, sessionExists, waitForTransactionReceipt } from "../services/contract.js";
 import { ParsedReceipt, putSession, getSession, listSessions, serializeSession } from "../services/db.js";
 
 const router = Router();
@@ -11,6 +11,9 @@ const router = Router();
 const addressSchema = z.string().regex(/^0x[a-fA-F0-9]{40}$/);
 
 const createSchema = z.object({
+  sessionId: z.string().min(1).optional(),
+  host: addressSchema,
+  txHash: z.string().regex(/^0x[a-fA-F0-9]{64}$/).optional(),
   members: z.array(addressSchema).min(1),
   amounts: z.array(z.string().regex(/^\d+$/)).min(1),
   mode: z.enum(["equal", "itemised", "custom"]),
@@ -74,19 +77,42 @@ router.post("/", validateBody(createSchema), async (req, res, next) => {
       return;
     }
 
-    const id = randomUUID();
+    const id = req.body.sessionId ?? randomUUID();
     const expiresInMinutes = req.body.expiresInMinutes ?? 60;
     const expiresAt = Date.now() + expiresInMinutes * 60 * 1000;
     const receipt = req.body.receipt as ParsedReceipt;
     const amountInputs = req.body.amounts.map((v: string) => BigInt(v));
     const splits = computeSplit(receipt, req.body.members, req.body.mode, amountInputs);
     const amounts = req.body.members.map((m: string) => splits.get(m) ?? 0n);
-    const txHash = await createSessionOnChain(id, req.body.members, amounts, Math.floor(expiresAt / 1000));
+
+    const existing = await getSession(id);
+    if (existing) {
+      res.status(409).json({
+        error: "SessionExists",
+        message: "A session with this id is already stored.",
+        statusCode: 409
+      });
+      return;
+    }
+
+    if (req.body.txHash) {
+      await waitForTransactionReceipt(req.body.txHash as `0x${string}`);
+    }
+
+    const existsOnChain = await sessionExists(id, req.body.members as `0x${string}`[]);
+    if (!existsOnChain) {
+      res.status(400).json({
+        error: "SessionNotOnChain",
+        message: "The wallet transaction was not found on-chain for this session.",
+        statusCode: 400
+      });
+      return;
+    }
 
     const session = await putSession({
       id,
       createdAt: Date.now(),
-      host: process.env.HOST_WALLET_ADDRESS ?? "0x0000000000000000000000000000000000000000",
+      host: req.body.host,
       total: amounts.reduce((sum: bigint, current: bigint) => sum + current, 0n),
       members: req.body.members.map((address: string, i: number) => ({
         address,
@@ -96,7 +122,7 @@ router.post("/", validateBody(createSchema), async (req, res, next) => {
       expiresAt,
       mode: req.body.mode,
       receipt,
-      txHash
+      txHash: req.body.txHash
     });
 
     const paymentLinks = Object.fromEntries(
