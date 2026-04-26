@@ -1,8 +1,7 @@
-import { Address, Hash, Hex, createPublicClient, createWalletClient, http, parseEther } from "viem";
+import { Address, Hash, Hex, createPublicClient, createWalletClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { celo } from "viem/chains";
 
-const USDC_ADAPTER = "0x2F25deB3848C207fc8E0c34035B3Ba7fC157602B" as Address;
 const RPC_URL = process.env.CELO_RPC_URL ?? "https://forno.celo.org";
 const CONTRACT_ADDRESS = (process.env.SPLYT_SESSION_CONTRACT ?? "0x0000000000000000000000000000000000000000") as Address;
 
@@ -106,11 +105,7 @@ export async function createSessionOnChain(
     functionName: "createSession",
     args: [toBytes32(sessionId), members, amounts, total, BigInt(expiresAt)],
     chain: celo,
-    account,
-    kzg: undefined,
-    // feeCurrency adapter enables paying fees in USDC-like token on Celo.
-    fees: { gasPrice: parseEther("0.000000001"), maxFeePerGas: undefined, maxPriorityFeePerGas: undefined },
-    feeCurrency: USDC_ADAPTER
+    account
   });
   await publicClient.waitForTransactionReceipt({ hash });
   return hash;
@@ -124,8 +119,7 @@ export async function markMemberPaid(sessionId: string, memberAddress: Address):
     functionName: "markPaid",
     args: [toBytes32(sessionId), memberAddress],
     chain: celo,
-    account,
-    feeCurrency: USDC_ADAPTER
+    account
   });
   await publicClient.waitForTransactionReceipt({ hash });
   return hash;
