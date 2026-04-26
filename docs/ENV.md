@@ -1,7 +1,6 @@
 # Environment Variables
 
 ## Frontend (apps/web/.env.local)
-NEXT_PUBLIC_THIRDWEB_CLIENT_ID=     # thirdweb dashboard -> Projects
 NEXT_PUBLIC_BACKEND_URL=http://localhost:3001
 NEXT_PUBLIC_CELO_RPC_URL=https://forno.celo.org
 NEXT_PUBLIC_CONTRACT_ADDRESS=0xf97995E255aFDea78A9aE9ecCc7b48ACb291bBE5
@@ -9,7 +8,6 @@ NEXT_PUBLIC_CUSD_ADDRESS=0x765de816845861e75a25fca122bb6898b8b1282a
 
 ## Backend (apps/backend/.env)
 PORT=3001
-THIRDWEB_SECRET_KEY=               # thirdweb dashboard -> Secret Keys
 GROQ_API_KEY=                      # console.groq.com -> API Keys
 HOST_WALLET_ADDRESS=               # your Celo wallet address
 HOST_WALLET_PRIVATE_KEY=           # NEVER commit this
@@ -37,7 +35,5 @@ CELOSCAN_API_KEY=                  # celoscan.io -> API Keys
 | USDT address (mainnet) | 0x48065fbbe25f71c9282ddf5e1cd6d6a887483d5e |
 | USDT adapter (mainnet) | 0x0e2a3e05bc9a16f5292a6170456a710cb89c6f72 |
 | Celoscan explorer | https://celoscan.io |
-| thirdweb x402 docs | https://portal.thirdweb.com/x402 |
-| x402 protocol | https://x402.org |
 | MiniPay SDK | https://docs.celo.org/build-on-celo/build-with-ai/agent-skills |
 | Celo Composer | https://github.com/celo-org/celo-composer |
