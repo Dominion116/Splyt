@@ -15,7 +15,14 @@ const createSchema = z.object({
   amounts: z.array(z.string().regex(/^\d+$/)).min(1),
   mode: z.enum(["equal", "itemised", "custom"]),
   receipt: z.object({
-    items: z.array(z.object({ name: z.string(), amount: z.string() })),
+    items: z.array(
+      z.object({
+        name: z.string(),
+        amount: z.string(),
+        quantity: z.number().int().positive().optional(),
+        unitPrice: z.string().optional()
+      })
+    ),
     subtotal: z.string(),
     tax: z.string(),
     total: z.string(),
@@ -58,6 +65,15 @@ router.get("/", async (req, res, next) => {
  */
 router.post("/", validateBody(createSchema), async (req, res, next) => {
   try {
+    if (req.body.amounts.length !== req.body.members.length) {
+      res.status(400).json({
+        error: "InvalidSplit",
+        message: "The number of amounts must match the number of members.",
+        statusCode: 400
+      });
+      return;
+    }
+
     const id = randomUUID();
     const expiresInMinutes = req.body.expiresInMinutes ?? 60;
     const expiresAt = Date.now() + expiresInMinutes * 60 * 1000;
