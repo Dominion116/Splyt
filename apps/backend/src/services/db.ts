@@ -34,6 +34,13 @@ export interface SessionRecord {
   txHash?: string;
 }
 
+const REQUIRED_ENV_VARS = [
+  "HOST_WALLET_PRIVATE_KEY",
+  "HOST_WALLET_ADDRESS",
+  "SPLYT_SESSION_CONTRACT",
+  "MONGODB_URI"
+] as const;
+
 interface StoredSessionMember {
   address: string;
   amount: string;
@@ -77,6 +84,17 @@ function fromStoredSession(session: StoredSessionRecord): SessionRecord {
 
 async function getSessionsCollection() {
   return getCollection<StoredSessionRecord>("sessions");
+}
+
+export function validateEnvironment(): void {
+  const missing = REQUIRED_ENV_VARS.filter((name) => {
+    const value = process.env[name];
+    return !value || !value.trim();
+  });
+
+  if (missing.length > 0) {
+    throw new Error(`Missing required environment variables: ${missing.join(", ")}`);
+  }
 }
 
 export async function listSessions(host?: string): Promise<SessionRecord[]> {
