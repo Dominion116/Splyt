@@ -84,24 +84,24 @@ contract SplytSessionTest is Test {
 
     function test_MarkPaid_success() public {
         _deployAndCreate();
-        vm.prank(host);
+        vm.prank(alice);
         splyt.markPaid(sessionId, alice);
         (, bool paid) = splyt.getMemberStatus(sessionId, alice);
         assertTrue(paid);
     }
 
-    function test_MarkPaid_revertsNotHost() public {
+    function test_MarkPaid_revertsNotMember() public {
         _deployAndCreate();
-        vm.expectRevert(SplytSession.NotHost.selector);
+        vm.expectRevert(SplytSession.NotMember.selector);
         splyt.markPaid(sessionId, alice);
     }
 
     function test_MarkPaid_revertsAlreadyPaid() public {
         _deployAndCreate();
-        vm.prank(host);
+        vm.prank(alice);
         splyt.markPaid(sessionId, alice);
         vm.expectRevert(SplytSession.AlreadyPaid.selector);
-        vm.prank(host);
+        vm.prank(alice);
         splyt.markPaid(sessionId, alice);
     }
 
@@ -109,15 +109,15 @@ contract SplytSessionTest is Test {
         _deployAndCreate();
         vm.warp(block.timestamp + 2 hours);
         vm.expectRevert(SplytSession.SessionExpired.selector);
-        vm.prank(host);
+        vm.prank(alice);
         splyt.markPaid(sessionId, alice);
     }
 
     function test_AllPaid_returnsTrueWhenAllPaid() public {
         _deployAndCreate();
-        vm.prank(host);
+        vm.prank(alice);
         splyt.markPaid(sessionId, alice);
-        vm.prank(host);
+        vm.prank(bob);
         splyt.markPaid(sessionId, bob);
         assertTrue(splyt.allPaid(sessionId));
     }
