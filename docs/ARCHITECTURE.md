@@ -26,10 +26,10 @@ flowchart LR
 ## Direct Payment Flow
 
 1. Client calls payment endpoints directly.
-2. Server returns `402` plus challenge headers.
-3. Client signs/submits payment proof.
-4. Frontend handles wallet signing and transaction submission.
-5. Server settles and processes request.
+2. Backend returns the amount due for a member.
+3. Frontend submits the on-chain payment transaction.
+4. Backend verifies settlement against the contract.
+5. Host receives status updates over SSE.
 
 ## Data Flow
 - `ParsedReceipt`: normalized receipt totals and line items.
