@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
 type ParsedReceipt = {
-  items: Array<{ name: string; amount: string }>;
+  items: Array<{ name: string; amount: string; quantity?: number; unitPrice?: string }>;
   subtotal: string;
   tax: string;
   total: string;
