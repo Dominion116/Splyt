@@ -48,13 +48,13 @@ Frontend and backend are deployed separately.
 - Host: Vercel or any Next.js-capable platform.
 - Build command: `npm run build -w apps/web`
 - Start command: `npm run start -w apps/web`
-- Required env vars: `NEXT_PUBLIC_BACKEND_URL`, `NEXT_PUBLIC_CELO_RPC_URL`, `NEXT_PUBLIC_THIRDWEB_CLIENT_ID`, `NEXT_PUBLIC_CONTRACT_ADDRESS`, `NEXT_PUBLIC_CUSD_ADDRESS`.
+- Required env vars: `NEXT_PUBLIC_BACKEND_URL`, `NEXT_PUBLIC_CELO_RPC_URL`, `NEXT_PUBLIC_CONTRACT_ADDRESS`, `NEXT_PUBLIC_CUSD_ADDRESS`.
 
 ### Backend
 - Host: Render, Fly.io, Railway, or a small Node VM/container.
 - Build command: `npm run build -w apps/backend`
 - Start command: `npm run start -w apps/backend`
-- Required env vars: `PORT`, `THIRDWEB_SECRET_KEY`, `ANTHROPIC_API_KEY`, `HOST_WALLET_ADDRESS`, `HOST_WALLET_PRIVATE_KEY`, `SPLYT_SESSION_CONTRACT`, `CELO_RPC_URL`.
+- Required env vars: `PORT`, `GROQ_API_KEY`, `HOST_WALLET_ADDRESS`, `HOST_WALLET_PRIVATE_KEY`, `SPLYT_SESSION_CONTRACT`, `CELO_RPC_URL`, `MONGODB_URI`.
 
 ### Contracts
 - Deploy the Solidity contract with Foundry.

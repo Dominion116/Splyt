@@ -9,8 +9,10 @@
     "lint": "echo \"No linter configured\""
   },
   "dependencies": {
+    "clarityxo-sdk": "^0.2.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "hashbet-sdk": "^0.2.2",
     "lucide-react": "^1.8.0",
     "next": "^16.2.4",
     "react": "^19.2.5",

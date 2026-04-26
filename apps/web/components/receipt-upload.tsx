@@ -20,8 +20,6 @@ export function ReceiptUpload({ onParsed }: { onParsed?: (receipt: ParsedReceipt
   const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
 
-  const fetchWithPayment = (url: string, init?: RequestInit) => fetch(url, init);
-
   const terminalText = useMemo(() => {
     if (!loading) return null;
     return ["[agent] Sending to agent...", "[vision] Parsing receipt image...", "[agent] Validating JSON response..."];
@@ -42,7 +40,7 @@ export function ReceiptUpload({ onParsed }: { onParsed?: (receipt: ParsedReceipt
     setError(null);
     try {
       const imageBase64 = await fileToBase64(file);
-      const res = await fetchWithPayment(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/parse`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/parse`, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ imageBase64, mimeType: file.type || "image/jpeg" })
