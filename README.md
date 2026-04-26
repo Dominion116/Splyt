@@ -16,7 +16,7 @@ Splyt is a MiniPay-first app that also works in regular browser wallets, turning
 | Smart Contracts | Solidity 0.8.24, Foundry | Deterministic settlement state |
 | Payments | Direct contract calls | On-chain settlement |
 | AI | Reliable receipt extraction |
-| Chain | Celo L2 + viem | Low fees and fee abstraction |
+| Chain | Celo L2 + viem | Low fees and simple on-chain settlement |
 
 ## Quick Start
 ### Prerequisites
