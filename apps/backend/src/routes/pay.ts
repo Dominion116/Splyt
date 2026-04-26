@@ -11,6 +11,11 @@ function asAddressArray(addresses: string[]): Address[] {
   return addresses as Address[];
 }
 
+function asParam(value: string | string[] | undefined, name: string): string {
+  if (typeof value === "string") return value;
+  throw new Error(`Missing or invalid route parameter: ${name}`);
+}
+
 const confirmSchema = z.object({
   txHash: z.string().regex(/^0x[a-fA-F0-9]{64}$/)
 });
@@ -32,7 +37,8 @@ const confirmSchema = z.object({
  *         description: Already paid
  */
 router.get("/:sessionId/:memberAddress/price", async (req, res) => {
-  const { sessionId, memberAddress } = req.params;
+  const sessionId = asParam(req.params.sessionId, "sessionId");
+  const memberAddress = asParam(req.params.memberAddress, "memberAddress");
 
   // Fetch real-time session data from database
   const session = await getSession(sessionId);
@@ -112,7 +118,8 @@ router.get(
 
 router.post("/:sessionId/:memberAddress/confirm", validateBody(confirmSchema), async (req, res, next) => {
   try {
-    const { sessionId, memberAddress } = req.params;
+    const sessionId = asParam(req.params.sessionId, "sessionId");
+    const memberAddress = asParam(req.params.memberAddress, "memberAddress");
     const session = await getSession(sessionId);
     if (!session) {
       res.status(404).json({ error: "NotFound", message: "Session not found", statusCode: 404 });
