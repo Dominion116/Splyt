@@ -1,8 +1,13 @@
 import { Router } from "express";
+import type { Address } from "viem";
 import { markMemberPaid, getSessionStatus } from "../services/contract.js";
 import { getSession, markPaidLocally } from "../services/db.js";
 
 const router = Router();
+
+function asAddressArray(addresses: string[]): Address[] {
+  return addresses as Address[];
+}
 
 /**
  * @openapi
@@ -39,7 +44,10 @@ router.get("/:sessionId/:memberAddress/price", async (req, res) => {
   }
 
   // Check real-time payment status from blockchain
-  const { members: memberStatuses } = await getSessionStatus(sessionId, session.members.map(m => m.address));
+  const { members: memberStatuses } = await getSessionStatus(
+    sessionId,
+    asAddressArray(session.members.map((m) => m.address))
+  );
   const blockchainStatus = memberStatuses.find(
     (m) => m.address.toLowerCase() === memberAddress.toLowerCase()
   );
@@ -112,7 +120,10 @@ router.get(
       await markPaidLocally(sessionId, memberAddress, txHash);
 
       // Verify transaction was successful
-      const { members: updatedStatuses } = await getSessionStatus(sessionId, session.members.map(m => m.address));
+      const { members: updatedStatuses } = await getSessionStatus(
+        sessionId,
+        asAddressArray(session.members.map((m) => m.address))
+      );
       const updatedMember = updatedStatuses.find(
         (m) => m.address.toLowerCase() === memberAddress.toLowerCase()
       );
