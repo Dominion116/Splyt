@@ -5,8 +5,10 @@ import { ArrowRight, Camera, Loader2, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useDashboardWallet } from "@/components/dashboard/use-wallet";
 import { TerminalLog, type TerminalLine } from "@/components/dashboard/terminal-log";
 import { formatUsdcPrecise, isValidEthAddress } from "@/lib/dashboard";
+import { requestWalletAccount, sendCreateSessionTransaction, waitForCeloReceipt } from "@/lib/celo-contract";
 import { cn } from "@/lib/utils";
 
 type ParsedReceipt = {
@@ -37,6 +39,7 @@ function equalSplit(totalMicros: bigint, memberCount: number) {
 
 export default function DashboardNewSplitPage() {
   const router = useRouter();
+  const { address: connectedAddress } = useDashboardWallet();
   const [splitMode, setSplitMode] = useState<(typeof splitModes)[number]>("equal");
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -145,12 +148,30 @@ export default function DashboardNewSplitPage() {
 
     setSubmitLoading(true);
     setSessionMessage(null);
+    setError(null);
 
     try {
+      const hostAddress = isValidEthAddress(connectedAddress) ? connectedAddress : await requestWalletAccount();
+      const sessionId = crypto.randomUUID();
+      const expiresAtSeconds = Math.floor((Date.now() + 60 * 60 * 1000) / 1000);
+      const txHash = await sendCreateSessionTransaction({
+        sessionId,
+        from: hostAddress as `0x${string}`,
+        members: activeMembers as `0x${string}`[],
+        amounts: computedShares,
+        expiresAt: expiresAtSeconds
+      });
+
+      setSessionMessage(`waiting for wallet transaction • ${txHash.slice(0, 10)}...`);
+      await waitForCeloReceipt(txHash);
+
       const response = await fetch(`${backendUrl}/api/session`, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
+          sessionId,
+          host: hostAddress,
+          txHash,
           members: activeMembers,
           amounts: computedShares.map((share) => share.toString()),
           mode: splitMode,
@@ -165,7 +186,7 @@ export default function DashboardNewSplitPage() {
       }
 
       const data = (await response.json()) as { sessionId: string };
-      setSessionMessage(`tx queued • session ${data.sessionId.slice(0, 8)}`);
+      setSessionMessage(`session created • ${data.sessionId.slice(0, 8)}`);
       router.push(`/dashboard/session/${data.sessionId}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown session error");
