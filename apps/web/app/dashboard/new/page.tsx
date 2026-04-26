@@ -8,7 +8,12 @@ import { TerminalLog, type TerminalLine } from "@/components/dashboard/terminal-
 import { formatUsdcPrecise, isValidEthAddress } from "@/lib/dashboard";
 import { cn } from "@/lib/utils";
 
-type ParsedReceipt = { items: Array<{ name: string; amount: string }>; subtotal: string; tax: string; total: string };
+type ParsedReceipt = {
+  items: Array<{ name: string; amount: string; quantity?: number; unitPrice?: string }>;
+  subtotal: string;
+  tax: string;
+  total: string;
+};
 type MemberAllocation = { address: string; percentage: number };
 
 const splitModes = ["equal", "itemised", "custom"] as const;
@@ -152,7 +157,10 @@ export default function DashboardNewSplitPage() {
         })
       });
 
-      if (!response.ok) throw new Error(`Create session failed (${response.status})`);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Create session failed (${response.status})`);
+      }
 
       const data = (await response.json()) as { sessionId: string };
       setSessionMessage(`tx queued • session ${data.sessionId.slice(0, 8)}`);
@@ -195,7 +203,12 @@ export default function DashboardNewSplitPage() {
         <section className="space-y-2 rounded-lg border border-zinc-800 bg-zinc-900 p-3">
           <div className="flex items-center justify-between border-b border-zinc-800 pb-2"><div className="font-medium text-zinc-100">Parsed items</div><div className="font-mono text-[10px] uppercase tracking-widest text-zinc-500">{parsedReceipt.items.length} items</div></div>
           <div className="space-y-2 pt-1">
-            {parsedReceipt.items.map((item) => <div key={item.name} className="flex items-center justify-between font-mono text-sm text-zinc-100"><span>{item.name}</span><span>${item.amount}</span></div>)}
+            {parsedReceipt.items.map((item, index) => (
+              <div key={`${item.name}-${index}`} className="flex items-center justify-between font-mono text-sm text-zinc-100">
+                <span>{item.quantity && item.quantity > 1 ? `${item.quantity} x ${item.name}` : item.name}</span>
+                <span>${item.amount}</span>
+              </div>
+            ))}
             <div className="h-px bg-zinc-800" />
             <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-widest text-zinc-500"><span>subtotal</span><span>${parsedReceipt.subtotal}</span></div>
             <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-widest text-zinc-500"><span>tax</span><span>${parsedReceipt.tax}</span></div>
@@ -229,7 +242,7 @@ export default function DashboardNewSplitPage() {
               <div className="font-mono text-[9px] uppercase tracking-widest text-zinc-500">item assignments</div>
               {parsedReceipt.items.map((item, itemIndex) => (
                 <div key={`${item.name}-${itemIndex}`} className="flex items-center justify-between gap-2">
-                  <div className="font-mono text-xs text-zinc-300">{item.name}</div>
+                  <div className="font-mono text-xs text-zinc-300">{item.quantity && item.quantity > 1 ? `${item.quantity} x ${item.name}` : item.name}</div>
                   <select value={itemAssignments[itemIndex] ?? 0} onChange={(event) => setItemAssignments((current) => current.map((entry, idx) => (idx === itemIndex ? Number(event.target.value) : entry)))} className="rounded-md border border-zinc-800 bg-zinc-800 px-2 py-1 font-mono text-[10px] text-zinc-100">
                     {members.map((member, memberIndex) => <option key={`${member.address}-${memberIndex}`} value={memberIndex}>{member.address.slice(0, 8)}</option>)}
                   </select>
