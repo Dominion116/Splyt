@@ -10,35 +10,35 @@ flowchart LR
   B --> C[Express Backend]
   C --> D[SplytSession Contract]
   C --> E[Claude AI]
-  C --> F[thirdweb x402]
+  C --> F[Direct Contract Calls]
   C --> G[Celo RPC]
   D --> G
 ```
 
 ## Payment Flow
 1. Host uploads receipt in MiniPay app.
-2. Frontend pays x402 parse fee and calls `POST /api/parse`.
+2. Frontend calls `POST /api/parse` for free receipt parsing.
 3. Backend parses with Claude and returns structured receipt JSON.
 4. Host confirms members/amounts and creates session with `POST /api/session`.
 5. Backend writes session to chain via `createSession`.
 6. Members open payment links and hit `GET /api/pay/:sessionId/:memberAddress`.
-7. Backend verifies x402 payment, marks member paid on-chain, and streams updates to host via SSE.
+7. Backend marks member paid on-chain via direct contract call and streams updates to host via SSE.
+## Direct Payment Flow
 
-## x402 Protocol Flow
-1. Client requests x402-gated endpoint.
+1. Client calls payment endpoints directly.
 2. Server returns `402` plus challenge headers.
 3. Client signs/submits payment proof.
-4. Client retries request with `x-x402-proof` header.
+4. Frontend handles wallet signing and transaction submission.
 5. Server settles and processes request.
 
 ## Data Flow
 - `ParsedReceipt`: normalized receipt totals and line items.
 - `SplitSession`: session metadata + member obligations.
-- `PaymentRequest`: x402 challenge data and expected amount.
-- `PaymentReceipt`: x402 receipt id and amount metadata.
+- `PaymentRequest`: Direct contract call with member amount.
 
+- `PaymentReceipt`: Transaction hash and on-chain confirmation.
 ## Security Considerations
 - Private key management: host key only in backend env/secret manager.
-- x402 payment replay protection: single-use receipt validation in settlement layer.
+- On-chain replay protection: contract state prevents double-payments.
 - Session expiry enforcement: contract rejects payment updates after expiry.
 - Rate limiting on parse endpoint: protect expensive AI calls from abuse.

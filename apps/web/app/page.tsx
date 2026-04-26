@@ -11,10 +11,10 @@ const terminalLines = [
   "[vision] Parsing 7 line items...",
   "[agent] Total: $47.50 | Members: 4",
   "[split] Equal split: $11.88 each",
-  "[x402]  Payment request sent to 0x1a2b...3c4d",
-  "[x402]  Payment request sent to 0x9f8e...7d6c",
   "[chain] Session 0xabc... created on Celo",
-  "[done]  Awaiting 4 payments..."
+  "[direct] Payment request sent to 0x1a2b...3c4d",
+  "[direct] Payment request sent to 0x9f8e...7d6c",
+  "[done] All payments completed"
 ];
 
 export default function LandingPage() {
@@ -63,7 +63,7 @@ export default function LandingPage() {
 
       <section className="mx-auto max-w-5xl px-6 pt-20 pb-16">
         <Badge variant="outline" className="mb-8 border-indigo-500/30 bg-indigo-500/10 font-mono text-xs text-indigo-300">
-          Built on Celo  •  x402 Payments  •  MiniPay Native
+          Built on Celo  •  Direct Payments  •  MiniPay Native
         </Badge>
         <h1 className="mb-6 text-5xl font-medium tracking-tight sm:text-6xl">
           Split the bill.
@@ -136,7 +136,7 @@ export default function LandingPage() {
       <section className="mx-auto max-w-5xl px-6 pb-24">
         <h2 className="mb-6 font-medium">Built with the right tools</h2>
         <div className="flex flex-wrap gap-2">
-          {["Celo L2", "x402", "MiniPay", "Claude AI", "Solidity", "Next.js"].map((t) => (
+          {["Celo L2", "Direct Payments", "MiniPay", "Claude AI", "Solidity", "Next.js"].map((t) => (
             <Badge key={t} className="rounded-md bg-zinc-800 px-3 py-1.5 font-mono text-xs text-zinc-300">
               {t}
             </Badge>

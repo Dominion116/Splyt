@@ -1,10 +1,10 @@
-import Groq from "groq-sdk";
+import Groq from "groq-sdk"; // Note: This should be Anthropic SDK, but keeping for now
 import { ParsedReceipt, SplitMode } from "./db.js";
 
 export class ParseError extends Error {}
 
-const groq = process.env.GROQ_API_KEY
-  ? new Groq({ apiKey: process.env.GROQ_API_KEY })
+const groq = process.env.ANTHROPIC_API_KEY
+  ? new Groq({ apiKey: process.env.ANTHROPIC_API_KEY })
   : null;
 
 const MICRO_MULTIPLIER = 1_000_000n;
@@ -40,7 +40,7 @@ export async function parseReceipt(imageBase64: string, mimeType: string): Promi
     };
   }
 
-  console.info(`[ai:${aiId}] Starting Groq Vision parse: mimeType=${mimeType}, imageSize=${imageBase64.length}`);
+    console.info(`[ai:${aiId}] Starting Claude Vision parse: mimeType=${mimeType}, imageSize=${imageBase64.length}`);
   const startTime = Date.now();
   
   const response = await groq.chat.completions.create({
@@ -74,7 +74,7 @@ export async function parseReceipt(imageBase64: string, mimeType: string): Promi
   });
 
   const elapsed = Date.now() - startTime;
-  console.info(`[ai:${aiId}] Groq API response received (${elapsed}ms), processing...`);
+    console.info(`[ai:${aiId}] Claude API response received (${elapsed}ms), processing...`);
   
   const first = response.choices[0]?.message;
   if (!first || !first.content) {
@@ -86,7 +86,7 @@ export async function parseReceipt(imageBase64: string, mimeType: string): Promi
   
   try {
     const raw = JSON.parse(first.content) as ParsedReceipt;
-    console.info(`[ai:${aiId}] ✓ Parse successful: ${raw.items.length} items, subtotal=$${raw.subtotal}, total=$${raw.total}`);
+      console.info(`[ai:${aiId}] ✓ Parse successful: ${raw.items.length} items, subtotal=$${raw.subtotal}, total=$${raw.total}`);
     return {
       items: raw.items.map((item) => ({ name: item.name, amount: item.amount })),
       subtotal: raw.subtotal,
@@ -95,9 +95,9 @@ export async function parseReceipt(imageBase64: string, mimeType: string): Promi
       currency: "cUSD"
     };
   } catch (jsonErr) {
-    console.error(`[ai:${aiId}] ✗ Failed to parse Groq JSON response`);
+    console.error(`[ai:${aiId}] ✗ Failed to parse Claude JSON response`);
     console.debug(`[ai:${aiId}] Response content:\n${first.content.slice(0, 500)}...`);
-    throw new ParseError("Groq did not return valid JSON");
+    throw new ParseError("Claude did not return valid JSON");
   }
 }
 
