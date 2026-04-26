@@ -15,10 +15,6 @@ services:
         value: https://forno.celo.org
       - key: GROQ_API_KEY
         sync: false
-      - key: HOST_WALLET_ADDRESS
-        sync: false
-      - key: HOST_WALLET_PRIVATE_KEY
-        sync: false
       - key: SPLYT_SESSION_CONTRACT
         sync: false
       - key: MONGODB_URI
