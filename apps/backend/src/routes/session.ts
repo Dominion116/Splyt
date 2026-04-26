@@ -3,7 +3,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { validateBody } from "../middleware/validate.js";
 import { computeSplit } from "../services/ai.js";
-import { getSessionStatus, sessionExists, waitForTransactionReceipt } from "../services/contract.js";
+import { getSessionStatus, sessionExists } from "../services/contract.js";
 import { ParsedReceipt, putSession, getSession, listSessions, serializeSession } from "../services/db.js";
 
 const router = Router();
@@ -93,10 +93,6 @@ router.post("/", validateBody(createSchema), async (req, res, next) => {
         statusCode: 409
       });
       return;
-    }
-
-    if (req.body.txHash) {
-      await waitForTransactionReceipt(req.body.txHash as `0x${string}`);
     }
 
     const existsOnChain = await sessionExists(id, req.body.members as `0x${string}`[]);

@@ -189,7 +189,11 @@ export default function DashboardNewSplitPage() {
       setSessionMessage(`session created • ${data.sessionId.slice(0, 8)}`);
       router.push(`/dashboard/session/${data.sessionId}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown session error");
+      if (err instanceof TypeError && err.message === "Failed to fetch") {
+        setError(`Could not reach the backend at ${backendUrl}. Check NEXT_PUBLIC_BACKEND_URL and make sure the backend is deployed over HTTPS.`);
+      } else {
+        setError(err instanceof Error ? err.message : "Unknown session error");
+      }
     } finally {
       setSubmitLoading(false);
     }
