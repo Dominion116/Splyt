@@ -54,7 +54,7 @@ Frontend and backend are deployed separately.
 - Host: Render, Fly.io, Railway, or a small Node VM/container.
 - Build command: `npm run build -w apps/backend`
 - Start command: `npm run start -w apps/backend`
-- Required env vars: `PORT`, `GROQ_API_KEY`, `HOST_WALLET_ADDRESS`, `HOST_WALLET_PRIVATE_KEY`, `SPLYT_SESSION_CONTRACT`, `CELO_RPC_URL`, `MONGODB_URI`.
+- Required env vars: `PORT`, `GROQ_API_KEY`, `SPLYT_SESSION_CONTRACT`, `CELO_RPC_URL`, `MONGODB_URI`.
 
 ### Contracts
 - Deploy the Solidity contract with Foundry.
