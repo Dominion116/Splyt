@@ -5,6 +5,8 @@ import { CheckCircle2, Copy, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DashboardBadge } from "@/components/dashboard/badge";
+import { useDashboardWallet } from "@/components/dashboard/use-wallet";
+import { requestWalletAccount, sendMemberPaymentTransaction, waitForCeloReceipt } from "@/lib/celo-contract";
 import { formatUsdcPrecise, truncateAddress } from "@/lib/dashboard";
 
 type SessionMember = {
@@ -38,6 +40,7 @@ type PriceResponse = {
 
 export default function PayPage({ params }: { params: Promise<{ id: string; addr: string }> }) {
   const { id: sessionId, addr } = use(params);
+  const { address: connectedAddress } = useDashboardWallet();
   const [session, setSession] = useState<SessionRecord | null>(null);
   const [price, setPrice] = useState<PriceResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -96,8 +99,23 @@ export default function PayPage({ params }: { params: Promise<{ id: string; addr
     try {
       setPaying(true);
       setError(null);
+      const walletAddress = isSameAddress(connectedAddress, addr) ? connectedAddress : await requestWalletAccount();
+      if (!isSameAddress(walletAddress, addr)) {
+        throw new Error("Connect the same wallet address that was added as this session member.");
+      }
 
-      const response = await fetch(`${backendUrl}/api/pay/${sessionId}/${addr}`);
+      const txHash = await sendMemberPaymentTransaction({
+        sessionId,
+        from: walletAddress as `0x${string}`,
+        member: addr as `0x${string}`
+      });
+      await waitForCeloReceipt(txHash);
+
+      const response = await fetch(`${backendUrl}/api/pay/${sessionId}/${addr}/confirm`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ txHash })
+      });
       const data = (await response.json().catch(() => ({}))) as { txHash?: string; message?: string };
 
       if (!response.ok) {
@@ -127,6 +145,8 @@ export default function PayPage({ params }: { params: Promise<{ id: string; addr
   const copyLink = async () => {
     await navigator.clipboard.writeText(window.location.href);
   };
+
+  const isConnectedMember = !connectedAddress || isSameAddress(connectedAddress, addr);
 
   return (
     <main className="mx-auto max-w-xl space-y-6 p-6">
@@ -182,6 +202,12 @@ export default function PayPage({ params }: { params: Promise<{ id: string; addr
 
               {error ? <div className="rounded-lg border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-300">{error}</div> : null}
 
+              {!isConnectedMember ? (
+                <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 p-3 text-sm text-amber-300">
+                  Switch to the invited member wallet to complete this payment.
+                </div>
+              ) : null}
+
               {success ? (
                 <div className="rounded-lg border border-green-500/20 bg-green-500/10 p-4 text-sm text-green-300">
                   <div className="flex items-center gap-2">
@@ -193,7 +219,7 @@ export default function PayPage({ params }: { params: Promise<{ id: string; addr
               ) : null}
 
               <div className="flex gap-3">
-                <Button type="button" className="flex-1" onClick={onPay} disabled={paying || !!member.paid}>
+                <Button type="button" className="flex-1" onClick={onPay} disabled={paying || !!member.paid || !isConnectedMember}>
                   {paying ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                   {member.paid ? "Already paid" : paying ? "Processing..." : "Pay now"}
                 </Button>
@@ -214,4 +240,8 @@ export default function PayPage({ params }: { params: Promise<{ id: string; addr
       </Card>
     </main>
   );
+}
+
+function isSameAddress(left: string, right: string) {
+  return left.toLowerCase() === right.toLowerCase();
 }
