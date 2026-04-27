@@ -35,9 +35,20 @@ export function PaymentStatus({ sessionId }: { sessionId: string }) {
         <CardTitle>Payment status</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <Progress value={progress} />
-        <div className="space-y-2">
-          {members.map((m) => (
+        {loading ? (
+          <>
+            <div className="h-2 w-full rounded bg-zinc-700 animate-pulse" />
+            <div className="space-y-2">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="inline-block mr-2 h-6 w-32 rounded bg-zinc-700 animate-pulse" />
+              ))}
+            </div>
+          </>
+        ) : (
+          <>
+            <Progress value={progress} />
+            <div className="space-y-2">
+              {members.map((m) => (
             <Badge key={m.address} variant={m.paid ? "outline" : "secondary"} className="mr-2">
               <span className={`mr-2 h-1.5 w-1.5 rounded-full ${m.paid ? "bg-emerald-400" : "bg-zinc-500"}`} />
               <span className="font-mono text-xs text-zinc-500">
@@ -47,6 +58,8 @@ export function PaymentStatus({ sessionId }: { sessionId: string }) {
           ))}
         </div>
         {allPaid ? <p className="text-sm text-emerald-400">Session settled. All payments confirmed on Celo.</p> : null}
+          </>
+        )}
       </CardContent>
     </Card>
   );
