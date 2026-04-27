@@ -157,7 +157,7 @@ export default function DashboardHomePage() {
             </div>
           ))}
               {!activeSessions.length ? <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-3 font-mono text-xs text-zinc-600">No active sessions.</div> : null}
-              {activeSessions.length > visibleActiveCount ? (
+              {activeSessions.length > visibleActiveCount && !loadingSessions ? (
             <button type="button" onClick={() => setVisibleActiveCount((count) => count + 3)} className="w-full rounded-lg border border-zinc-800 bg-zinc-950 p-3 font-mono text-[10px] uppercase tracking-widest text-zinc-400 transition-colors hover:border-indigo-500 hover:text-zinc-100">
               show more
             </button>
