@@ -64,7 +64,7 @@ export default function DashboardProfilePage() {
         <div className="space-y-2 font-mono text-[10px] text-zinc-500">
           <div className="flex items-center justify-between"><span>cUSD balance</span><span>${formatUsdcPrecise(balance)}</span></div>
           <div className="flex items-center justify-between"><span>Network</span><DashboardBadge variant="settled">celo</DashboardBadge></div>
-          <div className="flex items-center justify-between"><span>Gas token</span><span>cUSD</span></div>
+          <div className="flex items-center justify-between"><span>Gas token</span><span>Celo</span></div>
         </div>
       </section>
 
