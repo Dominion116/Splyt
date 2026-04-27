@@ -74,7 +74,22 @@ export default function DashboardHistoryPage() {
       </section>
 
       <section className="space-y-2 rounded-lg border border-zinc-800 bg-zinc-900 p-3">
-        {visibleSessions.length ? visibleSessions.map((session) => (
+        {loading ? (
+          Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="flex items-stretch gap-3 border-b border-zinc-800 py-3 last:border-b-0 last:pb-0 first:pt-0 animate-pulse">
+              <div className="flex items-center justify-center rounded-md bg-zinc-800 p-2 h-8 w-8" />
+              <div className="min-w-0 flex-1 space-y-1">
+                <div className="h-4 w-24 rounded bg-zinc-700 mb-1" />
+                <div className="h-3 w-32 rounded bg-zinc-700 mb-1" />
+                <div className="h-2 w-full rounded bg-zinc-700" />
+              </div>
+              <div className="flex flex-col items-end justify-between">
+                <div className="h-4 w-16 rounded bg-zinc-700 mb-1" />
+                <div className="h-5 w-12 rounded bg-zinc-700" />
+              </div>
+            </div>
+          ))
+        ) : visibleSessions.length ? visibleSessions.map((session) => (
           <div key={session.id} className="flex items-stretch gap-3 border-b border-zinc-800 py-3 last:border-b-0 last:pb-0 first:pt-0">
             <div className="flex items-center justify-center rounded-md bg-zinc-800 p-2">
               <StatusIcon status={session.status} />
@@ -90,7 +105,7 @@ export default function DashboardHistoryPage() {
             </div>
           </div>
         )) : <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 font-mono text-xs text-zinc-600">No sessions yet.</div>}
-        {filteredSessions.length > visibleCount ? (
+        {filteredSessions.length > visibleCount && !loading ? (
           <button type="button" onClick={() => setVisibleCount((count) => count + 3)} className="w-full rounded-lg border border-zinc-800 bg-zinc-950 p-3 font-mono text-[10px] uppercase tracking-widest text-zinc-400 transition-colors hover:border-indigo-500 hover:text-zinc-100">
             show more
           </button>
