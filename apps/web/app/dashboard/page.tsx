@@ -106,7 +106,7 @@ export default function DashboardHomePage() {
           <span className="font-mono text-[10px] text-zinc-600">{truncatedAddress}</span>
         </div>
         <div className="space-y-2">
-          {sessions.map((session) => (
+          {activeSessions.slice(0, visibleActiveCount).map((session) => (
             <div key={session.id} className="space-y-2 rounded-lg border border-zinc-800 bg-zinc-900 p-3">
               <div className="flex items-center justify-between gap-2">
                 <div>
