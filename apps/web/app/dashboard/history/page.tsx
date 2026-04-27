@@ -115,10 +115,21 @@ export default function DashboardHistoryPage() {
       <section className="space-y-3 rounded-lg border border-zinc-800 bg-zinc-900 p-3">
         <div className="font-medium text-zinc-100">Totals</div>
         <div className="space-y-2 font-mono text-[10px] text-zinc-500">
-          <div className="flex items-center justify-between"><span>Total ever split</span><span>${formatUsdc(totals.totalEver)}</span></div>
-          <div className="flex items-center justify-between"><span>Total settled on Celo</span><span>${formatUsdc(totals.totalSettled)}</span></div>
-          <div className="flex items-center justify-between"><span>Total pending</span><span>${formatUsdc(totals.totalPending)}</span></div>
-          <div className="flex items-center justify-between"><span>Fees</span><span>$0.00</span></div>
+          {loading ? (
+            <>
+              <div className="flex items-center justify-between"><span>Total ever split</span><span className="h-4 w-16 rounded bg-zinc-700 animate-pulse" /></div>
+              <div className="flex items-center justify-between"><span>Total settled on Celo</span><span className="h-4 w-16 rounded bg-zinc-700 animate-pulse" /></div>
+              <div className="flex items-center justify-between"><span>Total pending</span><span className="h-4 w-16 rounded bg-zinc-700 animate-pulse" /></div>
+              <div className="flex items-center justify-between"><span>Fees</span><span className="h-4 w-12 rounded bg-zinc-700 animate-pulse" /></div>
+            </>
+          ) : (
+            <>
+              <div className="flex items-center justify-between"><span>Total ever split</span><span>${formatUsdc(totals.totalEver)}</span></div>
+              <div className="flex items-center justify-between"><span>Total settled on Celo</span><span>${formatUsdc(totals.totalSettled)}</span></div>
+              <div className="flex items-center justify-between"><span>Total pending</span><span>${formatUsdc(totals.totalPending)}</span></div>
+              <div className="flex items-center justify-between"><span>Fees</span><span>$0.00</span></div>
+            </>
+          )}
         </div>
       </section>
     </div>
