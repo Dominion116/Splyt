@@ -14,7 +14,12 @@ import { requestWalletAccount, sendCloseSessionTransaction, waitForCeloReceipt }
 import { formatUsdcPrecise, truncateAddress } from "@/lib/dashboard";
 
 type MemberStatus = { address: string; paid: boolean; amountDue: string; paidAt?: number | null };
-type SessionRecord = { id: string; host: string; members: Array<{ address: string; amount: string; paid: boolean; paidAt: number | null }> };
+type SessionRecord = {
+  id: string;
+  host: string;
+  chainStatus?: "live" | "missing";
+  members: Array<{ address: string; amount: string; paid: boolean; paidAt: number | null }>;
+};
 
 export default function DashboardSessionPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -116,6 +121,7 @@ export default function DashboardSessionPage({ params }: { params: Promise<{ id:
     () => !!sessionRecord?.host && !!connectedAddress && sessionRecord.host.toLowerCase() === connectedAddress.toLowerCase(),
     [connectedAddress, sessionRecord]
   );
+  const isLiveOnCurrentContract = sessionRecord?.chainStatus !== "missing";
 
   const collectedMicros = members.reduce((sum, member) => sum + (member.paid ? BigInt(member.amountDue) : 0n), 0n);
   const pendingMicros = members.reduce((sum, member) => sum + (member.paid ? 0n : BigInt(member.amountDue)), 0n);
@@ -124,6 +130,9 @@ export default function DashboardSessionPage({ params }: { params: Promise<{ id:
     try {
       setClosing(true);
       setError(null);
+      if (!isLiveOnCurrentContract) {
+        throw new Error("This session belongs to an older or unavailable contract, so it cannot be withdrawn from this page.");
+      }
       const hostAddress = isHost ? connectedAddress : await requestWalletAccount();
       if (!sessionRecord?.host || hostAddress.toLowerCase() !== sessionRecord.host.toLowerCase()) {
         throw new Error("Connect the host wallet to close this session.");
@@ -133,7 +142,10 @@ export default function DashboardSessionPage({ params }: { params: Promise<{ id:
         sessionId,
         from: hostAddress as `0x${string}`
       });
-      await waitForCeloReceipt(txHash);
+      const receipt = await waitForCeloReceipt(txHash);
+      if (receipt.status !== "success") {
+        throw new Error("The close session transaction did not succeed on-chain.");
+      }
       setCloseTxHash(txHash);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to close session.");
@@ -157,7 +169,7 @@ export default function DashboardSessionPage({ params }: { params: Promise<{ id:
               size="sm"
               className="font-mono text-[10px] uppercase tracking-widest"
               onClick={onCloseSession}
-              disabled={closing || !isHost || !allPaid}
+              disabled={closing || !isHost || !allPaid || !isLiveOnCurrentContract}
             >
               {closing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wallet className="mr-2 h-4 w-4" />}
               {closing ? "closing..." : "withdraw"}
@@ -171,11 +183,13 @@ export default function DashboardSessionPage({ params }: { params: Promise<{ id:
           <span>${formatUsdcPrecise(pendingMicros)} pending</span>
         </div>
         <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-xs text-zinc-500">
-          {isHost
+          {isLiveOnCurrentContract
+            ? isHost
             ? allPaid
               ? "All members have paid. You can withdraw by closing the session on-chain."
               : "Withdraw unlocks after all members have paid."
-            : "Only the host wallet can withdraw by closing the session on-chain."}
+            : "Only the host wallet can withdraw by closing the session on-chain."
+            : "This session is stored in history, but it is not available on the currently configured contract. Withdraw is unavailable here."}
         </div>
       </section>
 

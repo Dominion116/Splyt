@@ -158,7 +158,8 @@ router.get("/:sessionId", async (req, res, next) => {
       );
       const withChain = {
         ...serializeSession(session),
-        allPaid: chainState.allPaid
+        allPaid: chainState.allPaid,
+        chainStatus: "live"
       };
       res.json(withChain);
     } catch (error) {
