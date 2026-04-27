@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getSession } from "../services/db.js";
-import { getSessionStatus } from "../services/contract.js";
+import { ChainSessionNotFoundError, getSessionStatus } from "../services/contract.js";
 
 const router = Router();
 
@@ -44,10 +44,31 @@ router.get("/:sessionId", async (req, res) => {
       return;
     }
 
-    const status = await getSessionStatus(
-      sessionId,
-      latestSession.members.map((m) => m.address as `0x${string}`)
-    );
+    let status;
+    try {
+      status = await getSessionStatus(
+        sessionId,
+        latestSession.members.map((m) => m.address as `0x${string}`)
+      );
+    } catch (error) {
+      if (error instanceof ChainSessionNotFoundError) {
+        send({
+          members: latestSession.members.map((m) => ({
+            address: m.address,
+            amountDue: m.amount.toString(),
+            paid: m.paid,
+            paidAt: m.paidAt ?? null
+          })),
+          allPaid: latestSession.members.every((m) => m.paid),
+          chainStatus: "missing"
+        });
+        clearInterval(pollInterval);
+        clearInterval(heartbeat);
+        res.end();
+        return;
+      }
+      throw error;
+    }
     send({
       members: status.members.map((m) => ({
         address: m.address,

@@ -3,7 +3,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { validateBody } from "../middleware/validate.js";
 import { computeSplit } from "../services/ai.js";
-import { getSessionStatus, sessionExists } from "../services/contract.js";
+import { ChainSessionNotFoundError, getSessionStatus, sessionExists } from "../services/contract.js";
 import { ParsedReceipt, putSession, getSession, listSessions, serializeSession } from "../services/db.js";
 
 const router = Router();
@@ -151,15 +151,27 @@ router.get("/:sessionId", async (req, res, next) => {
       res.status(404).json({ error: "Session not found" });
       return;
     }
-    const chainState = await getSessionStatus(
-      session.id,
-      session.members.map((m) => m.address as `0x${string}`)
-    );
-    const withChain = {
-      ...serializeSession(session),
-      allPaid: chainState.allPaid
-    };
-    res.json(withChain);
+    try {
+      const chainState = await getSessionStatus(
+        session.id,
+        session.members.map((m) => m.address as `0x${string}`)
+      );
+      const withChain = {
+        ...serializeSession(session),
+        allPaid: chainState.allPaid
+      };
+      res.json(withChain);
+    } catch (error) {
+      if (error instanceof ChainSessionNotFoundError) {
+        res.json({
+          ...serializeSession(session),
+          allPaid: session.members.every((member) => member.paid),
+          chainStatus: "missing"
+        });
+        return;
+      }
+      throw error;
+    }
   } catch (error) {
     next(error);
   }
