@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { AlertTriangle, CheckCircle2, Clock3 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { DashboardBadge } from "@/components/dashboard/badge";
 import { ProgressBar } from "@/components/dashboard/progress-bar";
 import { formatUsdc, getPendingMicros, getSessionProgress, normalizeSessionRecord, type DashboardSessionApiRecord, type DashboardSessionRecord, type DashboardSessionStatus } from "@/lib/dashboard";
@@ -15,6 +16,7 @@ function StatusIcon({ status }: { status: DashboardSessionStatus }) {
 }
 
 export default function DashboardHistoryPage() {
+  const router = useRouter();
   const [filter, setFilter] = useState<"all" | DashboardSessionStatus>("all");
   const [visibleCount, setVisibleCount] = useState(3);
   const { address } = useDashboardWallet();
@@ -90,7 +92,12 @@ export default function DashboardHistoryPage() {
             </div>
           ))
         ) : visibleSessions.length ? visibleSessions.map((session) => (
-          <div key={session.id} className="flex items-stretch gap-3 border-b border-zinc-800 py-3 last:border-b-0 last:pb-0 first:pt-0">
+          <button
+            key={session.id}
+            type="button"
+            onClick={() => router.push(`/dashboard/session/${session.id}`)}
+            className="flex w-full items-stretch gap-3 border-b border-zinc-800 py-3 text-left transition-colors hover:bg-zinc-950/40 last:border-b-0 last:pb-0 first:pt-0"
+          >
             <div className="flex items-center justify-center rounded-md bg-zinc-800 p-2">
               <StatusIcon status={session.status} />
             </div>
@@ -103,7 +110,7 @@ export default function DashboardHistoryPage() {
               <div className="font-mono text-sm text-zinc-100">${formatUsdc(session.totalMicros)}</div>
               <DashboardBadge variant={session.status === "settled" ? "settled" : session.status === "pending" ? "pending" : "expired"}>{session.status}</DashboardBadge>
             </div>
-          </div>
+          </button>
         )) : <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 font-mono text-xs text-zinc-600">No sessions yet.</div>}
         {filteredSessions.length > visibleCount && !loading ? (
           <button type="button" onClick={() => setVisibleCount((count) => count + 3)} className="w-full rounded-lg border border-zinc-800 bg-zinc-950 p-3 font-mono text-[10px] uppercase tracking-widest text-zinc-400 transition-colors hover:border-indigo-500 hover:text-zinc-100">

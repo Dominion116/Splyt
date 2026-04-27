@@ -16,6 +16,7 @@ export interface DashboardSessionRecord {
 
 export interface DashboardActivityRecord {
   id: string;
+  sessionId: string;
   kind: "paid" | "wait" | "chain" | "done";
   description: string;
   amountMicros: bigint;

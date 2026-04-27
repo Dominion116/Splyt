@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { Clock3, CreditCard, DollarSign, Sparkles } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ProgressBar } from "@/components/dashboard/progress-bar";
 import { DashboardBadge } from "@/components/dashboard/badge";
@@ -37,6 +38,7 @@ function ActivityIcon({ kind }: { kind: string }) {
 }
 
 export default function DashboardHomePage() {
+  const router = useRouter();
   const { address, truncatedAddress } = useDashboardWallet();
   const [balanceMicros, setBalanceMicros] = useState(0n);
   const [sessions, setSessions] = useState<DashboardSessionRecord[]>([]);
@@ -104,6 +106,7 @@ export default function DashboardHomePage() {
 
     return sessions.map((session, index) => ({
       id: `${session.id}-${index}`,
+      sessionId: session.id,
       kind: session.status === "settled" ? "done" : session.status === "expired" ? "wait" : "chain",
       description: `${session.name} • ${session.memberCount} members`,
       amountMicros: session.collectedMicros
@@ -142,7 +145,12 @@ export default function DashboardHomePage() {
           ) : (
             <>
               {activeSessions.slice(0, visibleActiveCount).map((session) => (
-            <div key={session.id} className="space-y-2 rounded-lg border border-zinc-800 bg-zinc-900 p-3">
+            <button
+              key={session.id}
+              type="button"
+              onClick={() => router.push(`/dashboard/session/${session.id}`)}
+              className="w-full space-y-2 rounded-lg border border-zinc-800 bg-zinc-900 p-3 text-left transition-colors hover:bg-zinc-950/40"
+            >
               <div className="flex items-center justify-between gap-2">
                 <div>
                   <div className="text-sm font-medium text-zinc-100">{session.name}</div>
@@ -155,7 +163,7 @@ export default function DashboardHomePage() {
                 <span>${formatUsdc(session.collectedMicros)} collected</span>
                 <span>${formatUsdc(getPendingMicros(session))} pending</span>
               </div>
-            </div>
+            </button>
           ))}
               {!activeSessions.length ? <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-3 font-mono text-xs text-zinc-600">No active sessions.</div> : null}
               {activeSessions.length > visibleActiveCount && !loadingSessions ? (
@@ -188,14 +196,19 @@ export default function DashboardHomePage() {
               </div>
             ))
           ) : recentActivity.length ? recentActivity.slice(0, visibleActivityCount).map((entry: DashboardActivityRecord) => (
-            <div key={entry.id} className="flex items-center gap-3 rounded-lg border border-zinc-800 bg-zinc-900 p-3">
+            <button
+              key={entry.id}
+              type="button"
+              onClick={() => router.push(`/dashboard/session/${entry.sessionId}`)}
+              className="flex w-full items-center gap-3 rounded-lg border border-zinc-800 bg-zinc-900 p-3 text-left transition-colors hover:bg-zinc-950/40"
+            >
               <div className="rounded-md bg-zinc-800 p-1.5"><ActivityIcon kind={entry.kind} /></div>
               <div className="min-w-0 flex-1">
                 <div className="truncate text-sm text-zinc-100">{entry.description}</div>
                 <div className="font-mono text-[9px] uppercase tracking-widest text-zinc-500">{entry.kind}</div>
               </div>
               <div className={cn("font-mono text-xs", entry.amountMicros > 0n ? "text-zinc-100" : "text-zinc-500")}>{entry.amountMicros > 0n ? `$${formatUsdc(entry.amountMicros)}` : "—"}</div>
-            </div>
+            </button>
           )) : <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-3 font-mono text-xs text-zinc-600">No recent activity yet.</div>}
           {recentActivity.length > visibleActivityCount && !loadingSessions ? (
             <button type="button" onClick={() => setVisibleActivityCount((count) => count + 3)} className="w-full rounded-lg border border-zinc-800 bg-zinc-950 p-3 font-mono text-[10px] uppercase tracking-widest text-zinc-400 transition-colors hover:border-indigo-500 hover:text-zinc-100">
