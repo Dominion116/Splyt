@@ -1,6 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+interface IERC20 {
+    function transfer(address to, uint256 amount) external returns (bool);
+    function transferFrom(address from, address to, uint256 amount) external returns (bool);
+}
+
 contract SplytSession {
     struct Member {
         address addr;
@@ -20,10 +25,11 @@ contract SplytSession {
 
     mapping(bytes32 => Session) public sessions;
     mapping(bytes32 => mapping(address => uint256)) public memberIndex;
+    IERC20 public immutable paymentToken;
 
     event SessionCreated(bytes32 indexed sessionId, address indexed host, uint256 total);
     event MemberPaid(bytes32 indexed sessionId, address indexed member, uint256 amount);
-    event SessionClosed(bytes32 indexed sessionId);
+    event SessionClosed(bytes32 indexed sessionId, uint256 payoutAmount);
 
     error SessionNotFound();
     error SessionExpired();
@@ -32,6 +38,13 @@ contract SplytSession {
     error AlreadyPaid();
     error NotHost();
     error NotMember();
+    error NotSettled();
+    error TransferFailed();
+
+    constructor(address token) {
+        if (token == address(0)) revert("INVALID_TOKEN");
+        paymentToken = IERC20(token);
+    }
 
     /// @notice Creates a split session and stores due amounts for each member.
     /// @param id Unique session identifier.
@@ -86,6 +99,7 @@ contract SplytSession {
 
         Member storage target = session.members[idx - 1];
         if (target.paid) revert AlreadyPaid();
+        if (!paymentToken.transferFrom(member, address(this), target.amountDue)) revert TransferFailed();
 
         target.paid = true;
         emit MemberPaid(sessionId, member, target.amountDue);
@@ -97,8 +111,10 @@ contract SplytSession {
         Session storage session = sessions[sessionId];
         _ensureHost(session);
         if (!session.active) revert SessionInactive();
+        if (!_allPaid(session)) revert NotSettled();
         session.active = false;
-        emit SessionClosed(sessionId);
+        if (!paymentToken.transfer(session.host, session.total)) revert TransferFailed();
+        emit SessionClosed(sessionId, session.total);
     }
 
     /// @notice Returns full session details.
@@ -130,6 +146,10 @@ contract SplytSession {
     function allPaid(bytes32 sessionId) external view returns (bool) {
         Session storage session = sessions[sessionId];
         if (session.id == bytes32(0)) revert SessionNotFound();
+        return _allPaid(session);
+    }
+
+    function _allPaid(Session storage session) internal view returns (bool) {
         for (uint256 i = 0; i < session.members.length; i++) {
             if (!session.members[i].paid) return false;
         }

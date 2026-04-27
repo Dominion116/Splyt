@@ -2,26 +2,31 @@
 
 import { use } from "react";
 import { useEffect, useMemo, useState } from "react";
-import { ClipboardCopy, Link2, Play } from "lucide-react";
+import { ClipboardCopy, Link2, Loader2, Play, Wallet } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
 import { ProgressBar } from "@/components/dashboard/progress-bar";
+import { useDashboardWallet } from "@/components/dashboard/use-wallet";
 import { DashboardBadge } from "@/components/dashboard/badge";
 import { TerminalLog, type TerminalLine } from "@/components/dashboard/terminal-log";
+import { requestWalletAccount, sendCloseSessionTransaction, waitForCeloReceipt } from "@/lib/celo-contract";
 import { formatUsdcPrecise, truncateAddress } from "@/lib/dashboard";
 
 type MemberStatus = { address: string; paid: boolean; amountDue: string; paidAt?: number | null };
-type SessionRecord = { id: string; members: Array<{ address: string; amount: string; paid: boolean; paidAt: number | null }> };
+type SessionRecord = { id: string; host: string; members: Array<{ address: string; amount: string; paid: boolean; paidAt: number | null }> };
 
 export default function DashboardSessionPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
+  const { address: connectedAddress } = useDashboardWallet();
   const [members, setMembers] = useState<MemberStatus[]>([]);
   const [allPaid, setAllPaid] = useState(false);
   const [logLines, setLogLines] = useState<TerminalLine[]>([{ tag: "[chain]", tagColor: "text-indigo-400", text: "Waiting for payment updates..." }]);
   const [streamOpen, setStreamOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sessionRecord, setSessionRecord] = useState<SessionRecord | null>(null);
+  const [closing, setClosing] = useState(false);
+  const [closeTxHash, setCloseTxHash] = useState<string | null>(null);
 
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:3001";
   const { id: sessionId } = use(params);
@@ -107,8 +112,35 @@ export default function DashboardSessionPage({ params }: { params: Promise<{ id:
     return (members.filter((member) => member.paid).length / members.length) * 100;
   }, [members]);
 
+  const isHost = useMemo(
+    () => !!sessionRecord?.host && !!connectedAddress && sessionRecord.host.toLowerCase() === connectedAddress.toLowerCase(),
+    [connectedAddress, sessionRecord]
+  );
+
   const collectedMicros = members.reduce((sum, member) => sum + (member.paid ? BigInt(member.amountDue) : 0n), 0n);
   const pendingMicros = members.reduce((sum, member) => sum + (member.paid ? 0n : BigInt(member.amountDue)), 0n);
+
+  const onCloseSession = async () => {
+    try {
+      setClosing(true);
+      setError(null);
+      const hostAddress = isHost ? connectedAddress : await requestWalletAccount();
+      if (!sessionRecord?.host || hostAddress.toLowerCase() !== sessionRecord.host.toLowerCase()) {
+        throw new Error("Connect the host wallet to close this session.");
+      }
+
+      const txHash = await sendCloseSessionTransaction({
+        sessionId,
+        from: hostAddress as `0x${string}`
+      });
+      await waitForCeloReceipt(txHash);
+      setCloseTxHash(txHash);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to close session.");
+    } finally {
+      setClosing(false);
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -151,6 +183,7 @@ export default function DashboardSessionPage({ params }: { params: Promise<{ id:
         <TerminalLog lines={logLines} live className="max-h-64" />
         {error ? <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-sm text-red-400">{error}</div> : null}
         {allPaid ? <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-sm text-zinc-100">Session settled. All payments confirmed on Celo.</div> : null}
+        {closeTxHash ? <div className="rounded-lg border border-green-500/20 bg-green-500/10 p-3 text-sm text-green-300">Close session confirmed: <span className="font-mono break-all">{closeTxHash}</span></div> : null}
       </section>
 
       {sessionRecord?.members?.length ? (
@@ -187,6 +220,22 @@ export default function DashboardSessionPage({ params }: { params: Promise<{ id:
           <Play className="mr-2 h-4 w-4" /> new split
         </Button>
       </section>
+
+      {allPaid ? (
+        <section className="space-y-2 rounded-lg border border-zinc-800 bg-zinc-900 p-3">
+          <div className="font-medium text-zinc-100">Host action</div>
+          <div className="font-mono text-[10px] uppercase tracking-widest text-zinc-500">
+            Close the session from the host wallet once every member has paid.
+          </div>
+          <Button type="button" className="w-full bg-indigo-600 font-mono text-sm hover:bg-indigo-500" onClick={onCloseSession} disabled={closing || !isHost}>
+            {closing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wallet className="mr-2 h-4 w-4" />}
+            {closing ? "closing..." : isHost ? "close session" : "connect host wallet"}
+          </Button>
+          <div className="text-xs text-zinc-500">
+            This closes the session on-chain and pays the pooled cUSD balance out to the host wallet.
+          </div>
+        </section>
+      ) : null}
     </div>
   );
 }

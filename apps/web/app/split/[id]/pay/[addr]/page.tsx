@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DashboardBadge } from "@/components/dashboard/badge";
 import { useDashboardWallet } from "@/components/dashboard/use-wallet";
-import { requestWalletAccount, sendMemberPaymentTransaction, waitForCeloReceipt } from "@/lib/celo-contract";
+import { requestWalletAccount, sendApproveCusdTransaction, sendMemberPaymentTransaction, waitForCeloReceipt } from "@/lib/celo-contract";
 import { formatUsdcPrecise, truncateAddress } from "@/lib/dashboard";
 
 type SessionMember = {
@@ -104,6 +104,13 @@ export default function PayPage({ params }: { params: Promise<{ id: string; addr
         throw new Error("Connect the same wallet address that was added as this session member.");
       }
 
+      const amountToApprove = BigInt(price?.blockchainAmount ?? member?.amount ?? "0");
+      const approvalTxHash = await sendApproveCusdTransaction({
+        from: walletAddress as `0x${string}`,
+        amount: amountToApprove
+      });
+      await waitForCeloReceipt(approvalTxHash);
+
       const txHash = await sendMemberPaymentTransaction({
         sessionId,
         from: walletAddress as `0x${string}`,
@@ -185,6 +192,9 @@ export default function PayPage({ params }: { params: Promise<{ id: string; addr
                 <div className="flex items-center justify-between font-mono text-xs text-zinc-500">
                   <span>Total session</span>
                   <span className="text-zinc-100">${formatUsdcPrecise(session?.total ?? "0")}</span>
+                </div>
+                <div className="rounded-md border border-zinc-800 bg-zinc-900 p-3 text-[11px] text-zinc-400">
+                  Your wallet will ask for two signatures: first to approve cUSD for this session, then to complete the payment on-chain.
                 </div>
               </div>
 

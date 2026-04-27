@@ -3,13 +3,13 @@
 ## Frontend (apps/web/.env.local)
 NEXT_PUBLIC_BACKEND_URL=http://localhost:3001
 NEXT_PUBLIC_CELO_RPC_URL=https://forno.celo.org
-NEXT_PUBLIC_CONTRACT_ADDRESS=0x98f1ca98ba153080433678614F9182221BCdEEa6
+NEXT_PUBLIC_CONTRACT_ADDRESS=0x8c56C9881b1Abd2e5e18B1e76A63009f59315422
 NEXT_PUBLIC_CUSD_ADDRESS=0x765de816845861e75a25fca122bb6898b8b1282a
 
 ## Backend (apps/backend/.env)
 PORT=3001
 GROQ_API_KEY=                      # console.groq.com -> API Keys
-SPLYT_SESSION_CONTRACT=0x98f1ca98ba153080433678614F9182221BCdEEa6
+SPLYT_SESSION_CONTRACT=0x8c56C9881b1Abd2e5e18B1e76A63009f59315422
 CELO_RPC_URL=https://forno.celo.org
 MONGODB_URI=                       # MongoDB Atlas connection string
 MONGODB_DB_NAME=splyt             # optional, defaults to splyt

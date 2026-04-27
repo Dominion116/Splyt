@@ -2,6 +2,7 @@
 
 import { Address, Hex, createPublicClient, encodeFunctionData, http } from "viem";
 import { celo } from "viem/chains";
+import { CUSD_ADDRESS } from "./minipay";
 
 declare global {
   interface Window {
@@ -18,7 +19,7 @@ type WalletProvider = {
 };
 
 export const CONTRACT_ADDRESS = (
-  process.env.NEXT_PUBLIC_CONTRACT_ADDRESS ?? "0x98f1ca98ba153080433678614F9182221BCdEEa6"
+  process.env.NEXT_PUBLIC_CONTRACT_ADDRESS ?? "0x8c56C9881b1Abd2e5e18B1e76A63009f59315422"
 ) as Address;
 
 const ABI = [
@@ -44,6 +45,26 @@ const ABI = [
       { name: "member", type: "address" }
     ],
     outputs: []
+  },
+  {
+    type: "function",
+    name: "closeSession",
+    stateMutability: "nonpayable",
+    inputs: [{ name: "sessionId", type: "bytes32" }],
+    outputs: []
+  }
+] as const;
+
+const ERC20_ABI = [
+  {
+    type: "function",
+    name: "approve",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "spender", type: "address" },
+      { name: "amount", type: "uint256" }
+    ],
+    outputs: [{ name: "", type: "bool" }]
   }
 ] as const;
 
@@ -111,6 +132,64 @@ export async function sendMemberPaymentTransaction(args: {
     abi: ABI,
     functionName: "markPaid",
     args: [toBytes32(args.sessionId), args.member]
+  });
+
+  const hash = await provider.request({
+    method: "eth_sendTransaction",
+    params: [
+      {
+        from: args.from,
+        to: CONTRACT_ADDRESS,
+        data
+      }
+    ]
+  });
+
+  if (typeof hash !== "string") {
+    throw new Error("Wallet did not return a transaction hash.");
+  }
+
+  return hash as Hex;
+}
+
+export async function sendApproveCusdTransaction(args: {
+  from: Address;
+  amount: bigint;
+}): Promise<Hex> {
+  const provider = getProvider();
+  const data = encodeFunctionData({
+    abi: ERC20_ABI,
+    functionName: "approve",
+    args: [CONTRACT_ADDRESS, args.amount]
+  });
+
+  const hash = await provider.request({
+    method: "eth_sendTransaction",
+    params: [
+      {
+        from: args.from,
+        to: CUSD_ADDRESS,
+        data
+      }
+    ]
+  });
+
+  if (typeof hash !== "string") {
+    throw new Error("Wallet did not return an approval transaction hash.");
+  }
+
+  return hash as Hex;
+}
+
+export async function sendCloseSessionTransaction(args: {
+  sessionId: string;
+  from: Address;
+}): Promise<Hex> {
+  const provider = getProvider();
+  const data = encodeFunctionData({
+    abi: ABI,
+    functionName: "closeSession",
+    args: [toBytes32(args.sessionId)]
   });
 
   const hash = await provider.request({
