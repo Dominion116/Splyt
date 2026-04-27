@@ -16,6 +16,7 @@ function StatusIcon({ status }: { status: DashboardSessionStatus }) {
 
 export default function DashboardHistoryPage() {
   const [filter, setFilter] = useState<"all" | DashboardSessionStatus>("all");
+  const [visibleCount, setVisibleCount] = useState(3);
   const { address } = useDashboardWallet();
   const [sessions, setSessions] = useState<DashboardSessionRecord[]>([]);
 
