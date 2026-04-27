@@ -42,7 +42,7 @@ export default function DashboardHomePage() {
 
   useEffect(() => {
     const load = async () => {
-      if (isMiniPay()) {
+      if (address) {
         try {
           setBalanceMicros(await getCUSDBalance(address as `0x${string}`));
         } catch {
