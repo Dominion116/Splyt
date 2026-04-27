@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { Clock3, CreditCard, DollarSign, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,7 +19,7 @@ import {
   type DashboardSessionRecord
 } from "@/lib/dashboard";
 
-function StatCard({ label, value }: { label: string; value: string }) {
+function StatCard({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-3">
       <div className="font-mono text-xl text-zinc-100">{value}</div>
