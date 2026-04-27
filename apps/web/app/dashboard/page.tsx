@@ -79,15 +79,22 @@ export default function DashboardHomePage() {
     void load();
   }, [address]);
 
-  const stats = useMemo(
-    () => [
+  const stats = useMemo(() => {
+    if (loadingBalance || loadingSessions) {
+      return [
+        { label: "cUSD balance", value: <span className="inline-block h-6 w-16 animate-pulse rounded bg-zinc-700" /> },
+        { label: "active sessions", value: <span className="inline-block h-6 w-8 animate-pulse rounded bg-zinc-700" /> },
+        { label: "total settled", value: <span className="inline-block h-6 w-16 animate-pulse rounded bg-zinc-700" /> },
+        { label: "fees paid", value: <span className="inline-block h-6 w-12 animate-pulse rounded bg-zinc-700" /> }
+      ];
+    }
+    return [
       { label: "cUSD balance", value: `$${formatUsdc(balanceMicros)}` },
       { label: "active sessions", value: String(sessions.filter((session) => session.status === "pending").length) },
       { label: "total settled", value: `$${formatUsdc(sessions.filter((session) => session.status === "settled").reduce((sum, session) => sum + session.collectedMicros, 0n))}` },
       { label: "fees paid", value: "$0.00" }
-    ],
-    [balanceMicros, sessions]
-  );
+    ];
+  }, [balanceMicros, sessions, loadingBalance, loadingSessions]);
 
   const activeSessions = useMemo(() => sessions.filter((session) => session.status === "pending"), [sessions]);
 
@@ -114,7 +121,26 @@ export default function DashboardHomePage() {
           <span className="font-mono text-[10px] text-zinc-600">{truncatedAddress}</span>
         </div>
         <div className="space-y-2">
-          {activeSessions.slice(0, visibleActiveCount).map((session) => (
+          {loadingSessions ? (
+            Array.from({ length: 2 }).map((_, i) => (
+              <div key={i} className="space-y-2 rounded-lg border border-zinc-800 bg-zinc-900 p-3 animate-pulse">
+                <div className="flex items-center justify-between gap-2">
+                  <div>
+                    <div className="h-4 w-24 rounded bg-zinc-700 mb-1" />
+                    <div className="h-3 w-16 rounded bg-zinc-700" />
+                  </div>
+                  <div className="h-5 w-12 rounded bg-zinc-700" />
+                </div>
+                <div className="h-2 w-full rounded bg-zinc-700" />
+                <div className="flex items-center justify-between font-mono text-[9px] text-zinc-500">
+                  <span className="h-3 w-16 rounded bg-zinc-700" />
+                  <span className="h-3 w-16 rounded bg-zinc-700" />
+                </div>
+              </div>
+            ))
+          ) : (
+            <>
+              {activeSessions.slice(0, visibleActiveCount).map((session) => (
             <div key={session.id} className="space-y-2 rounded-lg border border-zinc-800 bg-zinc-900 p-3">
               <div className="flex items-center justify-between gap-2">
                 <div>
@@ -130,12 +156,14 @@ export default function DashboardHomePage() {
               </div>
             </div>
           ))}
-          {!activeSessions.length ? <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-3 font-mono text-xs text-zinc-600">No active sessions.</div> : null}
-          {activeSessions.length > visibleActiveCount ? (
+              {!activeSessions.length ? <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-3 font-mono text-xs text-zinc-600">No active sessions.</div> : null}
+              {activeSessions.length > visibleActiveCount ? (
             <button type="button" onClick={() => setVisibleActiveCount((count) => count + 3)} className="w-full rounded-lg border border-zinc-800 bg-zinc-950 p-3 font-mono text-[10px] uppercase tracking-widest text-zinc-400 transition-colors hover:border-indigo-500 hover:text-zinc-100">
               show more
             </button>
           ) : null}
+            </>
+          )}
         </div>
       </section>
 
@@ -147,7 +175,18 @@ export default function DashboardHomePage() {
       <section className="space-y-2">
         <h2 className="font-mono text-[10px] uppercase tracking-widest text-zinc-500">recent activity</h2>
         <div className="space-y-2">
-          {recentActivity.length ? recentActivity.slice(0, visibleActivityCount).map((entry: DashboardActivityRecord) => (
+          {loadingSessions ? (
+            Array.from({ length: 2 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-3 rounded-lg border border-zinc-800 bg-zinc-900 p-3 animate-pulse">
+                <div className="rounded-md bg-zinc-800 p-1.5 h-8 w-8" />
+                <div className="min-w-0 flex-1">
+                  <div className="h-4 w-32 rounded bg-zinc-700 mb-1" />
+                  <div className="h-3 w-16 rounded bg-zinc-700" />
+                </div>
+                <div className="h-4 w-12 rounded bg-zinc-700" />
+              </div>
+            ))
+          ) : recentActivity.length ? recentActivity.slice(0, visibleActivityCount).map((entry: DashboardActivityRecord) => (
             <div key={entry.id} className="flex items-center gap-3 rounded-lg border border-zinc-800 bg-zinc-900 p-3">
               <div className="rounded-md bg-zinc-800 p-1.5"><ActivityIcon kind={entry.kind} /></div>
               <div className="min-w-0 flex-1">
@@ -157,7 +196,7 @@ export default function DashboardHomePage() {
               <div className={cn("font-mono text-xs", entry.amountMicros > 0n ? "text-zinc-100" : "text-zinc-500")}>{entry.amountMicros > 0n ? `$${formatUsdc(entry.amountMicros)}` : "—"}</div>
             </div>
           )) : <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-3 font-mono text-xs text-zinc-600">No recent activity yet.</div>}
-          {recentActivity.length > visibleActivityCount ? (
+          {recentActivity.length > visibleActivityCount && !loadingSessions ? (
             <button type="button" onClick={() => setVisibleActivityCount((count) => count + 3)} className="w-full rounded-lg border border-zinc-800 bg-zinc-950 p-3 font-mono text-[10px] uppercase tracking-widest text-zinc-400 transition-colors hover:border-indigo-500 hover:text-zinc-100">
               show more
             </button>
