@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DashboardBadge } from "@/components/dashboard/badge";
-import { truncateAddress, formatUsdc } from "@/lib/dashboard";
+import { truncateAddress, formatUsdcPrecise } from "@/lib/dashboard";
 import { CONTRACT_ADDRESS } from "@/lib/celo-contract";
 import { getCUSDBalance } from "@/lib/minipay";
 import { useDashboardWallet } from "@/components/dashboard/use-wallet";
@@ -62,7 +62,7 @@ export default function DashboardProfilePage() {
         </div>
         <div className="h-px bg-zinc-800" />
         <div className="space-y-2 font-mono text-[10px] text-zinc-500">
-          <div className="flex items-center justify-between"><span>cUSD balance</span><span>${formatUsdc(balance)}</span></div>
+          <div className="flex items-center justify-between"><span>cUSD balance</span><span>${formatUsdcPrecise(balance)}</span></div>
           <div className="flex items-center justify-between"><span>Network</span><DashboardBadge variant="settled">celo</DashboardBadge></div>
           <div className="flex items-center justify-between"><span>Gas token</span><span>cUSD</span></div>
         </div>
