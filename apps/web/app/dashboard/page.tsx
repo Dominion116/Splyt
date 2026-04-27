@@ -139,7 +139,7 @@ export default function DashboardHomePage() {
       <section className="space-y-2">
         <h2 className="font-mono text-[10px] uppercase tracking-widest text-zinc-500">recent activity</h2>
         <div className="space-y-2">
-          {recentActivity.length ? recentActivity.map((entry: DashboardActivityRecord) => (
+          {recentActivity.length ? recentActivity.slice(0, visibleActivityCount).map((entry: DashboardActivityRecord) => (
             <div key={entry.id} className="flex items-center gap-3 rounded-lg border border-zinc-800 bg-zinc-900 p-3">
               <div className="rounded-md bg-zinc-800 p-1.5"><ActivityIcon kind={entry.kind} /></div>
               <div className="min-w-0 flex-1">
@@ -149,6 +149,11 @@ export default function DashboardHomePage() {
               <div className={cn("font-mono text-xs", entry.amountMicros > 0n ? "text-zinc-100" : "text-zinc-500")}>{entry.amountMicros > 0n ? `$${formatUsdc(entry.amountMicros)}` : "—"}</div>
             </div>
           )) : <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-3 font-mono text-xs text-zinc-600">No recent activity yet.</div>}
+          {recentActivity.length > visibleActivityCount ? (
+            <button type="button" onClick={() => setVisibleActivityCount((count) => count + 3)} className="w-full rounded-lg border border-zinc-800 bg-zinc-950 p-3 font-mono text-[10px] uppercase tracking-widest text-zinc-400 transition-colors hover:border-indigo-500 hover:text-zinc-100">
+              show more
+            </button>
+          ) : null}
         </div>
       </section>
     </div>
