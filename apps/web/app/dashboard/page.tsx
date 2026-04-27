@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ProgressBar } from "@/components/dashboard/progress-bar";
 import { DashboardBadge } from "@/components/dashboard/badge";
 import { useDashboardWallet } from "@/components/dashboard/use-wallet";
-import { getCUSDBalance, isMiniPay } from "@/lib/minipay";
+import { getCUSDBalance } from "@/lib/minipay";
 import { cn } from "@/lib/utils";
 import {
   formatUsdc,
