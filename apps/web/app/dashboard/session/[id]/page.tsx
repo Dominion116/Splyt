@@ -66,7 +66,18 @@ export default function DashboardSessionPage({ params }: { params: Promise<{ id:
                 }
               : current
           );
-          setLogLines((current) => [...current, { tag: data.allPaid ? "[done ]" : "[wait ]", tagColor: data.allPaid ? "text-green-500" : "text-amber-500", text: `${data.members.filter((member) => member.paid).length}/${data.members.length} members paid` }]);
+          setLogLines((current) => {
+            const nextLine = {
+              tag: data.allPaid ? "[done ]" : "[wait ]",
+              tagColor: data.allPaid ? "text-green-500" : "text-amber-500",
+              text: `${data.members.filter((member) => member.paid).length}/${data.members.length} members paid`
+            };
+            const lastLine = current[current.length - 1];
+            if (lastLine?.tag === nextLine.tag && lastLine?.text === nextLine.text) {
+              return current;
+            }
+            return [...current, nextLine];
+          });
           if (data.allPaid) {
             source?.close();
             setStreamOpen(false);
