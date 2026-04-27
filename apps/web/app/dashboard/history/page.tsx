@@ -19,9 +19,11 @@ export default function DashboardHistoryPage() {
   const [visibleCount, setVisibleCount] = useState(3);
   const { address } = useDashboardWallet();
   const [sessions, setSessions] = useState<DashboardSessionRecord[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const load = async () => {
+      setLoading(true);
       try {
         const backend = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:3001";
         const response = await fetch(`${backend}/api/session?host=${address}`);
@@ -35,6 +37,8 @@ export default function DashboardHistoryPage() {
         }
       } catch {
         setSessions([]);
+      } finally {
+        setLoading(false);
       }
     };
 

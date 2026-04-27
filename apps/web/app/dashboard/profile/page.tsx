@@ -16,6 +16,7 @@ export default function DashboardProfilePage() {
   const router = useRouter();
   const { address } = useDashboardWallet();
   const [balance, setBalance] = useState(0n);
+  const [loadingBalance, setLoadingBalance] = useState(false);
   const [defaultMode, setDefaultMode] = useState<SettingMode>("equal");
   const [expiry, setExpiry] = useState("6h");
   const contractAddress = CONTRACT_ADDRESS;
@@ -29,11 +30,14 @@ export default function DashboardProfilePage() {
 
   useEffect(() => {
     const loadBalance = async () => {
+      setLoadingBalance(true);
       try {
         if (!address) return;
         setBalance(await getCUSDBalance(address as `0x${string}`));
       } catch {
         setBalance(0n);
+      } finally {
+        setLoadingBalance(false);
       }
     };
 

@@ -39,16 +39,22 @@ export default function DashboardHomePage() {
   const { address, truncatedAddress } = useDashboardWallet();
   const [balanceMicros, setBalanceMicros] = useState(0n);
   const [sessions, setSessions] = useState<DashboardSessionRecord[]>([]);
+  const [loadingBalance, setLoadingBalance] = useState(false);
+  const [loadingSessions, setLoadingSessions] = useState(false);
   const [visibleActiveCount, setVisibleActiveCount] = useState(3);
   const [visibleActivityCount, setVisibleActivityCount] = useState(3);
 
   useEffect(() => {
     const load = async () => {
+      setLoadingBalance(true);
+      setLoadingSessions(true);
       if (address) {
         try {
           setBalanceMicros(await getCUSDBalance(address as `0x${string}`));
         } catch {
           setBalanceMicros(0n);
+        } finally {
+          setLoadingBalance(false);
         }
       }
 
@@ -65,6 +71,8 @@ export default function DashboardHomePage() {
         }
       } catch {
         setSessions([]);
+      } finally {
+        setLoadingSessions(false);
       }
     };
 

@@ -10,14 +10,17 @@ type Member = { address: string; paid: boolean; paidAt: number | null };
 export function PaymentStatus({ sessionId }: { sessionId: string }) {
   const [members, setMembers] = useState<Member[]>([]);
   const [allPaid, setAllPaid] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
     const base = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:3001";
     const es = new EventSource(`${base}/api/status/${sessionId}`);
     es.onmessage = (event) => {
       const data = JSON.parse(event.data) as { members: Member[]; allPaid: boolean };
       setMembers(data.members);
       setAllPaid(data.allPaid);
+      setLoading(false);
       if (data.allPaid) es.close();
     };
     return () => es.close();
