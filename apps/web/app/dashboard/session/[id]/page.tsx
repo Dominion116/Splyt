@@ -150,13 +150,32 @@ export default function DashboardSessionPage({ params }: { params: Promise<{ id:
             <div className="font-medium text-zinc-100">Session {sessionId.slice(0, 8)}</div>
             <div className="font-mono text-[10px] text-zinc-600">{truncateAddress(sessionId)}</div>
           </div>
-          <DashboardBadge variant={allPaid ? "settled" : "pending"}>{allPaid ? "settled" : "pending"}</DashboardBadge>
+          <div className="flex flex-col items-end gap-2">
+            <DashboardBadge variant={allPaid ? "settled" : "pending"}>{allPaid ? "settled" : "pending"}</DashboardBadge>
+            <Button
+              type="button"
+              size="sm"
+              className="font-mono text-[10px] uppercase tracking-widest"
+              onClick={onCloseSession}
+              disabled={closing || !isHost || !allPaid}
+            >
+              {closing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wallet className="mr-2 h-4 w-4" />}
+              {closing ? "closing..." : "withdraw"}
+            </Button>
+          </div>
         </div>
         <div className="font-mono text-[10px] uppercase tracking-widest text-zinc-500">celo mainnet</div>
         <ProgressBar value={progress} label={`${Math.round(progress)}% paid`} />
         <div className="flex items-center justify-between font-mono text-[10px] text-zinc-500">
           <span>${formatUsdcPrecise(collectedMicros)} collected</span>
           <span>${formatUsdcPrecise(pendingMicros)} pending</span>
+        </div>
+        <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-xs text-zinc-500">
+          {isHost
+            ? allPaid
+              ? "All members have paid. You can withdraw by closing the session on-chain."
+              : "Withdraw unlocks after all members have paid."
+            : "Only the host wallet can withdraw by closing the session on-chain."}
         </div>
       </section>
 
@@ -220,22 +239,6 @@ export default function DashboardSessionPage({ params }: { params: Promise<{ id:
           <Play className="mr-2 h-4 w-4" /> new split
         </Button>
       </section>
-
-      {allPaid ? (
-        <section className="space-y-2 rounded-lg border border-zinc-800 bg-zinc-900 p-3">
-          <div className="font-medium text-zinc-100">Host action</div>
-          <div className="font-mono text-[10px] uppercase tracking-widest text-zinc-500">
-            Close the session from the host wallet once every member has paid.
-          </div>
-          <Button type="button" className="w-full bg-indigo-600 font-mono text-sm hover:bg-indigo-500" onClick={onCloseSession} disabled={closing || !isHost}>
-            {closing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wallet className="mr-2 h-4 w-4" />}
-            {closing ? "closing..." : isHost ? "close session" : "connect host wallet"}
-          </Button>
-          <div className="text-xs text-zinc-500">
-            This closes the session on-chain and pays the pooled cUSD balance out to the host wallet.
-          </div>
-        </section>
-      ) : null}
     </div>
   );
 }
