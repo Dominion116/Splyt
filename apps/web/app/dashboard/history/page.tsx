@@ -42,6 +42,7 @@ export default function DashboardHistoryPage() {
   }, [address]);
 
   const filteredSessions = useMemo(() => (filter === "all" ? sessions : sessions.filter((session) => session.status === filter)), [filter, sessions]);
+  const visibleSessions = useMemo(() => filteredSessions.slice(0, visibleCount), [filteredSessions, visibleCount]);
 
   const totals = useMemo(
     () =>
