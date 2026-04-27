@@ -62,7 +62,7 @@ export default function DashboardHistoryPage() {
       <section className="space-y-2">
         <div className="grid grid-cols-3 overflow-hidden rounded-md border border-zinc-800">
           {(["all", "settled", "pending"] as const).map((item) => (
-            <button key={item} type="button" onClick={() => setFilter(item)} className={`border-r border-zinc-800 px-3 py-2 font-mono text-[10px] uppercase tracking-widest last:border-r-0 ${filter === item ? "bg-indigo-600 text-white" : "bg-transparent text-zinc-500"}`}>
+            <button key={item} type="button" onClick={() => { setFilter(item); setVisibleCount(3); }} className={`border-r border-zinc-800 px-3 py-2 font-mono text-[10px] uppercase tracking-widest last:border-r-0 ${filter === item ? "bg-indigo-600 text-white" : "bg-transparent text-zinc-500"}`}>
               {item}
             </button>
           ))}
