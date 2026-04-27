@@ -81,6 +81,8 @@ export default function DashboardHomePage() {
     [balanceMicros, sessions]
   );
 
+  const activeSessions = useMemo(() => sessions.filter((session) => session.status === "pending"), [sessions]);
+
   const recentActivity = useMemo<DashboardActivityRecord[]>(() => {
     if (!sessions.length) return [];
 
