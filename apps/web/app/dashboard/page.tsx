@@ -86,7 +86,7 @@ export default function DashboardHomePage() {
   const recentActivity = useMemo<DashboardActivityRecord[]>(() => {
     if (!sessions.length) return [];
 
-    return sessions.slice(0, 5).map((session, index) => ({
+    return sessions.map((session, index) => ({
       id: `${session.id}-${index}`,
       kind: session.status === "settled" ? "done" : session.status === "expired" ? "wait" : "chain",
       description: `${session.name} • ${session.memberCount} members`,
