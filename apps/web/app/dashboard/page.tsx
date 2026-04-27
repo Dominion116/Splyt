@@ -39,6 +39,8 @@ export default function DashboardHomePage() {
   const { address, truncatedAddress } = useDashboardWallet();
   const [balanceMicros, setBalanceMicros] = useState(0n);
   const [sessions, setSessions] = useState<DashboardSessionRecord[]>([]);
+  const [visibleActiveCount, setVisibleActiveCount] = useState(3);
+  const [visibleActivityCount, setVisibleActivityCount] = useState(3);
 
   useEffect(() => {
     const load = async () => {
