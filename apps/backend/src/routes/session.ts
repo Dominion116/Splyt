@@ -159,7 +159,8 @@ router.get("/:sessionId", async (req, res, next) => {
       const withChain = {
         ...serializeSession(session),
         allPaid: chainState.allPaid,
-        chainStatus: "live"
+        chainStatus: "live",
+        chainActive: chainState.active
       };
       res.json(withChain);
     } catch (error) {
@@ -167,7 +168,8 @@ router.get("/:sessionId", async (req, res, next) => {
         res.json({
           ...serializeSession(session),
           allPaid: session.members.every((member) => member.paid),
-          chainStatus: "missing"
+          chainStatus: "missing",
+          chainActive: false
         });
         return;
       }

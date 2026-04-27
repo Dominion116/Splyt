@@ -60,6 +60,7 @@ router.get("/:sessionId", async (req, res) => {
             paidAt: m.paidAt ?? null
           })),
           allPaid: latestSession.members.every((m) => m.paid),
+          active: false,
           chainStatus: "missing"
         });
         clearInterval(pollInterval);
@@ -76,7 +77,8 @@ router.get("/:sessionId", async (req, res) => {
         paid: m.paid,
         paidAt: latestSession.members.find((mem) => mem.address.toLowerCase() === m.address.toLowerCase())?.paidAt ?? null
       })),
-      allPaid: status.allPaid
+      allPaid: status.allPaid,
+      active: status.active
     });
     if (status.allPaid) {
       clearInterval(pollInterval);

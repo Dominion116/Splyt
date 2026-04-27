@@ -10,7 +10,7 @@ import { ProgressBar } from "@/components/dashboard/progress-bar";
 import { useDashboardWallet } from "@/components/dashboard/use-wallet";
 import { DashboardBadge } from "@/components/dashboard/badge";
 import { TerminalLog, type TerminalLine } from "@/components/dashboard/terminal-log";
-import { requestWalletAccount, sendCloseSessionTransaction, waitForCeloReceipt } from "@/lib/celo-contract";
+import { assertCanCloseSession, requestWalletAccount, sendCloseSessionTransaction, waitForCeloReceipt } from "@/lib/celo-contract";
 import { formatUsdcPrecise, truncateAddress } from "@/lib/dashboard";
 
 type MemberStatus = { address: string; paid: boolean; amountDue: string; paidAt?: number | null };
@@ -18,6 +18,7 @@ type SessionRecord = {
   id: string;
   host: string;
   chainStatus?: "live" | "missing";
+  chainActive?: boolean;
   members: Array<{ address: string; amount: string; paid: boolean; paidAt: number | null }>;
 };
 
@@ -32,6 +33,8 @@ export default function DashboardSessionPage({ params }: { params: Promise<{ id:
   const [sessionRecord, setSessionRecord] = useState<SessionRecord | null>(null);
   const [closing, setClosing] = useState(false);
   const [closeTxHash, setCloseTxHash] = useState<string | null>(null);
+  const [copiedPayLinkFor, setCopiedPayLinkFor] = useState<string | null>(null);
+  const [shareCopied, setShareCopied] = useState(false);
 
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:3001";
   const { id: sessionId } = use(params);
@@ -55,13 +58,14 @@ export default function DashboardSessionPage({ params }: { params: Promise<{ id:
         setStreamOpen(true);
 
         source.onmessage = (event) => {
-          const data = JSON.parse(event.data) as { members: MemberStatus[]; allPaid: boolean };
+          const data = JSON.parse(event.data) as { members: MemberStatus[]; allPaid: boolean; active?: boolean };
           setMembers(data.members);
           setAllPaid(data.allPaid);
           setSessionRecord((current) =>
             current
               ? {
                   ...current,
+                  chainActive: data.active ?? current.chainActive,
                   members: current.members.map((entry) => {
                     const liveMember = data.members.find((member) => member.address.toLowerCase() === entry.address.toLowerCase());
                     return liveMember
@@ -122,6 +126,7 @@ export default function DashboardSessionPage({ params }: { params: Promise<{ id:
     [connectedAddress, sessionRecord]
   );
   const isLiveOnCurrentContract = sessionRecord?.chainStatus !== "missing";
+  const isClosed = sessionRecord?.chainActive === false || !!closeTxHash;
 
   const collectedMicros = members.reduce((sum, member) => sum + (member.paid ? BigInt(member.amountDue) : 0n), 0n);
   const pendingMicros = members.reduce((sum, member) => sum + (member.paid ? 0n : BigInt(member.amountDue)), 0n);
@@ -137,6 +142,10 @@ export default function DashboardSessionPage({ params }: { params: Promise<{ id:
       if (!sessionRecord?.host || hostAddress.toLowerCase() !== sessionRecord.host.toLowerCase()) {
         throw new Error("Connect the host wallet to close this session.");
       }
+      await assertCanCloseSession({
+        sessionId,
+        from: hostAddress as `0x${string}`
+      });
 
       const txHash = await sendCloseSessionTransaction({
         sessionId,
@@ -147,11 +156,28 @@ export default function DashboardSessionPage({ params }: { params: Promise<{ id:
         throw new Error("The close session transaction did not succeed on-chain.");
       }
       setCloseTxHash(txHash);
+      setSessionRecord((current) => (current ? { ...current, chainActive: false } : current));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to close session.");
     } finally {
       setClosing(false);
     }
+  };
+
+  const onCopyPayLink = async (payLink: string, memberAddress: string) => {
+    await navigator.clipboard.writeText(payLink);
+    setCopiedPayLinkFor(memberAddress);
+    window.setTimeout(() => {
+      setCopiedPayLinkFor((current) => (current === memberAddress ? null : current));
+    }, 1600);
+  };
+
+  const onCopyShareLink = async () => {
+    await navigator.clipboard.writeText(`${appOrigin}/dashboard/session/${sessionId}`);
+    setShareCopied(true);
+    window.setTimeout(() => {
+      setShareCopied(false);
+    }, 1600);
   };
 
   return (
@@ -169,10 +195,10 @@ export default function DashboardSessionPage({ params }: { params: Promise<{ id:
               size="sm"
               className="font-mono text-[10px] uppercase tracking-widest"
               onClick={onCloseSession}
-              disabled={closing || !isHost || !allPaid || !isLiveOnCurrentContract}
+              disabled={closing || !isHost || !allPaid || !isLiveOnCurrentContract || isClosed}
             >
               {closing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wallet className="mr-2 h-4 w-4" />}
-              {closing ? "closing..." : "withdraw"}
+              {closing ? "closing..." : isClosed ? "withdrawn" : "withdraw"}
             </Button>
           </div>
         </div>
@@ -183,7 +209,9 @@ export default function DashboardSessionPage({ params }: { params: Promise<{ id:
           <span>${formatUsdcPrecise(pendingMicros)} pending</span>
         </div>
         <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-xs text-zinc-500">
-          {isLiveOnCurrentContract
+          {isClosed
+            ? "Session closed on-chain. The payout should have been transferred to the host wallet in this transaction."
+            : isLiveOnCurrentContract
             ? isHost
             ? allPaid
               ? "All members have paid. You can withdraw by closing the session on-chain."
@@ -234,10 +262,13 @@ export default function DashboardSessionPage({ params }: { params: Promise<{ id:
                     <div className="truncate font-mono text-[10px] text-zinc-400">{member.address}</div>
                     <div className="font-mono text-xs text-zinc-100">${formatUsdcPrecise(member.amount)}</div>
                   </div>
-                  <Button type="button" variant="outline" size="sm" onClick={() => navigator.clipboard.writeText(payLink)}>
+                  <div className="flex flex-col items-end gap-1">
+                    <Button type="button" variant="outline" size="sm" onClick={() => void onCopyPayLink(payLink, member.address)}>
                     <Link2 className="mr-2 h-4 w-4" />
                     copy pay link
-                  </Button>
+                    </Button>
+                    {copiedPayLinkFor === member.address ? <div className="font-mono text-[10px] uppercase tracking-widest text-green-400">copied</div> : null}
+                  </div>
                 </div>
               );
             })}
@@ -246,13 +277,14 @@ export default function DashboardSessionPage({ params }: { params: Promise<{ id:
       ) : null}
 
       <section className="grid grid-cols-2 gap-2">
-        <Button type="button" className="bg-indigo-600 font-mono text-sm hover:bg-indigo-500" onClick={async () => navigator.clipboard.writeText(`${appOrigin}/dashboard/session/${sessionId}`)}>
+        <Button type="button" className="bg-indigo-600 font-mono text-sm hover:bg-indigo-500" onClick={() => void onCopyShareLink()}>
           <ClipboardCopy className="mr-2 h-4 w-4" /> share link
         </Button>
         <Button type="button" variant="outline" className="border-zinc-700 font-mono text-sm" onClick={() => router.push("/dashboard/new")}>
           <Play className="mr-2 h-4 w-4" /> new split
         </Button>
       </section>
+      {shareCopied ? <div className="font-mono text-[10px] uppercase tracking-widest text-green-400">link copied</div> : null}
     </div>
   );
 }

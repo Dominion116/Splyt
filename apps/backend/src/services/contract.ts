@@ -82,6 +82,35 @@ const ABI = [
   },
   {
     type: "function",
+    name: "getSession",
+    stateMutability: "view",
+    inputs: [{ name: "sessionId", type: "bytes32" }],
+    outputs: [
+      {
+        name: "",
+        type: "tuple",
+        components: [
+          { name: "id", type: "bytes32" },
+          { name: "host", type: "address" },
+          { name: "total", type: "uint256" },
+          { name: "createdAt", type: "uint256" },
+          { name: "expiresAt", type: "uint256" },
+          { name: "active", type: "bool" },
+          {
+            name: "members",
+            type: "tuple[]",
+            components: [
+              { name: "addr", type: "address" },
+              { name: "amountDue", type: "uint256" },
+              { name: "paid", type: "bool" }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    type: "function",
     name: "getMemberStatus",
     stateMutability: "view",
     inputs: [
@@ -97,6 +126,7 @@ const ABI = [
 
 export interface SessionStatus {
   allPaid: boolean;
+  active: boolean;
   members: Array<{ address: Address; paid: boolean; amountDue: bigint }>;
 }
 
@@ -146,7 +176,7 @@ export async function getSessionStatus(sessionId: string, members: Address[]): P
 
   // Fetch real-time data from blockchain - no caching or mock data
   try {
-    const [statuses, allPaid] = await Promise.all([
+    const [statuses, allPaid, session] = await Promise.all([
       Promise.all(
         members.map(async (member) => {
           const [amountDue, paid] = await publicClient.readContract({
@@ -163,10 +193,16 @@ export async function getSessionStatus(sessionId: string, members: Address[]): P
         abi: ABI,
         functionName: "allPaid",
         args: [toBytes32(sessionId)]
+      }),
+      publicClient.readContract({
+        address: CONTRACT_ADDRESS,
+        abi: ABI,
+        functionName: "getSession",
+        args: [toBytes32(sessionId)]
       })
     ]);
 
-    return { allPaid, members: statuses };
+    return { allPaid, active: session.active, members: statuses };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     if (message.includes("SessionNotFound")) {

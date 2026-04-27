@@ -24,6 +24,51 @@ export const CONTRACT_ADDRESS = (
 
 const ABI = [
   {
+    type: "error",
+    name: "SessionNotFound",
+    inputs: []
+  },
+  {
+    type: "error",
+    name: "SessionExpired",
+    inputs: []
+  },
+  {
+    type: "error",
+    name: "SessionInactive",
+    inputs: []
+  },
+  {
+    type: "error",
+    name: "MemberNotFound",
+    inputs: []
+  },
+  {
+    type: "error",
+    name: "AlreadyPaid",
+    inputs: []
+  },
+  {
+    type: "error",
+    name: "NotHost",
+    inputs: []
+  },
+  {
+    type: "error",
+    name: "NotMember",
+    inputs: []
+  },
+  {
+    type: "error",
+    name: "NotSettled",
+    inputs: []
+  },
+  {
+    type: "error",
+    name: "TransferFailed",
+    inputs: []
+  },
+  {
     type: "function",
     name: "createSession",
     stateMutability: "nonpayable",
@@ -208,6 +253,44 @@ export async function sendCloseSessionTransaction(args: {
   }
 
   return hash as Hex;
+}
+
+export async function assertCanCloseSession(args: {
+  sessionId: string;
+  from: Address;
+}) {
+  const client = createPublicClient({
+    chain: celo,
+    transport: http(process.env.NEXT_PUBLIC_CELO_RPC_URL ?? "https://forno.celo.org")
+  });
+
+  try {
+    await client.simulateContract({
+      address: CONTRACT_ADDRESS,
+      abi: ABI,
+      functionName: "closeSession",
+      args: [toBytes32(args.sessionId)],
+      account: args.from
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (message.includes("NotHost")) {
+      throw new Error("Only the host wallet can withdraw this session.");
+    }
+    if (message.includes("NotSettled")) {
+      throw new Error("The session is not fully settled on-chain yet.");
+    }
+    if (message.includes("SessionInactive")) {
+      throw new Error("This session has already been closed.");
+    }
+    if (message.includes("TransferFailed")) {
+      throw new Error("The contract could not transfer the pooled cUSD to the host wallet.");
+    }
+    if (message.includes("SessionNotFound")) {
+      throw new Error("This session was not found on the active contract.");
+    }
+    throw error;
+  }
 }
 
 export async function waitForCeloReceipt(hash: Hex) {
