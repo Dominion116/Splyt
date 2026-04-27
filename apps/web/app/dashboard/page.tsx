@@ -74,7 +74,7 @@ export default function DashboardHomePage() {
   const stats = useMemo(
     () => [
       { label: "cUSD balance", value: `$${formatUsdc(balanceMicros)}` },
-      { label: "active sessions", value: String(sessions.filter((session) => session.status !== "settled").length) },
+      { label: "active sessions", value: String(sessions.filter((session) => session.status === "pending").length) },
       { label: "total settled", value: `$${formatUsdc(sessions.filter((session) => session.status === "settled").reduce((sum, session) => sum + session.collectedMicros, 0n))}` },
       { label: "fees paid", value: "$0.00" }
     ],
