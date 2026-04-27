@@ -37,12 +37,14 @@ export function getMiniPayPublicClient() {
 
 export async function getCUSDBalance(address: Address): Promise<bigint> {
   const client = getMiniPayPublicClient();
-  return client.readContract({
+  const raw = await client.readContract({
     address: CUSD_ADDRESS,
     abi: erc20Abi,
     functionName: "balanceOf",
     args: [address]
   });
+  // Convert from 18 decimals to 6 decimals (micros)
+  return raw / 1_000_000_000_000n;
 }
 
 export const getUSDCBalance = getCUSDBalance;
