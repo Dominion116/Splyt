@@ -19,7 +19,10 @@ type SessionRecord = {
   host: string;
   chainStatus?: "live" | "missing";
   chainActive?: boolean;
-  members: Array<{ address: string; amount: string; paid: boolean; paidAt: number | null }>;
+  createTxHash?: string | null;
+  closeTxHash?: string | null;
+  closedAt?: number | null;
+  members: Array<{ address: string; amount: string; paid: boolean; paidAt: number | null; paymentTxHash?: string | null }>;
 };
 
 export default function DashboardSessionPage({ params }: { params: Promise<{ id: string }> }) {
@@ -126,7 +129,7 @@ export default function DashboardSessionPage({ params }: { params: Promise<{ id:
     [connectedAddress, sessionRecord]
   );
   const isLiveOnCurrentContract = sessionRecord?.chainStatus !== "missing";
-  const isClosed = sessionRecord?.chainActive === false || !!closeTxHash;
+  const isClosed = sessionRecord?.chainActive === false || !!closeTxHash || !!sessionRecord?.closeTxHash;
 
   const collectedMicros = members.reduce((sum, member) => sum + (member.paid ? BigInt(member.amountDue) : 0n), 0n);
   const pendingMicros = members.reduce((sum, member) => sum + (member.paid ? 0n : BigInt(member.amountDue)), 0n);
@@ -155,8 +158,26 @@ export default function DashboardSessionPage({ params }: { params: Promise<{ id:
       if (receipt.status !== "success") {
         throw new Error("The close session transaction did not succeed on-chain.");
       }
+      const confirmResponse = await fetch(`${backendUrl}/api/session/${sessionId}/close`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ txHash })
+      });
+      if (!confirmResponse.ok) {
+        const confirmData = (await confirmResponse.json().catch(() => ({}))) as { message?: string };
+        throw new Error(confirmData.message || `Close confirmation failed (${confirmResponse.status})`);
+      }
       setCloseTxHash(txHash);
-      setSessionRecord((current) => (current ? { ...current, chainActive: false } : current));
+      setSessionRecord((current) =>
+        current
+          ? {
+              ...current,
+              chainActive: false,
+              closeTxHash: txHash,
+              closedAt: Date.now()
+            }
+          : current
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to close session.");
     } finally {
@@ -244,7 +265,30 @@ export default function DashboardSessionPage({ params }: { params: Promise<{ id:
         <TerminalLog lines={logLines} live className="max-h-64" />
         {error ? <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-sm text-red-400">{error}</div> : null}
         {allPaid ? <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-sm text-zinc-100">Session settled. All payments confirmed on Celo.</div> : null}
-        {closeTxHash ? <div className="rounded-lg border border-green-500/20 bg-green-500/10 p-3 text-sm text-green-300">Close session confirmed: <span className="font-mono break-all">{closeTxHash}</span></div> : null}
+        {sessionRecord?.closeTxHash || closeTxHash ? <div className="rounded-lg border border-green-500/20 bg-green-500/10 p-3 text-sm text-green-300">Close session confirmed: <span className="font-mono break-all">{sessionRecord?.closeTxHash ?? closeTxHash}</span></div> : null}
+      </section>
+
+      <section className="space-y-2 rounded-lg border border-zinc-800 bg-zinc-900 p-3">
+        <div className="flex items-center justify-between border-b border-zinc-800 pb-2">
+          <div className="font-medium text-zinc-100">Transaction trail</div>
+          <div className="font-mono text-[10px] uppercase tracking-widest text-zinc-500">audit</div>
+        </div>
+        <div className="space-y-2 pt-1 font-mono text-xs text-zinc-400">
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+            <div className="text-zinc-500">Session create</div>
+            <div className="break-all text-zinc-100">{sessionRecord?.createTxHash ?? "Not tracked for this session"}</div>
+          </div>
+          {sessionRecord?.members.map((member) => (
+            <div key={`${member.address}-tx`} className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+              <div className="text-zinc-500">Member payment {truncateAddress(member.address)}</div>
+              <div className="break-all text-zinc-100">{member.paymentTxHash ?? (member.paid ? "Paid on-chain, tx hash not stored for this session." : "Pending")}</div>
+            </div>
+          ))}
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+            <div className="text-zinc-500">Host withdraw</div>
+            <div className="break-all text-zinc-100">{sessionRecord?.closeTxHash ?? closeTxHash ?? "Not withdrawn yet"}</div>
+          </div>
+        </div>
       </section>
 
       {sessionRecord?.members?.length ? (

@@ -22,6 +22,7 @@ export interface SessionMember {
   amount: bigint;
   paid: boolean;
   paidAt?: number;
+  paymentTxHash?: string;
 }
 
 export interface SessionRecord {
@@ -34,6 +35,9 @@ export interface SessionRecord {
   mode: SplitMode;
   receipt: ParsedReceipt;
   txHash?: string;
+  createTxHash?: string;
+  closeTxHash?: string;
+  closedAt?: number;
 }
 
 const REQUIRED_ENV_VARS = [
@@ -46,6 +50,7 @@ interface StoredSessionMember {
   amount: string;
   paid: boolean;
   paidAt?: number;
+  paymentTxHash?: string;
 }
 
 interface StoredSessionRecord {
@@ -58,6 +63,9 @@ interface StoredSessionRecord {
   mode: SplitMode;
   receipt: ParsedReceipt;
   txHash?: string;
+  createTxHash?: string;
+  closeTxHash?: string;
+  closedAt?: number;
 }
 
 function toStoredSession(session: SessionRecord): StoredSessionRecord {
@@ -125,7 +133,24 @@ export async function markPaidLocally(sessionId: string, memberAddress: string, 
       $set: {
         txHash,
         "members.$.paid": true,
-        "members.$.paidAt": Date.now()
+        "members.$.paidAt": Date.now(),
+        "members.$.paymentTxHash": txHash
+      }
+    }
+  );
+
+  if (!result.matchedCount) return undefined;
+  return getSession(sessionId);
+}
+
+export async function markSessionClosedLocally(sessionId: string, txHash: string): Promise<SessionRecord | undefined> {
+  const collection = await getSessionsCollection();
+  const result = await collection.updateOne(
+    { id: sessionId },
+    {
+      $set: {
+        closeTxHash: txHash,
+        closedAt: Date.now()
       }
     }
   );
@@ -142,13 +167,17 @@ export function serializeSession(session: SessionRecord) {
       address: m.address,
       amount: m.amount.toString(),
       paid: m.paid,
-      paidAt: m.paidAt ?? null
+      paidAt: m.paidAt ?? null,
+      paymentTxHash: m.paymentTxHash ?? null
     })),
     total: session.total.toString(),
     createdAt: session.createdAt,
     expiresAt: session.expiresAt,
     mode: session.mode,
     receipt: session.receipt,
-    allPaid: session.members.every((m) => m.paid)
+    allPaid: session.members.every((m) => m.paid),
+    createTxHash: session.createTxHash ?? session.txHash ?? null,
+    closeTxHash: session.closeTxHash ?? null,
+    closedAt: session.closedAt ?? null
   };
 }

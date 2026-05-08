@@ -4,7 +4,7 @@ import { z } from "zod";
 import { validateBody } from "../middleware/validate.js";
 import { computeSplit } from "../services/ai.js";
 import { ChainSessionNotFoundError, getSessionStatus, sessionExists } from "../services/contract.js";
-import { ParsedReceipt, putSession, getSession, listSessions, serializeSession } from "../services/db.js";
+import { ParsedReceipt, putSession, getSession, listSessions, markSessionClosedLocally, serializeSession } from "../services/db.js";
 
 const router = Router();
 
@@ -118,7 +118,8 @@ router.post("/", validateBody(createSchema), async (req, res, next) => {
       expiresAt,
       mode: req.body.mode,
       receipt,
-      txHash: req.body.txHash
+      txHash: req.body.txHash,
+      createTxHash: req.body.txHash
     });
 
     const paymentLinks = Object.fromEntries(
@@ -126,6 +127,29 @@ router.post("/", validateBody(createSchema), async (req, res, next) => {
     );
 
     res.status(201).json({ sessionId: id, paymentLinks });
+  } catch (error) {
+    next(error);
+  }
+});
+
+const closeSchema = z.object({
+  txHash: z.string().regex(/^0x[a-fA-F0-9]{64}$/)
+});
+
+router.post("/:sessionId/close", validateBody(closeSchema), async (req, res, next) => {
+  try {
+    const session = await getSession(req.params.sessionId);
+    if (!session) {
+      res.status(404).json({ error: "Session not found" });
+      return;
+    }
+
+    const updated = await markSessionClosedLocally(session.id, req.body.txHash);
+    res.json({
+      sessionId: session.id,
+      closeTxHash: req.body.txHash,
+      closedAt: updated?.closedAt ?? Date.now()
+    });
   } catch (error) {
     next(error);
   }
