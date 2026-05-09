@@ -21,7 +21,7 @@ const router = Router();
  *               type: string
  */
 router.get("/:sessionId", async (req, res) => {
-  const sessionId = req.params.sessionId;
+  const sessionId = String(req.params.sessionId);
   const session = await getSession(sessionId);
   if (!session) {
     res.status(404).json({ error: "Session not found" });

@@ -138,7 +138,7 @@ const closeSchema = z.object({
 
 router.post("/:sessionId/close", validateBody(closeSchema), async (req, res, next) => {
   try {
-    const session = await getSession(req.params.sessionId);
+    const session = await getSession(String(req.params.sessionId));
     if (!session) {
       res.status(404).json({ error: "Session not found" });
       return;
@@ -170,7 +170,7 @@ router.post("/:sessionId/close", validateBody(closeSchema), async (req, res, nex
  */
 router.get("/:sessionId", async (req, res, next) => {
   try {
-    const session = await getSession(req.params.sessionId);
+    const session = await getSession(String(req.params.sessionId));
     if (!session) {
       res.status(404).json({ error: "Session not found" });
       return;
