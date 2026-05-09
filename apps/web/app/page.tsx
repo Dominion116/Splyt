@@ -112,9 +112,8 @@ export default function LandingPage() {
                 size="lg"
                 onClick={connectWallet}
                 loading={connecting}
-                rightIcon={<ArrowRight className="h-4 w-4" />}
               >
-                {connecting ? "Connecting" : "Get started, connect wallet"}
+                {connecting ? "Connecting" : "Get started"}
               </Button>
               <a
                 href="https://github.com"
