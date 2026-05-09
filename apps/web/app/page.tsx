@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Avatar } from "@/components/ui/avatar";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const terminalLines = [
   "[agent] Receipt image received",
@@ -21,7 +22,7 @@ const terminalLines = [
 ];
 
 const flow: { title: string; copy: string; Icon: typeof Camera }[] = [
-  { title: "Snap", copy: "Take a photo of any receipt — paper, PDF, or screenshot.", Icon: Camera },
+  { title: "Snap", copy: "Take a photo of any receipt: paper, PDF, or screenshot.", Icon: Camera },
   { title: "Parse", copy: "Splyt's vision agent reads every line item in seconds.", Icon: ScanLine },
   { title: "Pay", copy: "Each friend pays their share in stablecoin, automatically.", Icon: Wallet }
 ];
@@ -79,6 +80,7 @@ export default function LandingPage() {
             >
               How it works
             </a>
+            <ThemeToggle />
             <Button onClick={connectWallet} loading={connecting} size="sm" rightIcon={<ArrowRight className="h-4 w-4" />}>
               Connect wallet
             </Button>
@@ -91,8 +93,8 @@ export default function LandingPage() {
         <div aria-hidden="true" className="aurora pointer-events-none absolute inset-0 -z-10" />
         <div aria-hidden="true" className="grid-overlay pointer-events-none absolute inset-0 -z-10 opacity-50" />
 
-        <div className="mx-auto grid max-w-6xl gap-12 px-6 py-24 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:py-32">
-          <div className="animate-fade-in-up">
+        <div className="mx-auto grid w-full max-w-6xl gap-12 px-5 py-24 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:py-32">
+          <div className="min-w-0 animate-fade-in-up">
             <Badge variant="primary" dot className="mb-6">
               Built on Celo · MiniPay native
             </Badge>
@@ -103,7 +105,7 @@ export default function LandingPage() {
             </h1>
             <p className="mt-6 max-w-xl text-lg text-muted-foreground">
               Snap a receipt. Splyt&apos;s AI parses every line. Friends pay their share in
-              stablecoin — instantly, automatically, on-chain.
+              stablecoin: instantly, automatically, on-chain.
             </p>
             <div className="mt-9 flex flex-wrap items-center gap-3">
               <Button
@@ -112,7 +114,7 @@ export default function LandingPage() {
                 loading={connecting}
                 rightIcon={<ArrowRight className="h-4 w-4" />}
               >
-                {connecting ? "Connecting" : "Get started — connect wallet"}
+                {connecting ? "Connecting" : "Get started, connect wallet"}
               </Button>
               <a
                 href="https://github.com"
@@ -142,8 +144,8 @@ export default function LandingPage() {
           </div>
 
           {/* Phone-style preview */}
-          <div className="relative animate-fade-in-up [animation-delay:120ms]">
-            <div className="absolute -inset-6 -z-10 rounded-[36px] bg-gradient-to-br from-primary/15 via-transparent to-accent/15 blur-2xl" />
+          <div className="relative min-w-0 animate-fade-in-up [animation-delay:120ms]">
+            <div aria-hidden="true" className="pointer-events-none absolute -inset-4 -z-10 rounded-[36px] bg-gradient-to-br from-primary/15 via-transparent to-accent/15 blur-2xl sm:-inset-6" />
             <Card padding="none" className="overflow-hidden shadow-lg">
               <div className="flex items-center justify-between border-b border-border bg-surface-muted px-5 py-3">
                 <div className="flex items-center gap-2">
@@ -164,11 +166,11 @@ export default function LandingPage() {
                   <Badge variant="primary">4 friends</Badge>
                 </div>
                 <Separator />
-                <ul className="space-y-2 font-mono text-[13px] leading-relaxed text-muted-foreground">
+                <ul className="min-w-0 space-y-2 overflow-hidden font-mono text-[12px] leading-relaxed text-muted-foreground sm:text-[13px]">
                   {terminalLines.map((line, i) => (
                     <li
                       key={line}
-                      className="terminal-line"
+                      className="terminal-line max-w-full"
                       style={{ animationDelay: `${i * 0.18}s` }}
                     >
                       {line}
