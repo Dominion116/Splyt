@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Camera, Code2, ScanLine, Wallet } from "lucide-react";
+import { ArrowUpRight, BarChart3, Camera, Code2, Plus, ScanLine, ShieldCheck, Wallet } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -27,10 +27,55 @@ const flow: { title: string; copy: string; Icon: typeof Camera }[] = [
   { title: "Pay", copy: "Each friend pays their share in stablecoin, automatically.", Icon: Wallet }
 ];
 
-const stats: { value: string; label: string }[] = [
-  { value: "$0.001", label: "gas per payment" },
-  { value: "~1s", label: "settlement time" },
-  { value: "0%", label: "platform fee" }
+const stats: { value: string; label: string; description: string; Icon: typeof Camera; size: "lg" | "sm" }[] = [
+  {
+    label: "Item-level accuracy",
+    value: "98%",
+    description: "Receipts parsed correctly on the first try by Splyt's vision agent.",
+    Icon: ScanLine,
+    size: "lg"
+  },
+  {
+    label: "Settled on-chain",
+    value: "100%",
+    description: "Every share lands as cUSD in your wallet — no off-chain IOUs.",
+    Icon: ShieldCheck,
+    size: "sm"
+  },
+  {
+    label: "Platform fee",
+    value: "0%",
+    description: "Splyt takes nothing. You pay only Celo gas, about $0.001 a transfer.",
+    Icon: Wallet,
+    size: "sm"
+  }
+];
+
+const faqs: { q: string; a: string }[] = [
+  {
+    q: "Do I need a crypto wallet to use Splyt?",
+    a: "Yes. Splyt runs on Celo, so each member pays from a wallet holding cUSD. Inside MiniPay (the Opera mini-app browser) the wallet is already set up; outside MiniPay any EVM wallet like MetaMask works."
+  },
+  {
+    q: "Why Celo and not a regular payment app?",
+    a: "Celo gas is around $0.001 per transfer, settlement is sub-second, and cUSD is a stablecoin pegged to the US dollar. Splitting a $12 dinner doesn't cost you 30 cents in fees, and there's no waiting on a bank to clear."
+  },
+  {
+    q: "What if a friend doesn't pay their share?",
+    a: "Each share is held by the Splyt smart contract until everyone has paid. The host can only withdraw the full amount once every member has settled, so no one gets stuck holding the bag."
+  },
+  {
+    q: "Is my receipt data private?",
+    a: "Receipts are parsed by an AI vision model and the line items are stored with your session so members can see what they're paying for. Only your Celo address and the amount are visible on-chain."
+  },
+  {
+    q: "How accurate is the AI receipt parser?",
+    a: "Splyt's vision agent reads about 98% of receipts correctly on the first try, including multi-quantity items and tax. You can review and adjust everything before sending payment requests."
+  },
+  {
+    q: "What does it cost to use Splyt?",
+    a: "Splyt charges no platform fee. You only pay Celo network gas, which is typically a fraction of a cent per transaction. There are no subscriptions or per-split charges."
+  }
 ];
 
 export default function LandingPage() {
@@ -219,32 +264,104 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Stats strip */}
-      <section aria-label="Network stats" className="mx-auto max-w-6xl px-6 pb-20">
-        <Card padding="none" variant="muted" className="overflow-hidden">
-          <div className="grid grid-cols-1 divide-y divide-border md:grid-cols-3 md:divide-x md:divide-y-0">
-            {stats.map((stat) => (
-              <div key={stat.label} className="px-8 py-7 text-center">
-                <p className="text-display-md text-foreground">{stat.value}</p>
-                <p className="mt-1 text-sm text-muted-foreground">{stat.label}</p>
+      {/* Stats — bento layout */}
+      <section aria-labelledby="stats-title" className="mx-auto max-w-6xl px-6 pb-20">
+        <div className="grid gap-10 lg:grid-cols-2 lg:gap-12">
+          {/* Left: heading + supporting copy */}
+          <div className="lg:py-6">
+            <Badge variant="primary" className="mb-5 inline-flex items-center gap-1.5">
+              <BarChart3 className="h-3.5 w-3.5" aria-hidden="true" />
+              Performance stats
+            </Badge>
+            <h2 id="stats-title" className="text-display-md text-foreground">
+              Proven by groups
+              <br />
+              that actually settle.
+            </h2>
+            <p className="mt-5 max-w-md text-base text-muted-foreground">
+              Faster checkouts, smaller bills, zero awkward reminders — the numbers behind
+              every Splyt session.
+            </p>
+            <a
+              href="#how"
+              className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+            >
+              Explore the full flow
+              <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+            </a>
+
+            {/* Trust row */}
+            <div className="mt-12 hidden items-center gap-3 lg:flex">
+              <div className="flex -space-x-2">
+                {["Ada", "Mei", "Jonah", "Rae"].map((n) => (
+                  <Avatar key={n} name={n} size="sm" className="ring-2 ring-background" />
+                ))}
               </div>
-            ))}
+              <span className="text-sm text-muted-foreground">
+                <span className="font-medium text-foreground">Loved by groups</span> splitting brunch, rent, and trips.
+              </span>
+            </div>
           </div>
-        </Card>
+
+          {/* Right: bento grid */}
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            {stats.map((stat) => {
+              const { Icon } = stat;
+              return (
+                <Card
+                  key={stat.label}
+                  padding="none"
+                  variant="muted"
+                  className={`flex flex-col justify-between p-6 sm:p-7 ${
+                    stat.size === "lg" ? "col-span-2 min-h-[220px]" : "min-h-[200px]"
+                  }`}
+                >
+                  <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                    <span aria-hidden="true" className="grid h-7 w-7 place-items-center rounded-md bg-primary-soft text-primary">
+                      <Icon className="h-3.5 w-3.5" />
+                    </span>
+                    {stat.label}
+                  </div>
+                  <div>
+                    <p className="text-display-lg font-semibold tracking-tight text-foreground">
+                      {stat.value}
+                    </p>
+                    <p className="mt-2 text-sm text-muted-foreground">{stat.description}</p>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
       </section>
 
-      {/* Tech tags */}
-      <section aria-labelledby="stack-title" className="mx-auto max-w-6xl px-6 pb-24">
-        <h2 id="stack-title" className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
-          Built with the right tools
-        </h2>
-        <div className="mt-4 flex flex-wrap gap-2">
-          {["Celo L2", "Direct Payments", "MiniPay", "Groq AI", "Solidity", "Next.js"].map((t) => (
-            <Badge key={t} variant="outline" className="px-3 py-1.5">
-              {t}
-            </Badge>
-          ))}
+      {/* FAQ */}
+      <section id="faq" aria-labelledby="faq-title" className="mx-auto max-w-3xl px-6 pb-24">
+        <div className="mb-10 text-center">
+          <p className="text-sm font-medium uppercase tracking-wider text-primary">FAQ</p>
+          <h2 id="faq-title" className="mt-3 text-display-md">Questions, answered.</h2>
+          <p className="mt-3 text-muted-foreground">
+            Everything you might wonder before splitting your first bill on Splyt.
+          </p>
         </div>
+        <ul className="space-y-3">
+          {faqs.map((faq) => (
+            <li key={faq.q}>
+              <details className="group rounded-xl border border-border bg-surface p-5 transition-colors open:bg-surface-muted">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-left text-base font-medium text-foreground">
+                  <span>{faq.q}</span>
+                  <span
+                    aria-hidden="true"
+                    className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-surface-muted text-muted-foreground transition-transform group-open:rotate-45 group-open:bg-primary-soft group-open:text-primary"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                  </span>
+                </summary>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{faq.a}</p>
+              </details>
+            </li>
+          ))}
+        </ul>
       </section>
 
       <Separator />
