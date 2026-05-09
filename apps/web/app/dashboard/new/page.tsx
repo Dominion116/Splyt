@@ -1,10 +1,12 @@
 "use client";
 
 import { ChangeEvent, useMemo, useState } from "react";
-import { ArrowRight, Camera, Loader2, Plus } from "lucide-react";
+import { ArrowRight, Camera, Plus, Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Input, Field } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { useDashboardWallet } from "@/components/dashboard/use-wallet";
 import { TerminalLog, type TerminalLine } from "@/components/dashboard/terminal-log";
 import { formatUsdcPrecise, isValidEthAddress } from "@/lib/dashboard";
@@ -20,6 +22,13 @@ type ParsedReceipt = {
 type MemberAllocation = { address: string; percentage: number };
 
 const splitModes = ["equal", "itemised", "custom"] as const;
+
+const tagColor = {
+  agent: "text-primary",
+  vision: "text-primary",
+  done: "text-success",
+  wait: "text-warning"
+} as const;
 
 function fileToBase64(input: File) {
   return new Promise<string>((resolve, reject) => {
@@ -46,7 +55,9 @@ export default function DashboardNewSplitPage() {
   const [parsedReceipt, setParsedReceipt] = useState<ParsedReceipt | null>(null);
   const [members, setMembers] = useState<MemberAllocation[]>([{ address: "", percentage: 100 }]);
   const [itemAssignments, setItemAssignments] = useState<number[]>([]);
-  const [terminalLines, setTerminalLines] = useState<TerminalLine[]>([{ tag: "[agent]", tagColor: "text-indigo-400", text: "Awaiting receipt upload." }]);
+  const [terminalLines, setTerminalLines] = useState<TerminalLine[]>([
+    { tag: "[agent]", tagColor: tagColor.agent, text: "Awaiting receipt upload." }
+  ]);
   const [loading, setLoading] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -82,7 +93,7 @@ export default function DashboardNewSplitPage() {
     setFile(selected);
     setPreview(selected ? URL.createObjectURL(selected) : null);
     if (selected) {
-      setTerminalLines([{ tag: "[agent]", tagColor: "text-indigo-400", text: "Receipt image received." }]);
+      setTerminalLines([{ tag: "[agent]", tagColor: tagColor.agent, text: "Receipt image received." }]);
     }
   };
 
@@ -93,9 +104,9 @@ export default function DashboardNewSplitPage() {
     setError(null);
     setSessionMessage(null);
     setTerminalLines([
-      { tag: "[agent]", tagColor: "text-indigo-400", text: "Receipt image received" },
-      { tag: "[vision]", tagColor: "text-indigo-400", text: "Connecting to AI service..." },
-      { tag: "[agent]", tagColor: "text-indigo-400", text: "Processing receipt data..." }
+      { tag: "[agent]", tagColor: tagColor.agent, text: "Receipt image received" },
+      { tag: "[vision]", tagColor: tagColor.vision, text: "Connecting to AI service..." },
+      { tag: "[agent]", tagColor: tagColor.agent, text: "Processing receipt data..." }
     ]);
 
     try {
@@ -119,9 +130,9 @@ export default function DashboardNewSplitPage() {
       setParsedReceipt(parsed);
       setItemAssignments(parsed.items.map(() => 0));
       setTerminalLines([
-        { tag: "[agent]", tagColor: "text-indigo-400", text: "Receipt image received" },
-        { tag: "[vision]", tagColor: "text-indigo-400", text: `AI processed ${parsed.items.length} line items` },
-        { tag: "[done ]", tagColor: "text-green-500", text: `Total: $${parsed.total}  Tax: $${parsed.tax}` }
+        { tag: "[agent]", tagColor: tagColor.agent, text: "Receipt image received" },
+        { tag: "[vision]", tagColor: tagColor.vision, text: `AI processed ${parsed.items.length} line items` },
+        { tag: "[done ]", tagColor: tagColor.done, text: `Total: $${parsed.total}  Tax: $${parsed.tax}` }
       ]);
     } catch (err) {
       if (err instanceof Error && err.name === "AbortError") {
@@ -162,7 +173,7 @@ export default function DashboardNewSplitPage() {
         expiresAt: expiresAtSeconds
       });
 
-      setSessionMessage(`waiting for wallet transaction • ${txHash.slice(0, 10)}...`);
+      setSessionMessage(`Waiting for wallet transaction · ${txHash.slice(0, 10)}...`);
       await waitForCeloReceipt(txHash);
 
       const response = await fetch(`${backendUrl}/api/session`, {
@@ -186,7 +197,7 @@ export default function DashboardNewSplitPage() {
       }
 
       const data = (await response.json()) as { sessionId: string };
-      setSessionMessage(`session created • ${data.sessionId.slice(0, 8)}`);
+      setSessionMessage(`Session created · ${data.sessionId.slice(0, 8)}`);
       router.push(`/dashboard/session/${data.sessionId}`);
     } catch (err) {
       if (err instanceof TypeError && err.message === "Failed to fetch") {
@@ -200,101 +211,266 @@ export default function DashboardNewSplitPage() {
   };
 
   return (
-    <div className="space-y-4">
-      <section className="space-y-2">
-        <div className="font-mono text-[10px] uppercase tracking-widest text-zinc-500">split mode</div>
-        <div className="grid grid-cols-3 overflow-hidden rounded-md border border-zinc-800">
-          {splitModes.map((mode) => <button key={mode} type="button" onClick={() => setSplitMode(mode)} className={cn("border-r border-zinc-800 px-3 py-2 font-mono text-[10px] uppercase tracking-widest transition-colors last:border-r-0", splitMode === mode ? "bg-indigo-600 text-white" : "bg-transparent text-zinc-500")}>{mode === "custom" ? "custom %" : mode}</button>)}
+    <div className="space-y-6">
+      <header className="space-y-1">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">New split</h1>
+        <p className="text-sm text-muted-foreground">
+          Snap a receipt, choose how to split, and ship payment links to your group.
+        </p>
+      </header>
+
+      {/* Split mode segmented control */}
+      <section aria-labelledby="mode-heading" className="space-y-2">
+        <h2 id="mode-heading" className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          Split mode
+        </h2>
+        <div role="tablist" aria-label="Split mode" className="grid grid-cols-3 gap-1.5 rounded-full bg-surface-muted p-1">
+          {splitModes.map((mode) => {
+            const active = splitMode === mode;
+            return (
+              <button
+                key={mode}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => setSplitMode(mode)}
+                className={cn(
+                  "h-9 rounded-full text-xs font-medium capitalize transition-all",
+                  active
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {mode === "custom" ? "Custom %" : mode}
+              </button>
+            );
+          })}
         </div>
       </section>
 
-      <section className="space-y-3">
-        <div className="rounded-xl border border-dashed border-zinc-700 p-8 text-center hover:border-indigo-500">
-          <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-md bg-zinc-800"><Camera size={24} className="text-zinc-600" strokeWidth={1.8} /></div>
-          <div className="text-sm text-zinc-100">Upload receipt</div>
-          <div className="mt-1 font-mono text-[10px] uppercase tracking-widest text-zinc-600">Free receipt parsing</div>
-          <div className="mt-4"><Input type="file" accept="image/*" capture="environment" onChange={onFileSelect} /></div>
-        </div>
+      {/* Receipt upload */}
+      <section aria-labelledby="upload-heading" className="space-y-3">
+        <h2 id="upload-heading" className="sr-only">Upload receipt</h2>
+        <label className="block cursor-pointer">
+          <Card
+            padding="lg"
+            variant="outline"
+            className="border-2 border-dashed text-center transition-colors hover:border-primary hover:bg-primary-soft/30"
+          >
+            <span aria-hidden="true" className="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-2xl bg-primary-soft text-primary">
+              <Camera className="h-5 w-5" strokeWidth={1.8} />
+            </span>
+            <p className="text-sm font-medium text-foreground">
+              {file ? file.name : "Upload receipt"}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {file ? "Tap to choose a different photo" : "Photo, PDF, or screenshot · free parsing"}
+            </p>
+            <input type="file" accept="image/*" capture="environment" onChange={onFileSelect} className="sr-only" />
+          </Card>
+        </label>
 
-        {preview ? <img src={preview} alt="Receipt preview" className="max-h-32 w-full rounded-lg object-cover" /> : null}
+        {preview ? (
+          <Card padding="none" className="overflow-hidden">
+            <img src={preview} alt="Receipt preview" className="max-h-40 w-full object-cover" />
+          </Card>
+        ) : null}
 
-        <Button className="w-full bg-indigo-600 font-mono text-sm hover:bg-indigo-500" onClick={onParse} disabled={!file || loading}>
-          {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-          {loading ? "parsing..." : "submit to agent"}
+        <Button
+          block
+          size="lg"
+          onClick={onParse}
+          disabled={!file}
+          loading={loading}
+          leftIcon={<Upload className="h-4 w-4" />}
+        >
+          {loading ? "Parsing receipt" : "Submit to agent"}
         </Button>
       </section>
 
-      {loading || terminalLines.length > 1 ? <TerminalLog lines={terminalLines} animateIn={loading} className="shadow-none" /> : null}
-
-      {parsedReceipt ? (
-        <section className="space-y-2 rounded-lg border border-zinc-800 bg-zinc-900 p-3">
-          <div className="flex items-center justify-between border-b border-zinc-800 pb-2"><div className="font-medium text-zinc-100">Parsed items</div><div className="font-mono text-[10px] uppercase tracking-widest text-zinc-500">{parsedReceipt.items.length} items</div></div>
-          <div className="space-y-2 pt-1">
-            {parsedReceipt.items.map((item, index) => (
-              <div key={`${item.name}-${index}`} className="flex items-center justify-between font-mono text-sm text-zinc-100">
-                <span>{item.quantity && item.quantity > 1 ? `${item.quantity} x ${item.name}` : item.name}</span>
-                <span>${item.amount}</span>
-              </div>
-            ))}
-            <div className="h-px bg-zinc-800" />
-            <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-widest text-zinc-500"><span>subtotal</span><span>${parsedReceipt.subtotal}</span></div>
-            <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-widest text-zinc-500"><span>tax</span><span>${parsedReceipt.tax}</span></div>
-            <div className="flex items-center justify-between font-mono text-sm font-medium text-indigo-400"><span>total</span><span>${parsedReceipt.total}</span></div>
-          </div>
-        </section>
+      {/* Agent terminal */}
+      {loading || terminalLines.length > 1 ? (
+        <TerminalLog lines={terminalLines} animateIn={loading} live={loading} />
       ) : null}
 
-      <section className="space-y-3 rounded-lg border border-zinc-800 bg-zinc-900 p-3">
+      {/* Parsed items */}
+      {parsedReceipt ? (
+        <Card padding="md">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold tracking-tight text-foreground">Parsed items</h2>
+            <span className="text-xs text-muted-foreground">{parsedReceipt.items.length} items</span>
+          </div>
+          <Separator className="my-3" />
+          <ul className="space-y-2 text-sm">
+            {parsedReceipt.items.map((item, index) => (
+              <li key={`${item.name}-${index}`} className="flex items-start justify-between gap-3">
+                <span className="min-w-0 truncate text-foreground">
+                  {item.quantity && item.quantity > 1 ? `${item.quantity} × ${item.name}` : item.name}
+                </span>
+                <span className="font-mono tabular-nums text-foreground">${item.amount}</span>
+              </li>
+            ))}
+          </ul>
+          <Separator className="my-3" />
+          <dl className="space-y-1 text-xs">
+            <div className="flex justify-between text-muted-foreground">
+              <dt>Subtotal</dt>
+              <dd className="font-mono tabular-nums">${parsedReceipt.subtotal}</dd>
+            </div>
+            <div className="flex justify-between text-muted-foreground">
+              <dt>Tax</dt>
+              <dd className="font-mono tabular-nums">${parsedReceipt.tax}</dd>
+            </div>
+            <div className="mt-2 flex justify-between text-base font-semibold text-primary">
+              <dt>Total</dt>
+              <dd className="font-mono tabular-nums">${parsedReceipt.total}</dd>
+            </div>
+          </dl>
+        </Card>
+      ) : null}
+
+      {/* Members */}
+      <Card padding="md">
         <div className="flex items-center justify-between">
-          <div className="font-mono text-[10px] uppercase tracking-widest text-zinc-500">members</div>
-          <Button type="button" variant="outline" size="sm" className="border-zinc-700 font-mono text-[10px] uppercase tracking-widest" onClick={() => setMembers((current) => [...current, { address: "", percentage: 0 }])}><Plus size={14} className="mr-1" /> add member</Button>
+          <h2 className="text-sm font-semibold tracking-tight text-foreground">Members</h2>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            leftIcon={<Plus className="h-3.5 w-3.5" />}
+            onClick={() => setMembers((current) => [...current, { address: "", percentage: 0 }])}
+          >
+            Add member
+          </Button>
         </div>
 
-        <div className="space-y-2 rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+        <div className="mt-4 space-y-3">
           {members.map((member, index) => (
-            <div key={`${index}-${member.address}`} className="space-y-2">
-              <label className="block font-mono text-[9px] uppercase tracking-widest text-zinc-500">member {index + 1}</label>
-              <Input value={member.address} onChange={(event) => setMembers((current) => current.map((entry, itemIndex) => (itemIndex === index ? { ...entry, address: event.target.value } : entry)))} placeholder="0x..." className="font-mono text-xs" />
+            <div key={index} className="space-y-2">
+              <Field id={`member-${index}`} label={`Member ${index + 1}`}>
+                <Input
+                  value={member.address}
+                  onChange={(event) =>
+                    setMembers((current) =>
+                      current.map((entry, itemIndex) =>
+                        itemIndex === index ? { ...entry, address: event.target.value } : entry
+                      )
+                    )
+                  }
+                  placeholder="0x..."
+                  className="font-mono text-xs"
+                />
+              </Field>
               {splitMode === "custom" ? (
-                <div className="space-y-1">
-                  <input type="range" min={0} max={100} value={member.percentage} onChange={(event) => setMembers((current) => current.map((entry, itemIndex) => (itemIndex === index ? { ...entry, percentage: Number(event.target.value) } : entry)))} className="h-2 w-full accent-indigo-500" />
-                  <div className="flex items-center justify-between font-mono text-[10px] text-zinc-500"><span>{member.percentage}%</span><span>${formatUsdcPrecise((receiptMicros * BigInt(member.percentage)) / 100n)}</span></div>
+                <div className="space-y-1.5 px-1">
+                  <input
+                    type="range"
+                    min={0}
+                    max={100}
+                    value={member.percentage}
+                    onChange={(event) =>
+                      setMembers((current) =>
+                        current.map((entry, itemIndex) =>
+                          itemIndex === index ? { ...entry, percentage: Number(event.target.value) } : entry
+                        )
+                      )
+                    }
+                    className="h-2 w-full accent-primary"
+                    aria-label={`Member ${index + 1} percentage`}
+                  />
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span className="font-medium text-foreground">{member.percentage}%</span>
+                    <span className="font-mono tabular-nums">
+                      ${formatUsdcPrecise((receiptMicros * BigInt(member.percentage)) / 100n)}
+                    </span>
+                  </div>
                 </div>
               ) : null}
             </div>
           ))}
+        </div>
 
-          {splitMode === "itemised" && parsedReceipt ? (
-            <div className="space-y-2 border-t border-zinc-800 pt-3">
-              <div className="font-mono text-[9px] uppercase tracking-widest text-zinc-500">item assignments</div>
+        {splitMode === "itemised" && parsedReceipt ? (
+          <>
+            <Separator className="my-4" />
+            <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              Item assignments
+            </h3>
+            <div className="mt-2 space-y-2">
               {parsedReceipt.items.map((item, itemIndex) => (
-                <div key={`${item.name}-${itemIndex}`} className="flex items-center justify-between gap-2">
-                  <div className="font-mono text-xs text-zinc-300">{item.quantity && item.quantity > 1 ? `${item.quantity} x ${item.name}` : item.name}</div>
-                  <select value={itemAssignments[itemIndex] ?? 0} onChange={(event) => setItemAssignments((current) => current.map((entry, idx) => (idx === itemIndex ? Number(event.target.value) : entry)))} className="rounded-md border border-zinc-800 bg-zinc-800 px-2 py-1 font-mono text-[10px] text-zinc-100">
-                    {members.map((member, memberIndex) => <option key={`${member.address}-${memberIndex}`} value={memberIndex}>{member.address.slice(0, 8)}</option>)}
+                <div key={`${item.name}-${itemIndex}`} className="flex items-center justify-between gap-3">
+                  <span className="min-w-0 truncate text-sm text-foreground">
+                    {item.quantity && item.quantity > 1 ? `${item.quantity} × ${item.name}` : item.name}
+                  </span>
+                  <select
+                    value={itemAssignments[itemIndex] ?? 0}
+                    onChange={(event) =>
+                      setItemAssignments((current) =>
+                        current.map((entry, idx) => (idx === itemIndex ? Number(event.target.value) : entry))
+                      )
+                    }
+                    aria-label={`Assign ${item.name}`}
+                    className="rounded-md border border-border bg-surface px-2.5 py-1.5 font-mono text-xs text-foreground focus-visible:outline-none focus-visible:shadow-ring"
+                  >
+                    {members.map((memberOption, memberIndex) => (
+                      <option key={`${memberOption.address}-${memberIndex}`} value={memberIndex}>
+                        {memberOption.address ? memberOption.address.slice(0, 8) : `Member ${memberIndex + 1}`}
+                      </option>
+                    ))}
                   </select>
                 </div>
               ))}
             </div>
-          ) : null}
+          </>
+        ) : null}
+      </Card>
+
+      {/* Summary */}
+      <Card padding="md" variant="muted">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold tracking-tight text-foreground">Split summary</h2>
+          <span className="text-xs capitalize text-muted-foreground">{splitMode}</span>
         </div>
-      </section>
-
-      <section className="space-y-2 rounded-lg border border-zinc-800 bg-zinc-900 p-3 font-mono text-xs">
-        <div className="flex items-center justify-between text-zinc-500"><span>split summary</span><span>{splitMode}</span></div>
-        <div className="space-y-1 pt-1 text-zinc-100">
-          {members.map((member, index) => <div key={`${member.address}-${index}`} className="flex items-center justify-between"><span className="truncate pr-3 text-zinc-400">{member.address || "unassigned"}</span><span>${formatUsdcPrecise(computedShares[index] ?? 0n)}</span></div>)}
+        <ul className="mt-3 space-y-1.5 text-sm">
+          {members.map((member, index) => (
+            <li key={`${member.address}-${index}`} className="flex items-center justify-between gap-3">
+              <span className="min-w-0 truncate font-mono text-xs text-muted-foreground">
+                {member.address || "Unassigned"}
+              </span>
+              <span className="font-mono tabular-nums text-foreground">
+                ${formatUsdcPrecise(computedShares[index] ?? 0n)}
+              </span>
+            </li>
+          ))}
+        </ul>
+        <Separator className="my-3" />
+        <div className="flex items-center justify-between text-sm font-semibold text-foreground">
+          <span>Total</span>
+          <span className="font-mono tabular-nums">${parsedReceipt ? parsedReceipt.total : "0.00"}</span>
         </div>
-        <div className="h-px bg-zinc-800" />
-        <div className="flex items-center justify-between text-zinc-100"><span>Total</span><span>${parsedReceipt ? parsedReceipt.total : "0.00"}</span></div>
-      </section>
+      </Card>
 
-      {error ? <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-3 font-mono text-xs text-red-400">{error}</div> : null}
-      {sessionMessage ? <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-3 font-mono text-xs text-zinc-400">{sessionMessage}</div> : null}
+      {error ? (
+        <Card role="alert" padding="sm" className="border-danger/30 bg-danger/5 text-sm text-danger">
+          {error}
+        </Card>
+      ) : null}
+      {sessionMessage ? (
+        <Card padding="sm" variant="muted" className="text-xs text-muted-foreground">
+          {sessionMessage}
+        </Card>
+      ) : null}
 
-      <Button type="button" className="w-full bg-indigo-600 font-mono text-sm hover:bg-indigo-500" onClick={onCreateSession} disabled={submitLoading || !parsedReceipt}>
-        {submitLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ArrowRight className="mr-2 h-4 w-4" />}
-        create session
+      <Button
+        type="button"
+        block
+        size="lg"
+        onClick={onCreateSession}
+        disabled={!parsedReceipt}
+        loading={submitLoading}
+        rightIcon={<ArrowRight className="h-4 w-4" />}
+      >
+        {submitLoading ? "Creating session" : "Create session"}
       </Button>
     </div>
   );
