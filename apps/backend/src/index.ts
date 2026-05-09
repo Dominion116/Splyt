@@ -33,7 +33,9 @@ if (!process.env.CUSD_ADDRESS) {
 
 // Keep CORS open so the app works from MiniPay and regular browsers.
 app.use(cors());
-app.use(express.json({ limit: "10mb" }));
+// Conservative global body limit — /api/parse overrides this with its own
+// express.json({ limit: "3mb" }) middleware mounted before validateBody.
+app.use(express.json({ limit: "512kb" }));
 
 // ---------------------------------------------------------------------------
 // Routes
