@@ -250,18 +250,18 @@ export default function LandingPage() {
       </section>
 
       <Separator />
-      <footer className="mx-auto flex max-w-5xl items-center justify-between px-6 py-8 text-xs font-mono text-zinc-600">
-        <span className="text-sm font-semibold tracking-tight text-zinc-300">splyt</span>
-        <div className="flex gap-4">
-          <a href="#" className="hover:text-zinc-400">
-            GitHub
-          </a>
-          <a href="#" className="hover:text-zinc-400">
-            Docs
-          </a>
-          <a href="#" className="hover:text-zinc-400">
-            Celoscan
-          </a>
+      <footer className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-4 px-6 py-10 text-sm text-muted-foreground sm:flex-row sm:items-center">
+        <div className="flex items-center gap-2">
+          <span aria-hidden="true" className="grid h-6 w-6 place-items-center rounded-md bg-primary text-primary-foreground">
+            <Sparkles className="h-3.5 w-3.5" />
+          </span>
+          <span className="font-semibold tracking-tight text-foreground">splyt</span>
+          <span>· {new Date().getFullYear()}</span>
+        </div>
+        <div className="flex gap-5">
+          <a className="hover:text-foreground" href="#">GitHub</a>
+          <a className="hover:text-foreground" href="#">Docs</a>
+          <a className="hover:text-foreground" href="#">Celoscan</a>
         </div>
       </footer>
     </main>
