@@ -3,6 +3,7 @@
 import { Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useDashboardWallet } from "./use-wallet";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export function DashboardHeader({ title }: { title: string }) {
   const { address, truncatedAddress } = useDashboardWallet();
@@ -26,16 +27,19 @@ export function DashboardHeader({ title }: { title: string }) {
           <span aria-hidden="true" />
         )}
 
-        <span
-          className="flex max-w-[150px] items-center gap-1.5 truncate rounded-full border border-border bg-surface px-3 py-1.5 font-mono text-[11px] text-foreground"
-          title={connected ? address : "Wallet not connected"}
-        >
+        <div className="flex items-center gap-2">
+          <ThemeToggle className="h-8 w-8" />
           <span
-            aria-hidden="true"
-            className={`h-1.5 w-1.5 rounded-full ${connected ? "bg-success" : "bg-muted-foreground/50"}`}
-          />
-          <span className="truncate">{truncatedAddress}</span>
-        </span>
+            className="flex max-w-[140px] items-center gap-1.5 truncate rounded-full border border-border bg-surface px-3 py-1.5 font-mono text-[11px] text-foreground"
+            title={connected ? address : "Wallet not connected"}
+          >
+            <span
+              aria-hidden="true"
+              className={`h-1.5 w-1.5 rounded-full ${connected ? "bg-success" : "bg-muted-foreground/50"}`}
+            />
+            <span className="truncate">{truncatedAddress}</span>
+          </span>
+        </div>
       </div>
     </header>
   );

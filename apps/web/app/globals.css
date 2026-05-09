@@ -2,9 +2,10 @@
 @import "tailwindcss";
 
 /*
-  Splyt design tokens — Light & friendly consumer
+  Splyt design tokens.
   Color values are stored as RGB triplets so Tailwind's
   `<alpha-value>` syntax can compose opacities cleanly.
+  Dark theme is opt-in via `html.dark`.
 */
 :root {
   /* Surfaces */
@@ -21,12 +22,12 @@
   --border: 230 224 213;        /* warm hairline */
   --ring: 16 185 129;           /* focus ring = primary */
 
-  /* Primary — mint */
+  /* Primary mint */
   --primary: 16 168 121;        /* #10A879 */
   --primary-fg: 255 255 255;
   --primary-soft: 219 244 233;  /* tint */
 
-  /* Accent — coral */
+  /* Accent coral */
   --accent: 255 107 107;        /* #FF6B6B */
   --accent-fg: 78 18 18;
   --accent-soft: 255 230 230;
@@ -37,14 +38,50 @@
   --danger: 220 38 38;
 }
 
+html.dark {
+  /* Surfaces */
+  --bg: 13 15 19;               /* deep ink */
+  --surface: 22 25 31;          /* card */
+  --surface-muted: 17 20 25;    /* recessed */
+
+  /* Text */
+  --fg: 240 238 232;            /* warm white */
+  --muted: 38 42 51;            /* divider */
+  --muted-fg: 160 166 176;      /* secondary text */
+
+  /* Lines */
+  --border: 38 42 51;           /* hairline */
+  --ring: 52 211 153;           /* focus ring = primary tint */
+
+  /* Primary mint (slightly lifted for dark surfaces) */
+  --primary: 52 211 153;        /* #34D399 */
+  --primary-fg: 8 14 11;
+  --primary-soft: 22 53 41;     /* desaturated mint tint */
+
+  /* Accent coral */
+  --accent: 255 138 128;        /* lifted coral */
+  --accent-fg: 30 10 10;
+  --accent-soft: 71 30 30;
+
+  /* Semantic */
+  --success: 74 222 128;
+  --warning: 251 191 36;
+  --danger: 248 113 113;
+}
+
 html {
   color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
 }
 
 html,
 body {
   background: rgb(var(--bg));
   color: rgb(var(--fg));
+  transition: background-color 200ms ease, color 200ms ease;
 }
 
 body {
@@ -61,7 +98,7 @@ body {
   color: rgb(var(--fg));
 }
 
-/* Focus visible — global, accessible */
+/* Focus visible: global, accessible */
 :where(a, button, input, textarea, select, [tabindex]):focus-visible {
   outline: 2px solid rgb(var(--ring));
   outline-offset: 2px;
