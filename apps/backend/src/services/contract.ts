@@ -4,6 +4,12 @@ import { celo } from "viem/chains";
 const RPC_URL = process.env.CELO_RPC_URL ?? "https://forno.celo.org";
 const CONTRACT_ADDRESS = (process.env.SPLYT_SESSION_CONTRACT ?? "0x0000000000000000000000000000000000000000") as Address;
 
+// cUSD on Celo is an 18-decimal ERC-20. The off-chain backend works in
+// 6-decimal micros, so every uint256 amount that crosses the chain boundary
+// (amountDue, payoutAmount) must be divided by 10^12 to land in micros.
+// Frontend wallet calls scale the inverse direction before sending.
+const MICROS_TO_WEI = 10n ** 12n;
+
 const ABI = [
   {
     type: "error",
@@ -202,8 +208,9 @@ export async function verifyCloseTransaction(
     if (log.topics[0]?.toLowerCase() !== SESSION_CLOSED_TOPIC) continue;
     // topics[1] is the ABI-encoded indexed bytes32 sessionId
     if (log.topics[1]?.toLowerCase() !== expectedBytes32) continue;
-    // data is the ABI-encoded uint256 payoutAmount (32 bytes, big-endian)
-    const payoutAmount = BigInt(log.data);
+    // data is the ABI-encoded uint256 payoutAmount (32 bytes, big-endian, in
+    // 18-decimal wei). Convert back to 6-decimal micros for the API response.
+    const payoutAmount = BigInt(log.data) / MICROS_TO_WEI;
     return { payoutAmount };
   }
 
@@ -243,7 +250,10 @@ export async function getSessionStatus(sessionId: string, members: Address[]): P
             functionName: "getMemberStatus",
             args: [toBytes32(sessionId), member]
           });
-          return { address: member, paid, amountDue };
+          // Scale 18-decimal wei back to 6-decimal micros for off-chain
+          // consumers. All callers (db.ts, /price endpoint, dashboard) work
+          // in micros and would otherwise display wei-scale numbers.
+          return { address: member, paid, amountDue: amountDue / MICROS_TO_WEI };
         })
       ),
       publicClient.readContract({

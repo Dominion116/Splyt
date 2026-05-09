@@ -22,6 +22,13 @@ export const CONTRACT_ADDRESS = (
   process.env.NEXT_PUBLIC_CONTRACT_ADDRESS ?? "0x8c56C9881b1Abd2e5e18B1e76A63009f59315422"
 ) as Address;
 
+// cUSD on Celo is an 18-decimal ERC-20. Splyt stores all off-chain amounts as
+// 6-decimal micros (so $25.00 == 25_000_000n) for compactness and parity with
+// the AI's parsed totals. Every value crossing the wallet/contract boundary
+// must be scaled up by 10^12 so the on-chain `amountDue` and `transferFrom`
+// calls operate in cUSD wei rather than dust micros.
+const MICROS_TO_WEI = 10n ** 12n;
+
 const ABI = [
   {
     type: "error",
@@ -138,15 +145,19 @@ export async function sendCreateSessionTransaction(args: {
   sessionId: string;
   from: Address;
   members: Address[];
+  /** Per-member shares in 6-decimal micros (off-chain unit). */
   amounts: bigint[];
   expiresAt: number;
 }): Promise<Hex> {
   const provider = getProvider();
-  const total = args.amounts.reduce((sum, amount) => sum + amount, 0n);
+  // Scale 6-decimal micros up to 18-decimal wei before sending to the
+  // contract — otherwise transferFrom/transfer move dust amounts of cUSD.
+  const weiAmounts = args.amounts.map((amount) => amount * MICROS_TO_WEI);
+  const total = weiAmounts.reduce((sum, amount) => sum + amount, 0n);
   const data = encodeFunctionData({
     abi: ABI,
     functionName: "createSession",
-    args: [toBytes32(args.sessionId), args.members, args.amounts, total, BigInt(args.expiresAt)]
+    args: [toBytes32(args.sessionId), args.members, weiAmounts, total, BigInt(args.expiresAt)]
   });
 
   const hash = await provider.request({
@@ -199,13 +210,17 @@ export async function sendMemberPaymentTransaction(args: {
 
 export async function sendApproveCusdTransaction(args: {
   from: Address;
+  /** Approval amount in 6-decimal micros (off-chain unit). */
   amount: bigint;
 }): Promise<Hex> {
   const provider = getProvider();
+  // The cUSD ERC-20 contract operates in 18-decimal wei. Scale up so the
+  // approval covers the actual on-chain transfer.
+  const weiAmount = args.amount * MICROS_TO_WEI;
   const data = encodeFunctionData({
     abi: ERC20_ABI,
     functionName: "approve",
-    args: [CONTRACT_ADDRESS, args.amount]
+    args: [CONTRACT_ADDRESS, weiAmount]
   });
 
   const hash = await provider.request({
