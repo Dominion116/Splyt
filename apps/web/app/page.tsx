@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Avatar } from "@/components/ui/avatar";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { CONTRACT_ADDRESS } from "@/lib/celo-contract";
 
 const terminalLines = [
   "[agent] Receipt image received",
@@ -158,7 +159,7 @@ export default function LandingPage() {
                 {connecting ? "Connecting" : "Get started"}
               </Button>
               <a
-                href="https://github.com"
+                href="https://github.com/Dominion116/Splyt"
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex h-12 items-center gap-2 rounded-full border border-border bg-surface px-7 text-base font-medium text-foreground transition-colors hover:bg-surface-muted"
@@ -371,9 +372,16 @@ export default function LandingPage() {
           <span>· {new Date().getFullYear()}</span>
         </div>
         <div className="flex gap-5">
-          <a className="hover:text-foreground" href="#">GitHub</a>
+          <a className="hover:text-foreground" href="https://github.com/Dominion116/Splyt" target="_blank" rel="noreferrer">GitHub</a>
           <a className="hover:text-foreground" href="#">Docs</a>
-          <a className="hover:text-foreground" href="#">Celoscan</a>
+          <a
+            className="hover:text-foreground"
+            href={`https://celoscan.io/address/${CONTRACT_ADDRESS}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Celoscan
+          </a>
         </div>
       </footer>
     </main>
