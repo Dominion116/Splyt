@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 /tmp/apply_hunk.py apps/web/app/page.tsx 1)",
+      "Bash(git commit -m ' *)"
+    ]
+  }
+}
