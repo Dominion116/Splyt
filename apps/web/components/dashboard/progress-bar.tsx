@@ -1,14 +1,23 @@
 import { cn } from "@/lib/utils";
+import { Progress } from "@/components/ui/progress";
 
-export function ProgressBar({ value, label, className }: { value: number; label?: string; className?: string }) {
-  const safeValue = Math.max(0, Math.min(100, value));
-
+export function ProgressBar({
+  value,
+  label,
+  className
+}: {
+  value: number;
+  label?: string;
+  className?: string;
+}) {
   return (
-    <div className={cn("space-y-1", className)}>
-      <div className="h-1 overflow-hidden rounded-full bg-zinc-800">
-        <div className="h-full rounded-full bg-indigo-500 transition-all duration-500" style={{ width: `${safeValue}%` }} />
-      </div>
-      {label ? <p className="font-mono text-[9px] uppercase tracking-widest text-zinc-500">{label}</p> : null}
+    <div className={cn("space-y-1.5", className)}>
+      <Progress value={value} label={label} className="h-1.5" />
+      {label ? (
+        <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+          {label}
+        </p>
+      ) : null}
     </div>
   );
 }
