@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Camera, Code2, ScanLine, Sparkles, Wallet } from "lucide-react";
+import { ArrowRight, Camera, Code2, ScanLine, Wallet } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -67,10 +67,7 @@ export default function LandingPage() {
         className="sticky top-0 z-50 border-b border-border/70 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60"
       >
         <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-6">
-          <a href="/" className="flex items-center gap-2 font-semibold tracking-tight">
-            <span aria-hidden="true" className="grid h-7 w-7 place-items-center rounded-lg bg-primary text-primary-foreground">
-              <Sparkles className="h-4 w-4" />
-            </span>
+          <a href="/" className="flex items-center gap-1.5 font-semibold tracking-tight">
             <span className="text-lg">splyt</span>
           </a>
           <div className="flex items-center gap-2">
@@ -252,10 +249,7 @@ export default function LandingPage() {
 
       <Separator />
       <footer className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-4 px-6 py-10 text-sm text-muted-foreground sm:flex-row sm:items-center">
-        <div className="flex items-center gap-2">
-          <span aria-hidden="true" className="grid h-6 w-6 place-items-center rounded-md bg-primary text-primary-foreground">
-            <Sparkles className="h-3.5 w-3.5" />
-          </span>
+        <div className="flex items-center gap-1.5">
           <span className="font-semibold tracking-tight text-foreground">splyt</span>
           <span>· {new Date().getFullYear()}</span>
         </div>
