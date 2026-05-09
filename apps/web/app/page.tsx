@@ -2,19 +2,34 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ArrowRight, Camera, Code2, ScanLine, Sparkles, Wallet } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Avatar } from "@/components/ui/avatar";
 
 const terminalLines = [
   "[agent] Receipt image received",
   "[vision] Parsing 7 line items...",
-  "[agent] Total: $47.50 | Members: 4",
+  "[agent] Total: $47.50 · Members: 4",
   "[split] Equal split: $11.88 each",
   "[chain] Session 0xabc... created on Celo",
-  "[direct] Payment request sent to 0x1a2b...3c4d",
-  "[direct] Payment request sent to 0x9f8e...7d6c",
+  "[direct] Payment request → 0x1a2b...3c4d",
+  "[direct] Payment request → 0x9f8e...7d6c",
   "[done] All payments completed"
+];
+
+const flow: { title: string; copy: string; Icon: typeof Camera }[] = [
+  { title: "Snap", copy: "Take a photo of any receipt — paper, PDF, or screenshot.", Icon: Camera },
+  { title: "Parse", copy: "Splyt's vision agent reads every line item in seconds.", Icon: ScanLine },
+  { title: "Pay", copy: "Each friend pays their share in stablecoin, automatically.", Icon: Wallet }
+];
+
+const stats: { value: string; label: string }[] = [
+  { value: "$0.001", label: "gas per payment" },
+  { value: "~1s", label: "settlement time" },
+  { value: "0%", label: "platform fee" }
 ];
 
 export default function LandingPage() {
