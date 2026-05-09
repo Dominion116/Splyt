@@ -1,75 +1,133 @@
 @config "../tailwind.config.ts";
 @import "tailwindcss";
 
+/*
+  Splyt design tokens — Light & friendly consumer
+  Color values are stored as RGB triplets so Tailwind's
+  `<alpha-value>` syntax can compose opacities cleanly.
+*/
 :root {
-  --background: 9 9 11;
-  --foreground: 244 244 245;
-  --primary: 99 102 241;
-  --muted: 39 39 42;
-  --muted-foreground: 161 161 170;
-  --border: 39 39 42;
-  --card: 24 24 27;
+  /* Surfaces */
+  --bg: 250 247 242;            /* warm off-white #FAF7F2 */
+  --surface: 255 255 255;       /* pure white card */
+  --surface-muted: 245 241 234; /* sand */
+
+  /* Text */
+  --fg: 15 17 21;               /* ink #0F1115 */
+  --muted: 234 229 220;         /* divider sand */
+  --muted-fg: 92 96 104;        /* secondary text */
+
+  /* Lines */
+  --border: 230 224 213;        /* warm hairline */
+  --ring: 16 185 129;           /* focus ring = primary */
+
+  /* Primary — mint */
+  --primary: 16 168 121;        /* #10A879 */
+  --primary-fg: 255 255 255;
+  --primary-soft: 219 244 233;  /* tint */
+
+  /* Accent — coral */
+  --accent: 255 107 107;        /* #FF6B6B */
+  --accent-fg: 78 18 18;
+  --accent-soft: 255 230 230;
+
+  /* Semantic */
+  --success: 22 163 74;
+  --warning: 217 119 6;
+  --danger: 220 38 38;
 }
 
 html {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
-html.dark body {
-  background: rgb(var(--background));
-  color: rgb(var(--foreground));
+html,
+body {
+  background: rgb(var(--bg));
+  color: rgb(var(--fg));
 }
 
 body {
   min-height: 100vh;
-  background: rgb(9 9 11);
-  color: rgb(244 244 245);
+  font-feature-settings: "ss01", "cv11";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
+/* Selection */
+::selection {
+  background: rgb(var(--primary) / 0.22);
+  color: rgb(var(--fg));
+}
+
+/* Focus visible — global, accessible */
+:where(a, button, input, textarea, select, [tabindex]):focus-visible {
+  outline: 2px solid rgb(var(--ring));
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Skeleton shimmer utility */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgb(var(--surface-muted)) 0%,
+    rgb(var(--muted) / 0.6) 50%,
+    rgb(var(--surface-muted)) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2.4s linear infinite;
+}
+
+/* Decorative aurora wash for hero */
+.aurora {
+  background:
+    radial-gradient(60% 50% at 15% 10%, rgb(var(--primary) / 0.18), transparent 60%),
+    radial-gradient(50% 40% at 90% 20%, rgb(var(--accent) / 0.16), transparent 60%),
+    radial-gradient(45% 35% at 70% 95%, rgb(var(--primary) / 0.10), transparent 60%);
+}
+
+/* Subtle grid overlay */
+.grid-overlay {
+  background-image:
+    linear-gradient(to right, rgb(var(--border) / 0.6) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(var(--border) / 0.6) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Scrollbar (kept for dashboard consumers; recolored to fit light theme) */
 .dashboard-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: rgb(139 92 246) transparent;
+  scrollbar-color: rgb(var(--primary)) transparent;
 }
-
-.dashboard-scrollbar::-webkit-scrollbar {
-  width: 10px;
-}
-
-.dashboard-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-
+.dashboard-scrollbar::-webkit-scrollbar { width: 10px; }
+.dashboard-scrollbar::-webkit-scrollbar-track { background: transparent; }
 .dashboard-scrollbar::-webkit-scrollbar-thumb {
-  background-color: rgb(139 92 246);
+  background-color: rgb(var(--primary));
   border-radius: 9999px;
   border: 2px solid transparent;
   background-clip: padding-box;
 }
 
-.dashboard-scrollbar::-webkit-scrollbar-corner {
-  background: transparent;
-}
-
-@keyframes type-in {
-  from {
-    width: 0;
-  }
-  to {
-    width: 100%;
-  }
-}
-
-@keyframes blink {
-  50% {
-    opacity: 0;
-  }
-}
-
+/* Terminal typewriter (kept; recolored) */
+@keyframes type-in { from { width: 0; } to { width: 100%; } }
+@keyframes blink { 50% { opacity: 0; } }
 .terminal-line {
   overflow: hidden;
   white-space: nowrap;
-  border-right: 1px solid rgb(99 102 241);
+  border-right: 1px solid rgb(var(--primary));
   animation: type-in 1.3s steps(35, end) forwards, blink 0.8s step-end infinite;
 }
