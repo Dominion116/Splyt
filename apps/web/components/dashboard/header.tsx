@@ -12,11 +12,11 @@ export function DashboardHeader({ title }: { title: string }) {
   return (
     <header className="sticky top-0 z-40 h-16 border-b border-border/70 bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/65">
       <div className="flex h-full items-center justify-between gap-3 px-5">
-        <Link href="/dashboard" className="flex items-center gap-2 font-semibold tracking-tight">
-          <span aria-hidden="true" className="grid h-7 w-7 place-items-center rounded-lg bg-primary text-primary-foreground">
-            <Sparkles className="h-4 w-4" />
+        <Link href="/dashboard" className="flex items-center gap-2.5 font-semibold tracking-tight">
+          <span aria-hidden="true" className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground">
+            <Sparkles className="h-5 w-5" />
           </span>
-          <span className="text-base">splyt</span>
+          <span className="text-lg">splyt</span>
         </Link>
 
         {title ? (
