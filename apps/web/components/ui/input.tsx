@@ -45,7 +45,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
 );
 Input.displayName = "Input";
 
-/* Field — label + input + help/error layout. Use for forms. */
+/* Field: label + input + help/error layout. Use for forms. */
 export interface FieldProps {
   id: string;
   label: string;

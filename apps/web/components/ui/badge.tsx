@@ -3,7 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 /*
- * Badge — small status / label primitive.
+ * Badge: small status / label primitive.
  * Variants align with semantic intent (neutral / primary / accent / success / warning / danger).
  * Use `variant="outline"` for a low-emphasis chip.
  */

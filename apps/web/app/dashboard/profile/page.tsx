@@ -60,7 +60,7 @@ export default function DashboardProfilePage() {
     router.push("/");
   };
 
-  const initials = address ? address.slice(2, 4).toUpperCase() : "—";
+  const initials = address ? address.slice(2, 4).toUpperCase() : "··";
   const connected = Boolean(address);
 
   return (

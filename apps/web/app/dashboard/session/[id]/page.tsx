@@ -233,7 +233,7 @@ export default function DashboardSessionPage({ params }: { params: Promise<{ id:
           <ProgressBar value={progress} tone={allPaid ? "success" : "primary"} />
           <div className="mt-2 flex items-center justify-between text-xs">
             <span className="font-medium text-foreground">
-              {paidCount} of {members.length || "—"} paid
+              {paidCount} of {members.length || "··"} paid
             </span>
             <span className="text-muted-foreground tabular-nums">{Math.round(progress)}%</span>
           </div>

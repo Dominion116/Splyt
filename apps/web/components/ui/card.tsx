@@ -3,7 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 /*
- * Card — atomic surface primitive.
+ * Card: atomic surface primitive.
  * Variants: default | muted | outline | ghost
  * Padding: none | sm | md | lg
  * Interactive cards opt-in via `interactive` for hover/focus affordances.

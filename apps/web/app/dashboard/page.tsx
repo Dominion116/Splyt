@@ -342,7 +342,7 @@ export default function DashboardHomePage() {
                           entry.amountMicros > 0n ? "text-foreground" : "text-muted-foreground"
                         )}
                       >
-                        {entry.amountMicros > 0n ? `$${formatUsdc(entry.amountMicros)}` : "—"}
+                        {entry.amountMicros > 0n ? `$${formatUsdc(entry.amountMicros)}` : "··"}
                       </div>
                     </Card>
                   </button>

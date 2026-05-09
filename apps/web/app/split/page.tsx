@@ -7,7 +7,7 @@ export default function SplitPage() {
         <p className="text-xs font-medium uppercase tracking-wider text-primary">New split</p>
         <h1 className="text-3xl font-semibold tracking-tight text-foreground">Create split</h1>
         <p className="text-sm text-muted-foreground">
-          Upload a receipt — Splyt&apos;s vision agent extracts every line item in seconds.
+          Upload a receipt. Splyt&apos;s vision agent extracts every line item in seconds.
         </p>
       </header>
       <ReceiptUpload />

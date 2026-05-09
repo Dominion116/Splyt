@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 /*
- * Progress — accessible determinate progress bar.
+ * Progress: accessible determinate progress bar.
  * Pass `indeterminate` for an animated loading state when % is unknown.
  */
 export interface ProgressProps {
