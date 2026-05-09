@@ -2,10 +2,13 @@
 
 import { use } from "react";
 import { useEffect, useMemo, useState } from "react";
-import { ClipboardCopy, Link2, Loader2, Play, Wallet } from "lucide-react";
+import { Check, ClipboardCopy, Link2, Play, Wallet } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
+import { Card } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import { ProgressBar } from "@/components/dashboard/progress-bar";
 import { useDashboardWallet } from "@/components/dashboard/use-wallet";
 import { DashboardBadge } from "@/components/dashboard/badge";
@@ -25,12 +28,20 @@ type SessionRecord = {
   members: Array<{ address: string; amount: string; paid: boolean; paidAt: number | null; paymentTxHash?: string | null }>;
 };
 
+const tagColor = {
+  chain: "text-primary",
+  done: "text-success",
+  wait: "text-warning"
+} as const;
+
 export default function DashboardSessionPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const { address: connectedAddress } = useDashboardWallet();
   const [members, setMembers] = useState<MemberStatus[]>([]);
   const [allPaid, setAllPaid] = useState(false);
-  const [logLines, setLogLines] = useState<TerminalLine[]>([{ tag: "[chain]", tagColor: "text-indigo-400", text: "Waiting for payment updates..." }]);
+  const [logLines, setLogLines] = useState<TerminalLine[]>([
+    { tag: "[chain]", tagColor: tagColor.chain, text: "Waiting for payment updates..." }
+  ]);
   const [streamOpen, setStreamOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sessionRecord, setSessionRecord] = useState<SessionRecord | null>(null);
@@ -86,7 +97,7 @@ export default function DashboardSessionPage({ params }: { params: Promise<{ id:
           setLogLines((current) => {
             const nextLine = {
               tag: data.allPaid ? "[done ]" : "[wait ]",
-              tagColor: data.allPaid ? "text-green-500" : "text-amber-500",
+              tagColor: data.allPaid ? tagColor.done : tagColor.wait,
               text: `${data.members.filter((member) => member.paid).length}/${data.members.length} members paid`
             };
             const lastLine = current[current.length - 1];
@@ -133,6 +144,7 @@ export default function DashboardSessionPage({ params }: { params: Promise<{ id:
 
   const collectedMicros = members.reduce((sum, member) => sum + (member.paid ? BigInt(member.amountDue) : 0n), 0n);
   const pendingMicros = members.reduce((sum, member) => sum + (member.paid ? 0n : BigInt(member.amountDue)), 0n);
+  const paidCount = members.filter((m) => m.paid).length;
 
   const onCloseSession = async () => {
     try {
@@ -145,15 +157,9 @@ export default function DashboardSessionPage({ params }: { params: Promise<{ id:
       if (!sessionRecord?.host || hostAddress.toLowerCase() !== sessionRecord.host.toLowerCase()) {
         throw new Error("Connect the host wallet to close this session.");
       }
-      await assertCanCloseSession({
-        sessionId,
-        from: hostAddress as `0x${string}`
-      });
+      await assertCanCloseSession({ sessionId, from: hostAddress as `0x${string}` });
 
-      const txHash = await sendCloseSessionTransaction({
-        sessionId,
-        from: hostAddress as `0x${string}`
-      });
+      const txHash = await sendCloseSessionTransaction({ sessionId, from: hostAddress as `0x${string}` });
       const receipt = await waitForCeloReceipt(txHash);
       if (receipt.status !== "success") {
         throw new Error("The close session transaction did not succeed on-chain.");
@@ -170,12 +176,7 @@ export default function DashboardSessionPage({ params }: { params: Promise<{ id:
       setCloseTxHash(txHash);
       setSessionRecord((current) =>
         current
-          ? {
-              ...current,
-              chainActive: false,
-              closeTxHash: txHash,
-              closedAt: Date.now()
-            }
+          ? { ...current, chainActive: false, closeTxHash: txHash, closedAt: Date.now() }
           : current
       );
     } catch (err) {
@@ -196,139 +197,235 @@ export default function DashboardSessionPage({ params }: { params: Promise<{ id:
   const onCopyShareLink = async () => {
     await navigator.clipboard.writeText(`${appOrigin}/dashboard/session/${sessionId}`);
     setShareCopied(true);
-    window.setTimeout(() => {
-      setShareCopied(false);
-    }, 1600);
+    window.setTimeout(() => setShareCopied(false), 1600);
   };
 
+  const closeHelpText = isClosed
+    ? "Session closed on-chain. The payout was transferred to the host wallet in this transaction."
+    : isLiveOnCurrentContract
+    ? isHost
+      ? allPaid
+        ? "All members have paid. You can withdraw by closing the session on-chain."
+        : "Withdraw unlocks once every member has paid."
+      : "Only the host wallet can withdraw by closing this session."
+    : "This session is in history but not on the currently configured contract. Withdraw is unavailable here.";
+
   return (
-    <div className="space-y-4">
-      <section className="space-y-3 rounded-lg border border-zinc-800 bg-zinc-900 p-3">
+    <div className="space-y-5">
+      {/* Summary card */}
+      <Card padding="md" className="space-y-4">
         <div className="flex items-start justify-between gap-3">
-          <div className="space-y-1">
-            <div className="font-medium text-zinc-100">Session {sessionId.slice(0, 8)}</div>
-            <div className="font-mono text-[10px] text-zinc-600">{truncateAddress(sessionId)}</div>
+          <div className="min-w-0 space-y-1">
+            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Session</p>
+            <h1 className="truncate text-xl font-semibold tracking-tight text-foreground">
+              {sessionId.slice(0, 8)}
+            </h1>
+            <p className="truncate font-mono text-[11px] text-muted-foreground">
+              {truncateAddress(sessionId)} · Celo mainnet
+            </p>
           </div>
-          <div className="flex flex-col items-end gap-2">
-            <DashboardBadge variant={allPaid ? "settled" : "pending"}>{allPaid ? "settled" : "pending"}</DashboardBadge>
-            <Button
-              type="button"
-              size="sm"
-              className="font-mono text-[10px] uppercase tracking-widest"
-              onClick={onCloseSession}
-              disabled={closing || !isHost || !allPaid || !isLiveOnCurrentContract || isClosed}
-            >
-              {closing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wallet className="mr-2 h-4 w-4" />}
-              {closing ? "closing..." : isClosed ? "withdrawn" : "withdraw"}
-            </Button>
+          <DashboardBadge variant={allPaid ? "settled" : "pending"}>
+            {allPaid ? "Settled" : "Pending"}
+          </DashboardBadge>
+        </div>
+
+        <div>
+          <ProgressBar value={progress} tone={allPaid ? "success" : "primary"} />
+          <div className="mt-2 flex items-center justify-between text-xs">
+            <span className="font-medium text-foreground">
+              {paidCount} of {members.length || "—"} paid
+            </span>
+            <span className="text-muted-foreground tabular-nums">{Math.round(progress)}%</span>
           </div>
         </div>
-        <div className="font-mono text-[10px] uppercase tracking-widest text-zinc-500">celo mainnet</div>
-        <ProgressBar value={progress} label={`${Math.round(progress)}% paid`} />
-        <div className="flex items-center justify-between font-mono text-[10px] text-zinc-500">
-          <span>${formatUsdcPrecise(collectedMicros)} collected</span>
-          <span>${formatUsdcPrecise(pendingMicros)} pending</span>
+
+        <div className="grid grid-cols-2 gap-2">
+          <div className="rounded-md bg-success/10 p-3">
+            <p className="text-[10px] font-medium uppercase tracking-wider text-success/80">Collected</p>
+            <p className="mt-1 font-mono text-base font-semibold tabular-nums text-success">
+              ${formatUsdcPrecise(collectedMicros)}
+            </p>
+          </div>
+          <div className="rounded-md bg-surface-muted p-3">
+            <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Pending</p>
+            <p className="mt-1 font-mono text-base font-semibold tabular-nums text-foreground">
+              ${formatUsdcPrecise(pendingMicros)}
+            </p>
+          </div>
         </div>
-        <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-xs text-zinc-500">
-          {isClosed
-            ? "Session closed on-chain. The payout should have been transferred to the host wallet in this transaction."
-            : isLiveOnCurrentContract
-            ? isHost
-            ? allPaid
-              ? "All members have paid. You can withdraw by closing the session on-chain."
-              : "Withdraw unlocks after all members have paid."
-            : "Only the host wallet can withdraw by closing the session on-chain."
-            : "This session is stored in history, but it is not available on the currently configured contract. Withdraw is unavailable here."}
+
+        <div className="space-y-2">
+          <Button
+            type="button"
+            block
+            variant={isClosed ? "outline" : "primary"}
+            onClick={onCloseSession}
+            loading={closing}
+            disabled={!isHost || !allPaid || !isLiveOnCurrentContract || isClosed}
+            leftIcon={<Wallet className="h-4 w-4" />}
+          >
+            {closing ? "Closing session" : isClosed ? "Withdrawn" : "Withdraw to wallet"}
+          </Button>
+          <p className="text-xs text-muted-foreground">{closeHelpText}</p>
+        </div>
+      </Card>
+
+      {/* Live members */}
+      <section aria-labelledby="members-heading" className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 id="members-heading" className="text-sm font-semibold tracking-tight text-foreground">
+            Live members
+          </h2>
+          <Badge variant={streamOpen ? "success" : "secondary"} dot className="text-[10px]">
+            {streamOpen ? "Live" : "Idle"}
+          </Badge>
+        </div>
+
+        <div className="space-y-2">
+          {members.length ? (
+            members.map((member) => (
+              <Card key={member.address} padding="sm" className="flex items-center gap-3">
+                <Avatar size="md" name={member.address.slice(2, 4)} />
+                <div className="min-w-0 flex-1 space-y-0.5">
+                  <p className="truncate font-mono text-[11px] text-muted-foreground">
+                    {member.address}
+                  </p>
+                  <p className="font-mono text-sm font-semibold tabular-nums text-foreground">
+                    ${formatUsdcPrecise(member.amountDue)}
+                  </p>
+                </div>
+                <DashboardBadge variant={member.paid ? "paid" : "pending"}>
+                  {member.paid ? "Paid" : "Pending"}
+                </DashboardBadge>
+              </Card>
+            ))
+          ) : (
+            <Card padding="md" variant="muted" className="text-center">
+              <p className="text-sm text-muted-foreground">Waiting for status feed…</p>
+            </Card>
+          )}
         </div>
       </section>
 
-      <section className="space-y-2 rounded-lg border border-zinc-800 bg-zinc-900 p-3">
-        <div className="flex items-center justify-between border-b border-zinc-800 pb-2">
-          <div className="font-medium text-zinc-100">Live members</div>
-          <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-zinc-500"><span className={`h-2 w-2 rounded-md ${streamOpen ? "bg-green-500" : "bg-zinc-700"}`} />{streamOpen ? "live" : "idle"}</div>
-        </div>
-        <div className="space-y-2 pt-1">
-          {members.length ? members.map((member) => (
-            <div key={member.address} className="flex items-center gap-3 rounded-lg border border-zinc-800 bg-zinc-950 p-3">
-              <Avatar className="flex h-10 w-10 items-center justify-center rounded-md border border-zinc-700 bg-zinc-800 text-[10px] font-mono text-zinc-400">{member.address.slice(2, 4)}</Avatar>
-              <div className="min-w-0 flex-1 space-y-1">
-                <div className="truncate font-mono text-[10px] text-zinc-400">{member.address}</div>
-                <div className="font-mono text-xs text-zinc-100">${formatUsdcPrecise(member.amountDue)}</div>
-              </div>
-              <DashboardBadge variant={member.paid ? "paid" : "pending"}>{member.paid ? "paid" : "pending"}</DashboardBadge>
-            </div>
-          )) : <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 font-mono text-xs text-zinc-600">waiting for status feed...</div>}
-        </div>
+      {/* Activity log */}
+      <section aria-labelledby="log-heading" className="space-y-3">
+        <h2 id="log-heading" className="sr-only">Activity log</h2>
+        <TerminalLog lines={logLines} live={streamOpen} className="max-h-64" />
+        {error ? (
+          <Card role="alert" padding="sm" className="border-danger/30 bg-danger/5 text-sm text-danger">
+            {error}
+          </Card>
+        ) : null}
+        {allPaid && !error ? (
+          <Card padding="sm" className="border-success/30 bg-success/5 text-sm text-success">
+            Session settled. All payments confirmed on Celo.
+          </Card>
+        ) : null}
+        {sessionRecord?.closeTxHash || closeTxHash ? (
+          <Card padding="sm" className="border-success/30 bg-success/5 text-sm text-success">
+            <p className="font-medium">Close transaction confirmed</p>
+            <p className="mt-1 break-all font-mono text-xs">
+              {sessionRecord?.closeTxHash ?? closeTxHash}
+            </p>
+          </Card>
+        ) : null}
       </section>
 
-      <section className="space-y-2 rounded-lg border border-zinc-800 bg-zinc-900 p-3">
-        <TerminalLog lines={logLines} live className="max-h-64" />
-        {error ? <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-sm text-red-400">{error}</div> : null}
-        {allPaid ? <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-sm text-zinc-100">Session settled. All payments confirmed on Celo.</div> : null}
-        {sessionRecord?.closeTxHash || closeTxHash ? <div className="rounded-lg border border-green-500/20 bg-green-500/10 p-3 text-sm text-green-300">Close session confirmed: <span className="font-mono break-all">{sessionRecord?.closeTxHash ?? closeTxHash}</span></div> : null}
-      </section>
-
-      <section className="space-y-2 rounded-lg border border-zinc-800 bg-zinc-900 p-3">
-        <div className="flex items-center justify-between border-b border-zinc-800 pb-2">
-          <div className="font-medium text-zinc-100">Transaction trail</div>
-          <div className="font-mono text-[10px] uppercase tracking-widest text-zinc-500">audit</div>
+      {/* Transaction trail */}
+      <Card padding="md">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold tracking-tight text-foreground">Transaction trail</h2>
+          <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Audit</span>
         </div>
-        <div className="space-y-2 pt-1 font-mono text-xs text-zinc-400">
-          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
-            <div className="text-zinc-500">Session create</div>
-            <div className="break-all text-zinc-100">{sessionRecord?.createTxHash ?? "Not tracked for this session"}</div>
-          </div>
+        <Separator className="my-3" />
+        <ul className="space-y-2.5 text-xs">
+          <li>
+            <p className="text-muted-foreground">Session create</p>
+            <p className="mt-0.5 break-all font-mono text-foreground">
+              {sessionRecord?.createTxHash ?? "Not tracked for this session"}
+            </p>
+          </li>
           {sessionRecord?.members.map((member) => (
-            <div key={`${member.address}-tx`} className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
-              <div className="text-zinc-500">Member payment {truncateAddress(member.address)}</div>
-              <div className="break-all text-zinc-100">{member.paymentTxHash ?? (member.paid ? "Paid on-chain, tx hash not stored for this session." : "Pending")}</div>
-            </div>
+            <li key={`${member.address}-tx`}>
+              <p className="text-muted-foreground">
+                Member payment <span className="font-mono">{truncateAddress(member.address)}</span>
+              </p>
+              <p className="mt-0.5 break-all font-mono text-foreground">
+                {member.paymentTxHash ?? (member.paid ? "Paid on-chain, tx hash not stored." : "Pending")}
+              </p>
+            </li>
           ))}
-          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
-            <div className="text-zinc-500">Host withdraw</div>
-            <div className="break-all text-zinc-100">{sessionRecord?.closeTxHash ?? closeTxHash ?? "Not withdrawn yet"}</div>
-          </div>
-        </div>
-      </section>
+          <li>
+            <p className="text-muted-foreground">Host withdraw</p>
+            <p className="mt-0.5 break-all font-mono text-foreground">
+              {sessionRecord?.closeTxHash ?? closeTxHash ?? "Not withdrawn yet"}
+            </p>
+          </li>
+        </ul>
+      </Card>
 
+      {/* Pay links */}
       {sessionRecord?.members?.length ? (
-        <section className="space-y-2 rounded-lg border border-zinc-800 bg-zinc-900 p-3">
-          <div className="flex items-center justify-between border-b border-zinc-800 pb-2">
-            <div className="font-medium text-zinc-100">Member payment links</div>
-            <div className="font-mono text-[10px] uppercase tracking-widest text-zinc-500">share</div>
+        <Card padding="md">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold tracking-tight text-foreground">Pay links</h2>
+            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Share</span>
           </div>
-          <div className="space-y-2 pt-1">
+          <Separator className="my-3" />
+          <ul className="space-y-2">
             {sessionRecord.members.map((member) => {
               const payLink = `${appOrigin}/split/${sessionId}/pay/${member.address}`;
+              const copied = copiedPayLinkFor === member.address;
               return (
-                <div key={member.address} className="flex items-center justify-between gap-3 rounded-lg border border-zinc-800 bg-zinc-950 p-3">
-                  <div className="min-w-0 space-y-1">
-                    <div className="truncate font-mono text-[10px] text-zinc-400">{member.address}</div>
-                    <div className="font-mono text-xs text-zinc-100">${formatUsdcPrecise(member.amount)}</div>
+                <li
+                  key={member.address}
+                  className="flex items-center justify-between gap-3 rounded-md bg-surface-muted px-3 py-2.5"
+                >
+                  <div className="min-w-0 flex-1 space-y-0.5">
+                    <p className="truncate font-mono text-[11px] text-muted-foreground">
+                      {member.address}
+                    </p>
+                    <p className="font-mono text-xs font-semibold tabular-nums text-foreground">
+                      ${formatUsdcPrecise(member.amount)}
+                    </p>
                   </div>
-                  <div className="flex flex-col items-end gap-1">
-                    <Button type="button" variant="outline" size="sm" onClick={() => void onCopyPayLink(payLink, member.address)}>
-                    <Link2 className="mr-2 h-4 w-4" />
-                    copy pay link
-                    </Button>
-                    {copiedPayLinkFor === member.address ? <div className="font-mono text-[10px] uppercase tracking-widest text-green-400">copied</div> : null}
-                  </div>
-                </div>
+                  <Button
+                    type="button"
+                    variant={copied ? "outline" : "outline"}
+                    size="sm"
+                    onClick={() => void onCopyPayLink(payLink, member.address)}
+                    leftIcon={copied ? <Check className="h-3.5 w-3.5" /> : <Link2 className="h-3.5 w-3.5" />}
+                    aria-label={`Copy pay link for ${member.address}`}
+                  >
+                    {copied ? "Copied" : "Copy"}
+                  </Button>
+                </li>
               );
             })}
-          </div>
-        </section>
+          </ul>
+        </Card>
       ) : null}
 
+      {/* Footer actions */}
       <section className="grid grid-cols-2 gap-2">
-        <Button type="button" className="bg-indigo-600 font-mono text-sm hover:bg-indigo-500" onClick={() => void onCopyShareLink()}>
-          <ClipboardCopy className="mr-2 h-4 w-4" /> share link
+        <Button
+          type="button"
+          block
+          onClick={() => void onCopyShareLink()}
+          leftIcon={shareCopied ? <Check className="h-4 w-4" /> : <ClipboardCopy className="h-4 w-4" />}
+        >
+          {shareCopied ? "Link copied" : "Share link"}
         </Button>
-        <Button type="button" variant="outline" className="border-zinc-700 font-mono text-sm" onClick={() => router.push("/dashboard/new")}>
-          <Play className="mr-2 h-4 w-4" /> new split
+        <Button
+          type="button"
+          block
+          variant="outline"
+          onClick={() => router.push("/dashboard/new")}
+          leftIcon={<Play className="h-4 w-4" />}
+        >
+          New split
         </Button>
       </section>
-      {shareCopied ? <div className="font-mono text-[10px] uppercase tracking-widest text-green-400">link copied</div> : null}
     </div>
   );
 }
