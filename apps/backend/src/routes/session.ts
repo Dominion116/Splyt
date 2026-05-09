@@ -3,7 +3,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { validateBody } from "../middleware/validate.js";
 import { computeSplit } from "../services/ai.js";
-import { ChainSessionNotFoundError, getSessionStatus, sessionExists } from "../services/contract.js";
+import { ChainSessionNotFoundError, InvalidCloseTxError, getSessionStatus, sessionExists, verifyCloseTransaction } from "../services/contract.js";
 import { ParsedReceipt, putSession, getSession, listSessions, markSessionClosedLocally, serializeSession } from "../services/db.js";
 
 const router = Router();
@@ -138,16 +138,37 @@ const closeSchema = z.object({
 
 router.post("/:sessionId/close", validateBody(closeSchema), async (req, res, next) => {
   try {
-    const session = await getSession(String(req.params.sessionId));
+    const sessionId = String(req.params.sessionId);
+    const txHash = req.body.txHash as `0x${string}`;
+
+    const session = await getSession(sessionId);
     if (!session) {
       res.status(404).json({ error: "Session not found" });
       return;
     }
 
-    const updated = await markSessionClosedLocally(session.id, req.body.txHash);
+    // Verify on-chain: receipt must succeed, target our contract, and contain
+    // a SessionClosed event for exactly this session id.
+    let payoutAmount: bigint;
+    try {
+      ({ payoutAmount } = await verifyCloseTransaction(txHash, sessionId));
+    } catch (err) {
+      if (err instanceof InvalidCloseTxError) {
+        res.status(422).json({
+          error: "InvalidCloseTx",
+          message: err.message,
+          statusCode: 422
+        });
+        return;
+      }
+      throw err;
+    }
+
+    const updated = await markSessionClosedLocally(session.id, txHash);
     res.json({
       sessionId: session.id,
-      closeTxHash: req.body.txHash,
+      closeTxHash: txHash,
+      payoutAmount: payoutAmount.toString(),
       closedAt: updated?.closedAt ?? Date.now()
     });
   } catch (error) {

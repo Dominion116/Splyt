@@ -154,6 +154,64 @@ export async function waitForTransactionReceipt(hash: Hex) {
   return publicClient.waitForTransactionReceipt({ hash });
 }
 
+// keccak256("SessionClosed(bytes32,uint256)") — precomputed, immutable for this ABI.
+const SESSION_CLOSED_TOPIC = "0x1d8ada2ed73dcd9599105b1206ea1d3aa9e687b4e8f3b49940a4b03b6360585e";
+
+export class InvalidCloseTxError extends Error {
+  constructor(reason: string) {
+    super(reason);
+    this.name = "InvalidCloseTxError";
+  }
+}
+
+/**
+ * Fetches the on-chain receipt for `txHash` and verifies it contains a
+ * genuine `SessionClosed(sessionId, payoutAmount)` log emitted by the
+ * Splyt contract for the specific `sessionId`. Throws `InvalidCloseTxError`
+ * if the transaction failed, targeted a different contract, or does not
+ * contain the expected event for this session.
+ */
+type MinimalReceipt = {
+  status: string;
+  to: string | null | undefined;
+  logs: Array<{
+    address: string;
+    topics: readonly (string | undefined)[];
+    data: string;
+  }>;
+};
+
+export async function verifyCloseTransaction(
+  txHash: Hex,
+  sessionId: string
+): Promise<{ payoutAmount: bigint }> {
+  const receipt = (await waitForTransactionReceipt(txHash)) as MinimalReceipt;
+
+  if (receipt.status !== "success") {
+    throw new InvalidCloseTxError("Transaction did not succeed on-chain.");
+  }
+
+  if (receipt.to?.toLowerCase() !== CONTRACT_ADDRESS.toLowerCase()) {
+    throw new InvalidCloseTxError("Transaction was not sent to the Splyt contract.");
+  }
+
+  const expectedBytes32 = toBytes32(sessionId).toLowerCase();
+
+  for (const log of receipt.logs) {
+    if (log.address.toLowerCase() !== CONTRACT_ADDRESS.toLowerCase()) continue;
+    if (log.topics[0]?.toLowerCase() !== SESSION_CLOSED_TOPIC) continue;
+    // topics[1] is the ABI-encoded indexed bytes32 sessionId
+    if (log.topics[1]?.toLowerCase() !== expectedBytes32) continue;
+    // data is the ABI-encoded uint256 payoutAmount (32 bytes, big-endian)
+    const payoutAmount = BigInt(log.data);
+    return { payoutAmount };
+  }
+
+  throw new InvalidCloseTxError(
+    "Transaction does not contain a SessionClosed event for this session."
+  );
+}
+
 export async function sessionExists(sessionId: string, members: Address[]): Promise<boolean> {
   if (members.length === 0) return false;
 
