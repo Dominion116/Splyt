@@ -79,6 +79,25 @@ const faqs: { q: string; a: string }[] = [
   }
 ];
 
+const avatarProfiles = [
+  {
+    name: "Ada",
+    src: "https://api.dicebear.com/9.x/adventurer/svg?seed=Ada&backgroundType=gradientLinear"
+  },
+  {
+    name: "Mei",
+    src: "https://api.dicebear.com/9.x/adventurer/svg?seed=Mei&backgroundType=gradientLinear"
+  },
+  {
+    name: "Jonah",
+    src: "https://api.dicebear.com/9.x/adventurer/svg?seed=Jonah&backgroundType=gradientLinear"
+  },
+  {
+    name: "Rae",
+    src: "https://api.dicebear.com/9.x/adventurer/svg?seed=Rae&backgroundType=gradientLinear"
+  }
+] as const;
+
 export default function LandingPage() {
   const router = useRouter();
   const [connecting, setConnecting] = useState(false);
@@ -177,8 +196,14 @@ export default function LandingPage() {
             {/* Trust row */}
             <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-muted-foreground">
               <div className="flex -space-x-2">
-                {["Ada", "Mei", "Jonah", "Rae"].map((n) => (
-                  <Avatar key={n} name={n} size="sm" className="ring-2 ring-background" />
+                {avatarProfiles.map((profile) => (
+                  <Avatar
+                    key={profile.name}
+                    name={profile.name}
+                    src={profile.src}
+                    size="sm"
+                    className="ring-2 ring-background"
+                  />
                 ))}
               </div>
               <span>Trusted by groups splitting brunch, rent, and trips.</span>
@@ -294,8 +319,14 @@ export default function LandingPage() {
             {/* Trust row */}
             <div className="mt-12 hidden items-center gap-3 lg:flex">
               <div className="flex -space-x-2">
-                {["Ada", "Mei", "Jonah", "Rae"].map((n) => (
-                  <Avatar key={n} name={n} size="sm" className="ring-2 ring-background" />
+                {avatarProfiles.map((profile) => (
+                  <Avatar
+                    key={profile.name}
+                    name={profile.name}
+                    src={profile.src}
+                    size="sm"
+                    className="ring-2 ring-background"
+                  />
                 ))}
               </div>
               <span className="text-sm text-muted-foreground">
