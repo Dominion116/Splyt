@@ -39,23 +39,16 @@ export default function LandingPage() {
 
   const connectWallet = async () => {
     if (typeof window === "undefined") return;
-
     if (!window.ethereum?.request) {
-      setConnectError("No wallet provider detected.");
+      setConnectError("No wallet provider detected. Install MetaMask or open in MiniPay.");
       return;
     }
-
     setConnecting(true);
     setConnectError(null);
-
     try {
       const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-      const list = Array.isArray(accounts) ? accounts.filter((account): account is string => typeof account === "string") : [];
-
-      if (!list[0]) {
-        throw new Error("No wallet account returned.");
-      }
-
+      const list = Array.isArray(accounts) ? accounts.filter((a): a is string => typeof a === "string") : [];
+      if (!list[0]) throw new Error("No wallet account returned.");
       window.localStorage.setItem("splyt.wallet", list[0]);
       router.push("/dashboard");
     } catch (error) {
