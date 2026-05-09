@@ -81,7 +81,7 @@ export default function LandingPage() {
               How it works
             </a>
             <ThemeToggle />
-            <Button onClick={connectWallet} loading={connecting} size="sm" rightIcon={<ArrowRight className="h-4 w-4" />}>
+            <Button onClick={connectWallet} loading={connecting} size="sm">
               Connect wallet
             </Button>
           </div>
