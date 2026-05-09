@@ -59,93 +59,190 @@ export default function LandingPage() {
   };
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-zinc-100">
-      <nav className="sticky top-0 z-50 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-md">
-        <div className="mx-auto flex h-14 w-full max-w-5xl items-center justify-between px-6">
-          <span className="font-mono text-xl font-semibold tracking-tight text-indigo-400">splyt</span>
-          <Button variant="outline" size="sm" className="font-mono text-xs">
-            Connect Wallet
-          </Button>
+    <main className="min-h-screen bg-background text-foreground">
+      {/* Top nav */}
+      <nav
+        aria-label="Primary"
+        className="sticky top-0 z-50 border-b border-border/70 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+      >
+        <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-6">
+          <a href="/" className="flex items-center gap-2 font-semibold tracking-tight">
+            <span aria-hidden="true" className="grid h-7 w-7 place-items-center rounded-lg bg-primary text-primary-foreground">
+              <Sparkles className="h-4 w-4" />
+            </span>
+            <span className="text-lg">splyt</span>
+          </a>
+          <div className="flex items-center gap-2">
+            <a
+              href="#how"
+              className="hidden h-9 items-center rounded-full px-4 text-sm font-medium text-foreground hover:bg-surface-muted sm:inline-flex"
+            >
+              How it works
+            </a>
+            <Button onClick={connectWallet} loading={connecting} size="sm" rightIcon={<ArrowRight className="h-4 w-4" />}>
+              Connect wallet
+            </Button>
+          </div>
         </div>
       </nav>
 
-      <section className="mx-auto max-w-5xl px-6 pt-20 pb-16">
-        <Badge variant="outline" className="mb-8 border-indigo-500/30 bg-indigo-500/10 font-mono text-xs text-indigo-300">
-          Built on Celo  •  Direct Payments  •  MiniPay Native
-        </Badge>
-        <h1 className="mb-6 text-5xl font-medium tracking-tight sm:text-6xl">
-          Split the bill.
-          <br />
-          Not the friendship.
-        </h1>
-        <p className="mb-10 max-w-md text-zinc-400">
-          Snap a receipt. AI parses it. Everyone pays their share via stablecoin — automatically.
-        </p>
-        <div className="flex flex-wrap gap-3">
-          <Button className="font-mono" onClick={connectWallet} disabled={connecting}>
-            {connecting ? "Connecting..." : "Connect Wallet"}
-          </Button>
-          <Button variant="outline" className="font-mono">
-            View on GitHub
-          </Button>
+      {/* Hero */}
+      <section aria-labelledby="hero-title" className="relative overflow-hidden">
+        <div aria-hidden="true" className="aurora pointer-events-none absolute inset-0 -z-10" />
+        <div aria-hidden="true" className="grid-overlay pointer-events-none absolute inset-0 -z-10 opacity-50" />
+
+        <div className="mx-auto grid max-w-6xl gap-12 px-6 py-24 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:py-32">
+          <div className="animate-fade-in-up">
+            <Badge variant="primary" dot className="mb-6">
+              Built on Celo · MiniPay native
+            </Badge>
+            <h1 id="hero-title" className="text-display-xl text-foreground">
+              Bills shouldn&apos;t
+              <br />
+              be <span className="text-primary">awkward</span>.
+            </h1>
+            <p className="mt-6 max-w-xl text-lg text-muted-foreground">
+              Snap a receipt. Splyt&apos;s AI parses every line. Friends pay their share in
+              stablecoin — instantly, automatically, on-chain.
+            </p>
+            <div className="mt-9 flex flex-wrap items-center gap-3">
+              <Button
+                size="lg"
+                onClick={connectWallet}
+                loading={connecting}
+                rightIcon={<ArrowRight className="h-4 w-4" />}
+              >
+                {connecting ? "Connecting" : "Get started — connect wallet"}
+              </Button>
+              <a
+                href="https://github.com"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex h-12 items-center gap-2 rounded-full border border-border bg-surface px-7 text-base font-medium text-foreground transition-colors hover:bg-surface-muted"
+              >
+                <Code2 className="h-4 w-4" aria-hidden="true" />
+                View on GitHub
+              </a>
+            </div>
+            {connectError ? (
+              <p role="alert" className="mt-3 text-sm text-danger">
+                {connectError}
+              </p>
+            ) : null}
+
+            {/* Trust row */}
+            <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-muted-foreground">
+              <div className="flex -space-x-2">
+                {["Ada", "Mei", "Jonah", "Rae"].map((n) => (
+                  <Avatar key={n} name={n} size="sm" className="ring-2 ring-background" />
+                ))}
+              </div>
+              <span>Trusted by groups splitting brunch, rent, and trips.</span>
+            </div>
+          </div>
+
+          {/* Phone-style preview */}
+          <div className="relative animate-fade-in-up [animation-delay:120ms]">
+            <div className="absolute -inset-6 -z-10 rounded-[36px] bg-gradient-to-br from-primary/15 via-transparent to-accent/15 blur-2xl" />
+            <Card padding="none" className="overflow-hidden shadow-lg">
+              <div className="flex items-center justify-between border-b border-border bg-surface-muted px-5 py-3">
+                <div className="flex items-center gap-2">
+                  <span className="h-2.5 w-2.5 rounded-full bg-danger/70" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-warning/70" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-success/70" />
+                </div>
+                <span className="font-mono text-xs text-muted-foreground">splyt-agent</span>
+                <Badge variant="success" dot className="text-[10px]">live</Badge>
+              </div>
+
+              <div className="space-y-4 p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground">Tonight&apos;s dinner</p>
+                    <p className="mt-1 text-2xl font-semibold tracking-tight">$47.50</p>
+                  </div>
+                  <Badge variant="primary">4 friends</Badge>
+                </div>
+                <Separator />
+                <ul className="space-y-2 font-mono text-[13px] leading-relaxed text-muted-foreground">
+                  {terminalLines.map((line, i) => (
+                    <li
+                      key={line}
+                      className="terminal-line"
+                      style={{ animationDelay: `${i * 0.18}s` }}
+                    >
+                      {line}
+                    </li>
+                  ))}
+                </ul>
+                <Separator />
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="rounded-md bg-primary-soft p-3">
+                    <p className="text-[11px] uppercase tracking-wider text-primary/80">Each pays</p>
+                    <p className="mt-1 font-semibold text-primary">$11.88</p>
+                  </div>
+                  <div className="rounded-md bg-accent-soft p-3">
+                    <p className="text-[11px] uppercase tracking-wider text-accent/80">Settled</p>
+                    <p className="mt-1 font-semibold text-accent">on-chain</p>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </div>
         </div>
-        {connectError ? <p className="mt-3 font-mono text-xs text-red-400">{connectError}</p> : null}
       </section>
 
-      <section className="mx-auto max-w-5xl px-6 pb-16">
-        <div className="grid gap-4 sm:grid-cols-3">
-          {[
-            { title: "Snap", desc: "Photo your receipt" },
-            { title: "Parse", desc: "AI extracts every line item" },
-            { title: "Splyt", desc: "Everyone pays on-chain" }
-          ].map((step, index) => (
-            <div key={step.title} className="rounded-lg border border-zinc-800 bg-zinc-900 p-5">
-              <p className="mb-3 font-mono text-xs text-zinc-600">0{index + 1}</p>
-              <p className="mb-2 font-medium">{step.title}</p>
-              <p className="text-sm text-zinc-400">{step.desc}</p>
-            </div>
+      {/* How it works */}
+      <section id="how" aria-labelledby="how-title" className="mx-auto max-w-6xl px-6 py-20">
+        <div className="mb-12 max-w-2xl">
+          <p className="text-sm font-medium uppercase tracking-wider text-primary">How it works</p>
+          <h2 id="how-title" className="mt-3 text-display-md">Three steps. Zero awkwardness.</h2>
+          <p className="mt-3 text-muted-foreground">
+            From scribbled receipts to settled payments in under a minute. No spreadsheets,
+            no Venmo nudges, no &quot;I&apos;ll get you back later.&quot;
+          </p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-3">
+          {flow.map(({ title, copy, Icon }, i) => (
+            <Card key={title} padding="lg" className="group transition-shadow hover:shadow-md">
+              <div className="flex items-center justify-between">
+                <span
+                  aria-hidden="true"
+                  className="grid h-11 w-11 place-items-center rounded-xl bg-primary-soft text-primary"
+                >
+                  <Icon className="h-5 w-5" />
+                </span>
+                <span className="font-mono text-xs text-muted-foreground">0{i + 1}</span>
+              </div>
+              <h3 className="mt-6 text-lg font-semibold tracking-tight">{title}</h3>
+              <p className="mt-1.5 text-sm text-muted-foreground">{copy}</p>
+            </Card>
           ))}
         </div>
       </section>
 
-      <section className="mx-auto max-w-5xl px-6 pb-16">
-        <div className="overflow-hidden rounded-lg border border-zinc-800">
-          <div className="flex items-center gap-2 border-b border-zinc-800 bg-zinc-900 px-4 py-3">
-            <span className="h-3 w-3 rounded-full bg-zinc-700" />
-            <span className="h-3 w-3 rounded-full bg-zinc-700" />
-            <span className="h-3 w-3 rounded-full bg-zinc-700" />
-            <span className="ml-2 font-mono text-xs text-zinc-500">splyt-agent</span>
-          </div>
-          <div className="space-y-2 bg-zinc-950 p-6 font-mono text-sm text-zinc-400">
-            {terminalLines.map((line, index) => (
-              <p key={line} className="terminal-line" style={{ animationDelay: `${index * 0.2}s` }}>
-                {line}
-              </p>
+      {/* Stats strip */}
+      <section aria-label="Network stats" className="mx-auto max-w-6xl px-6 pb-20">
+        <Card padding="none" variant="muted" className="overflow-hidden">
+          <div className="grid grid-cols-1 divide-y divide-border md:grid-cols-3 md:divide-x md:divide-y-0">
+            {stats.map((stat) => (
+              <div key={stat.label} className="px-8 py-7 text-center">
+                <p className="text-display-md text-foreground">{stat.value}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{stat.label}</p>
+              </div>
             ))}
           </div>
-        </div>
+        </Card>
       </section>
 
-      <section className="mx-auto max-w-5xl px-6 pb-16">
-        <div className="grid grid-cols-3 divide-x divide-zinc-800 overflow-hidden rounded-lg border border-zinc-800">
-          {[
-            { value: "$0.001", label: "gas per tx" },
-            { value: "~1s", label: "finality" },
-            { value: "$0.00", label: "platform fee" }
-          ].map((stat) => (
-            <div key={stat.label} className="bg-zinc-900 p-6 text-center">
-              <p className="font-mono text-3xl text-indigo-400">{stat.value}</p>
-              <p className="text-xs text-zinc-500">{stat.label}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-5xl px-6 pb-24">
-        <h2 className="mb-6 font-medium">Built with the right tools</h2>
-        <div className="flex flex-wrap gap-2">
+      {/* Tech tags */}
+      <section aria-labelledby="stack-title" className="mx-auto max-w-6xl px-6 pb-24">
+        <h2 id="stack-title" className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
+          Built with the right tools
+        </h2>
+        <div className="mt-4 flex flex-wrap gap-2">
           {["Celo L2", "Direct Payments", "MiniPay", "Groq AI", "Solidity", "Next.js"].map((t) => (
-            <Badge key={t} className="rounded-md bg-zinc-800 px-3 py-1.5 font-mono text-xs text-zinc-300">
+            <Badge key={t} variant="outline" className="px-3 py-1.5">
               {t}
             </Badge>
           ))}
