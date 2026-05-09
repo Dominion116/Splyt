@@ -1,16 +1,25 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { LogOut } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ExternalLink, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Avatar } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { DashboardBadge } from "@/components/dashboard/badge";
 import { truncateAddress, formatUsdcPrecise } from "@/lib/dashboard";
 import { CONTRACT_ADDRESS } from "@/lib/celo-contract";
 import { getCUSDBalance } from "@/lib/minipay";
 import { useDashboardWallet } from "@/components/dashboard/use-wallet";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 type SettingMode = "equal" | "itemised" | "custom";
+
+const splitModes: SettingMode[] = ["equal", "itemised", "custom"];
+const expiries = ["1h", "6h", "24h", "7d"] as const;
 
 export default function DashboardProfilePage() {
   const router = useRouter();
@@ -44,8 +53,6 @@ export default function DashboardProfilePage() {
     void loadBalance();
   }, [address]);
 
-  const initials = useMemo(() => (address ? address.slice(0, 2) : "--"), [address]);
-
   const onDisconnect = () => {
     window.localStorage.removeItem("splyt.wallet");
     window.localStorage.removeItem("splyt.defaultSplitMode");
@@ -53,97 +60,160 @@ export default function DashboardProfilePage() {
     router.push("/");
   };
 
+  const initials = address ? address.slice(2, 4).toUpperCase() : "—";
+  const connected = Boolean(address);
+
   return (
-    <div className="space-y-4">
-      <section className="relative space-y-3 rounded-lg border border-zinc-800 bg-zinc-900 p-3">
-        <div className="absolute right-3 top-3 h-2 w-2 rounded-md bg-green-500" />
+    <div className="space-y-6">
+      <header className="space-y-1">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Profile</h1>
+        <p className="text-sm text-muted-foreground">Wallet, settings, and contract info.</p>
+      </header>
+
+      {/* Wallet card */}
+      <Card padding="md" className="space-y-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-md border border-indigo-500/20 bg-indigo-500/10 font-mono text-indigo-400">{initials}</div>
+          <Avatar size="lg" name={initials} />
           <div className="min-w-0 flex-1">
-            <div className="text-sm text-zinc-100">Connected wallet</div>
-            <div className="truncate font-mono text-[10px] text-zinc-500">{address || "connect wallet"}</div>
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-semibold text-foreground">Connected wallet</p>
+              <Badge variant={connected ? "success" : "secondary"} dot className="text-[10px]">
+                {connected ? "Live" : "Offline"}
+              </Badge>
+            </div>
+            <p className="mt-0.5 truncate font-mono text-[11px] text-muted-foreground">
+              {address || "Connect a wallet to continue"}
+            </p>
           </div>
         </div>
-        <div className="h-px bg-zinc-800" />
-        <div className="space-y-2 font-mono text-[10px] text-zinc-500">
+        <Separator />
+        <dl className="space-y-2 text-sm">
           <div className="flex items-center justify-between">
-            <span>cUSD balance</span>
-            <span>
-              {loadingBalance ? (
-                <span className="inline-block h-4 w-12 animate-pulse rounded bg-zinc-700" />
-              ) : (
-                <>${formatUsdcPrecise(balance)}</>
-              )}
-            </span>
+            <dt className="text-muted-foreground">cUSD balance</dt>
+            <dd className="font-mono font-semibold tabular-nums text-foreground">
+              {loadingBalance ? <Skeleton className="h-4 w-16" /> : `$${formatUsdcPrecise(balance)}`}
+            </dd>
           </div>
-          <div className="flex items-center justify-between"><span>Network</span><DashboardBadge variant="settled">celo</DashboardBadge></div>
-          <div className="flex items-center justify-between"><span>Gas token</span><span>Celo</span></div>
-        </div>
-      </section>
+          <div className="flex items-center justify-between">
+            <dt className="text-muted-foreground">Network</dt>
+            <dd>
+              <DashboardBadge variant="settled">Celo</DashboardBadge>
+            </dd>
+          </div>
+          <div className="flex items-center justify-between">
+            <dt className="text-muted-foreground">Gas token</dt>
+            <dd className="text-foreground">Celo</dd>
+          </div>
+        </dl>
+      </Card>
 
-      <section className="space-y-2 rounded-lg border border-zinc-800 bg-zinc-900 p-3">
-        <div className="font-medium text-zinc-100">Notifications</div>
-        <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 font-mono text-xs text-zinc-600">No notifications yet.</div>
-      </section>
+      {/* Notifications */}
+      <Card padding="md">
+        <h2 className="text-sm font-semibold tracking-tight text-foreground">Notifications</h2>
+        <p className="mt-3 rounded-md bg-surface-muted px-3 py-2.5 text-sm text-muted-foreground">
+          No notifications yet.
+        </p>
+      </Card>
 
-      <section className="space-y-2 rounded-lg border border-zinc-800 bg-zinc-900 p-3">
+      {/* Contract info */}
+      <Card padding="md" className="space-y-3">
         <div className="flex items-center justify-between">
-          <div className="font-medium text-zinc-100">Contract info</div>
-          <DashboardBadge variant="paid">verified</DashboardBadge>
+          <h2 className="text-sm font-semibold tracking-tight text-foreground">Contract info</h2>
+          <DashboardBadge variant="paid">Verified</DashboardBadge>
         </div>
         {contractAddress ? (
           <>
-            <div className="font-mono text-[10px] text-zinc-500">{truncateAddress(contractAddress, 8, 6)}</div>
-            <Button variant="outline" className="w-full border-zinc-700 font-mono text-[10px] uppercase tracking-widest" onClick={() => window.open(`https://celoscan.io/address/${contractAddress}`, "_blank")}>
-              view on Celoscan
+            <p className="font-mono text-[11px] text-muted-foreground">
+              {truncateAddress(contractAddress, 8, 6)}
+            </p>
+            <Button
+              variant="outline"
+              block
+              onClick={() => window.open(`https://celoscan.io/address/${contractAddress}`, "_blank")}
+              rightIcon={<ExternalLink className="h-4 w-4" />}
+            >
+              View on Celoscan
             </Button>
           </>
         ) : (
-          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 font-mono text-xs text-zinc-600">No contract address configured.</div>
+          <p className="rounded-md bg-surface-muted px-3 py-2.5 text-sm text-muted-foreground">
+            No contract address configured.
+          </p>
         )}
-      </section>
+      </Card>
 
-      <section className="space-y-3 rounded-lg border border-zinc-800 bg-zinc-900 p-3">
-        <div className="font-medium text-zinc-100">Settings</div>
-        <div className="space-y-2 font-mono text-[10px] uppercase tracking-widest text-zinc-500">
-          <div className="space-y-1">
-            <div>default split mode</div>
-            <div className="grid grid-cols-3 overflow-hidden rounded-md border border-zinc-800">
-              {(["equal", "itemised", "custom"] as SettingMode[]).map((mode) => (
+      {/* Settings */}
+      <Card padding="md" className="space-y-5">
+        <h2 className="text-sm font-semibold tracking-tight text-foreground">Settings</h2>
+
+        {/* Default split mode */}
+        <fieldset className="space-y-2">
+          <legend className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            Default split mode
+          </legend>
+          <div role="radiogroup" className="grid grid-cols-3 gap-1.5 rounded-full bg-surface-muted p-1">
+            {splitModes.map((mode) => {
+              const active = defaultMode === mode;
+              return (
                 <button
                   key={mode}
                   type="button"
+                  role="radio"
+                  aria-checked={active}
                   onClick={() => {
                     setDefaultMode(mode);
                     window.localStorage.setItem("splyt.defaultSplitMode", mode);
                   }}
-                  className={`border-r border-zinc-800 px-2 py-2 ${defaultMode === mode ? "bg-indigo-600 text-white" : "bg-transparent text-zinc-500"}`}
+                  className={cn(
+                    "h-9 rounded-full text-xs font-medium capitalize transition-all",
+                    active
+                      ? "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
                 >
                   {mode}
                 </button>
-              ))}
-            </div>
+              );
+            })}
           </div>
-          <div className="space-y-1">
-            <div>payment link expiry</div>
-            <select
-              value={expiry}
-              onChange={(event) => {
-                setExpiry(event.target.value);
-                window.localStorage.setItem("splyt.linkExpiry", event.target.value);
-              }}
-              className="w-full rounded-md border border-zinc-800 bg-zinc-800 px-3 py-2 font-mono text-xs text-zinc-100"
-            >
-              {["1h", "6h", "24h", "7d"].map((value) => (
-                <option key={value} value={value}>{value}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-      </section>
+        </fieldset>
 
-      <Button type="button" variant="outline" className="w-full border-red-500/30 font-mono text-sm text-red-400" onClick={onDisconnect}>
-        <LogOut className="mr-2 h-4 w-4" /> disconnect
+        {/* Payment link expiry */}
+        <div className="space-y-2">
+          <label
+            htmlFor="link-expiry"
+            className="text-xs font-medium uppercase tracking-wider text-muted-foreground"
+          >
+            Payment link expiry
+          </label>
+          <select
+            id="link-expiry"
+            value={expiry}
+            onChange={(event) => {
+              setExpiry(event.target.value);
+              window.localStorage.setItem("splyt.linkExpiry", event.target.value);
+            }}
+            className="h-11 w-full rounded-md border border-border bg-surface px-4 text-sm text-foreground focus-visible:outline-none focus-visible:shadow-ring"
+          >
+            {expiries.map((value) => (
+              <option key={value} value={value}>
+                {value}
+              </option>
+            ))}
+          </select>
+        </div>
+      </Card>
+
+      <Button
+        type="button"
+        variant="outline"
+        block
+        size="lg"
+        onClick={onDisconnect}
+        leftIcon={<LogOut className="h-4 w-4" />}
+        className="border-danger/30 text-danger hover:bg-danger/5"
+      >
+        Disconnect wallet
       </Button>
     </div>
   );
