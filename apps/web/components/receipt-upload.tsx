@@ -1,10 +1,10 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
-import { Badge } from "@/components/ui/badge";
+import { useState } from "react";
+import { Camera, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
+import { TerminalLog, type TerminalLine } from "@/components/dashboard/terminal-log";
 
 type ParsedReceipt = {
   items: Array<{ name: string; amount: string; quantity?: number; unitPrice?: string }>;
@@ -14,18 +14,19 @@ type ParsedReceipt = {
   currency: "cUSD";
 };
 
+const parsingLines: TerminalLine[] = [
+  { tag: "[agent]", tagColor: "text-primary", text: "Sending to agent..." },
+  { tag: "[vision]", tagColor: "text-primary", text: "Parsing receipt image..." },
+  { tag: "[agent]", tagColor: "text-primary", text: "Validating JSON response..." }
+];
+
 export function ReceiptUpload({ onParsed }: { onParsed?: (receipt: ParsedReceipt) => void }) {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
 
-  const terminalText = useMemo(() => {
-    if (!loading) return null;
-    return ["[agent] Sending to agent...", "[vision] Parsing receipt image...", "[agent] Validating JSON response..."];
-  }, [loading]);
-
-  const fileToBase64 = async (input: File) =>
+  const fileToBase64 = (input: File) =>
     new Promise<string>((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => resolve(String(reader.result).split(",")[1] ?? "");
@@ -33,7 +34,7 @@ export function ReceiptUpload({ onParsed }: { onParsed?: (receipt: ParsedReceipt
       reader.readAsDataURL(input);
     });
 
-  const onSubmit = async (e: FormEvent) => {
+  const onSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     if (!file) return;
     setLoading(true);
@@ -56,13 +57,21 @@ export function ReceiptUpload({ onParsed }: { onParsed?: (receipt: ParsedReceipt
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Upload receipt</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={onSubmit} className="space-y-4">
-          <Input
+    <form onSubmit={onSubmit} className="space-y-4">
+      <label className="block cursor-pointer">
+        <Card
+          padding="lg"
+          variant="outline"
+          className="border-2 border-dashed text-center transition-colors hover:border-primary hover:bg-primary-soft/30"
+        >
+          <span aria-hidden="true" className="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-2xl bg-primary-soft text-primary">
+            <Camera className="h-5 w-5" strokeWidth={1.8} />
+          </span>
+          <p className="text-sm font-medium text-foreground">{file ? file.name : "Upload receipt"}</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {file ? "Tap to choose a different photo" : "Photo, PDF, or screenshot"}
+          </p>
+          <input
             type="file"
             accept="image/*"
             capture="environment"
@@ -71,25 +80,35 @@ export function ReceiptUpload({ onParsed }: { onParsed?: (receipt: ParsedReceipt
               setFile(f);
               setPreview(f ? URL.createObjectURL(f) : null);
             }}
+            className="sr-only"
           />
-          {preview ? <img src={preview} alt="Receipt preview" className="max-h-64 rounded-md border border-zinc-800 object-contain" /> : null}
-          {loading && terminalText ? (
-            <div className="rounded-md border border-zinc-800 bg-zinc-950 p-3 font-mono text-xs text-zinc-400">
-              {terminalText.map((line) => (
-                <p key={line}>{line}</p>
-              ))}
-            </div>
-          ) : null}
-          {error ? (
-            <Badge variant="destructive" className="w-fit">
-              {error}
-            </Badge>
-          ) : null}
-          <Button type="submit" disabled={!file || loading}>
-            {loading ? "Parsing..." : "Submit to Agent"}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+        </Card>
+      </label>
+
+      {preview ? (
+        <Card padding="none" className="overflow-hidden">
+          <img src={preview} alt="Receipt preview" className="max-h-64 w-full object-contain" />
+        </Card>
+      ) : null}
+
+      {loading ? <TerminalLog lines={parsingLines} animateIn live /> : null}
+
+      {error ? (
+        <Card role="alert" padding="sm" className="border-danger/30 bg-danger/5 text-sm text-danger">
+          {error}
+        </Card>
+      ) : null}
+
+      <Button
+        type="submit"
+        block
+        size="lg"
+        disabled={!file}
+        loading={loading}
+        leftIcon={<Upload className="h-4 w-4" />}
+      >
+        {loading ? "Parsing receipt" : "Submit to agent"}
+      </Button>
+    </form>
   );
 }
