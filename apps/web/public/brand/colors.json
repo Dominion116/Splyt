@@ -1,0 +1,94 @@
+{
+  "palette": {
+    "primary": {
+      "name": "Primary Green",
+      "description": "Core brand color for CTAs and highlights",
+      "main": "#34D399",
+      "light": "#6EE7B7",
+      "lighter": "#A7F3D0",
+      "lightest": "#DBEAFE",
+      "dark": "#14B8A6",
+      "darker": "#0F766E"
+    },
+    "background": {
+      "name": "Dark Backgrounds",
+      "description": "Deep backgrounds for dark mode",
+      "darkest": "#08131A",
+      "darker": "#071219",
+      "dark": "#0F172A",
+      "muted": "#102B26",
+      "secondary": "#102A25"
+    },
+    "surface": {
+      "name": "Surface & Content",
+      "description": "Light surfaces and text on dark backgrounds",
+      "light": "#EAF7F0",
+      "lighter": "#DDFBF4",
+      "foreground": "#F7F5EF"
+    },
+    "text": {
+      "name": "Text Colors",
+      "description": "Text hierarchy and contrast",
+      "foreground": "#F7F5EF",
+      "muted": "#A7B3AF",
+      "emphasis": "#E5F3FF"
+    },
+    "accent": {
+      "name": "Accent Green",
+      "description": "Secondary green for visual interest",
+      "main": "#14B8A6",
+      "soft": "#CCFBF1"
+    },
+    "status": {
+      "name": "Status Colors",
+      "description": "Semantic colors for states",
+      "success": "#10B981",
+      "warning": "#F59E0B",
+      "danger": "#EF4444"
+    }
+  },
+  "gradients": {
+    "logo_mark": {
+      "name": "Logo Mark Gradient",
+      "description": "Primary gradient used in the logo mark",
+      "stops": [
+        { "color": "#2D6A4F", "position": "0%" },
+        { "color": "#0F172A", "position": "100%" }
+      ]
+    },
+    "accent": {
+      "name": "Accent Gradient",
+      "description": "Green to teal gradient",
+      "stops": [
+        { "color": "#34D399", "position": "0%" },
+        { "color": "#14B8A6", "position": "100%" }
+      ]
+    }
+  },
+  "usage": {
+    "primary_green": {
+      "hex": "#34D399",
+      "rgb": "rgb(52, 211, 153)",
+      "hsl": "hsl(162, 72%, 51%)",
+      "usage": ["CTAs", "Highlights", "Active states", "Primary accent"]
+    },
+    "dark_bg": {
+      "hex": "#08131A",
+      "rgb": "rgb(8, 19, 26)",
+      "hsl": "hsl(198, 53%, 7%)",
+      "usage": ["Main background", "Dark sections"]
+    },
+    "light_surface": {
+      "hex": "#EAF7F0",
+      "rgb": "rgb(234, 247, 240)",
+      "hsl": "hsl(151, 60%, 94%)",
+      "usage": ["Logo backgrounds", "Light surfaces", "Content areas"]
+    },
+    "text_light": {
+      "hex": "#F7F5EF",
+      "rgb": "rgb(247, 245, 239)",
+      "hsl": "hsl(38, 37%, 95%)",
+      "usage": ["Foreground text", "Light mode text", "High contrast labels"]
+    }
+  }
+}

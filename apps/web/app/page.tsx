@@ -91,10 +91,6 @@ const avatarProfiles = [
   {
     name: "Jonah",
     src: "https://api.dicebear.com/9.x/adventurer/svg?seed=Jonah&backgroundType=gradientLinear"
-  },
-  {
-    name: "Rae",
-    src: "https://api.dicebear.com/9.x/adventurer/svg?seed=Rae&backgroundType=gradientLinear"
   }
 ] as const;
 
