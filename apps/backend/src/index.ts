@@ -31,8 +31,40 @@ if (!process.env.CUSD_ADDRESS) {
 // Middleware
 // ---------------------------------------------------------------------------
 
-// Keep CORS open so the app works from MiniPay and regular browsers.
-app.use(cors());
+// ---------------------------------------------------------------------------
+// CORS — restricted to explicitly configured origins.
+//
+// Set ALLOWED_ORIGINS as a comma-separated list in the environment, e.g.:
+//   ALLOWED_ORIGINS=https://splyt.app,https://www.splyt.app
+//
+// Requests with no Origin header (SSR fetches, server-to-server, some mobile
+// webviews) are allowed unconditionally — Origin is a browser-only header and
+// omitting it does not weaken the browser CORS enforcement that this is meant
+// to provide.
+//
+// Unknown origins receive no Access-Control-Allow-Origin header, causing the
+// browser to block the response. We call callback(null, false) rather than
+// callback(new Error()) to avoid a 500 for what is a routine browser probe.
+// ---------------------------------------------------------------------------
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS ?? "http://localhost:3000")
+  .split(",")
+  .map((o) => o.trim())
+  .filter(Boolean);
+
+app.use(
+  cors({
+    origin(requestOrigin, callback) {
+      if (!requestOrigin || ALLOWED_ORIGINS.includes(requestOrigin)) {
+        return callback(null, true);
+      }
+      callback(null, false);
+    },
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type"],
+    credentials: false
+  })
+);
+
 // Conservative global body limit — /api/parse overrides this with its own
 // express.json({ limit: "3mb" }) middleware mounted before validateBody.
 app.use(express.json({ limit: "512kb" }));
