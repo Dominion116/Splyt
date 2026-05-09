@@ -94,6 +94,12 @@ async function getSessionsCollection() {
   return getCollection<StoredSessionRecord>("sessions");
 }
 
+// Case-insensitive collation used for Ethereum address comparisons. Strength 2
+// ignores case differences without resorting to RegExp, which would otherwise
+// allow user input to compile into an attacker-controlled regular expression
+// (catastrophic backtracking / wildcard match).
+const ADDRESS_COLLATION = { locale: "en", strength: 2 } as const;
+
 export function validateEnvironment(): void {
   const missing = REQUIRED_ENV_VARS.filter((name) => {
     const value = process.env[name];
@@ -107,8 +113,13 @@ export function validateEnvironment(): void {
 
 export async function listSessions(host?: string): Promise<SessionRecord[]> {
   const collection = await getSessionsCollection();
-  const filter = host ? { host: new RegExp(`^${host}$`, "i") } : {};
-  const items = await collection.find(filter).toArray();
+  if (host) {
+    const items = await collection
+      .find({ host }, { collation: ADDRESS_COLLATION })
+      .toArray();
+    return items.map(fromStoredSession);
+  }
+  const items = await collection.find({}).toArray();
   return items.map(fromStoredSession);
 }
 
@@ -128,7 +139,7 @@ export async function getSession(sessionId: string): Promise<SessionRecord | und
 export async function markPaidLocally(sessionId: string, memberAddress: string, txHash: string): Promise<SessionRecord | undefined> {
   const collection = await getSessionsCollection();
   const result = await collection.updateOne(
-    { id: sessionId, "members.address": { $regex: `^${memberAddress}$`, $options: "i" } },
+    { id: sessionId, "members.address": memberAddress },
     {
       $set: {
         txHash,
@@ -136,7 +147,8 @@ export async function markPaidLocally(sessionId: string, memberAddress: string, 
         "members.$.paidAt": Date.now(),
         "members.$.paymentTxHash": txHash
       }
-    }
+    },
+    { collation: ADDRESS_COLLATION }
   );
 
   if (!result.matchedCount) return undefined;

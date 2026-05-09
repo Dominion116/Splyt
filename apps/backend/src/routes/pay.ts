@@ -16,6 +16,33 @@ function asParam(value: string | string[] | undefined, name: string): string {
   throw new Error(`Missing or invalid route parameter: ${name}`);
 }
 
+const ADDRESS_REGEX = /^0x[a-fA-F0-9]{40}$/;
+// UUID v4 with dashes; we don't accept arbitrary session id formats here.
+const SESSION_ID_REGEX = /^[0-9a-fA-F-]{1,64}$/;
+
+class InvalidParamError extends Error {
+  constructor(public field: string, message: string) {
+    super(message);
+    this.name = "InvalidParamError";
+  }
+}
+
+function asAddressParam(value: string | string[] | undefined, name: string): string {
+  const raw = asParam(value, name);
+  if (!ADDRESS_REGEX.test(raw)) {
+    throw new InvalidParamError(name, `${name} must be a 0x-prefixed 40-character hex address.`);
+  }
+  return raw;
+}
+
+function asSessionIdParam(value: string | string[] | undefined, name: string): string {
+  const raw = asParam(value, name);
+  if (!SESSION_ID_REGEX.test(raw)) {
+    throw new InvalidParamError(name, `${name} contains characters not permitted in a session id.`);
+  }
+  return raw;
+}
+
 const confirmSchema = z.object({
   txHash: z.string().regex(/^0x[a-fA-F0-9]{64}$/)
 });
@@ -37,8 +64,18 @@ const confirmSchema = z.object({
  *         description: Already paid
  */
 router.get("/:sessionId/:memberAddress/price", async (req, res) => {
-  const sessionId = asParam(req.params.sessionId, "sessionId");
-  const memberAddress = asParam(req.params.memberAddress, "memberAddress");
+  let sessionId: string;
+  let memberAddress: string;
+  try {
+    sessionId = asSessionIdParam(req.params.sessionId, "sessionId");
+    memberAddress = asAddressParam(req.params.memberAddress, "memberAddress");
+  } catch (err) {
+    if (err instanceof InvalidParamError) {
+      res.status(400).json({ error: "InvalidParam", message: err.message, statusCode: 400 });
+      return;
+    }
+    throw err;
+  }
 
   // Fetch real-time session data from database
   const session = await getSession(sessionId);
@@ -101,25 +138,28 @@ router.get("/:sessionId/:memberAddress/price", async (req, res) => {
  *       409:
  *         description: Already paid
  */
-router.get(
-  "/:sessionId/:memberAddress",
-  async (req, res, next) => {
-    try {
-      res.status(410).json({
-        error: "DeprecatedEndpoint",
-        message: "Members must now sign the payment transaction from their own wallet, then call /confirm.",
-        statusCode: 410
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
-);
+router.get("/:sessionId/:memberAddress", (_req, res) => {
+  res.status(410).json({
+    error: "DeprecatedEndpoint",
+    message: "Members must now sign the payment transaction from their own wallet, then call /confirm.",
+    statusCode: 410
+  });
+});
 
 router.post("/:sessionId/:memberAddress/confirm", validateBody(confirmSchema), async (req, res, next) => {
   try {
-    const sessionId = asParam(req.params.sessionId, "sessionId");
-    const memberAddress = asParam(req.params.memberAddress, "memberAddress");
+    let sessionId: string;
+    let memberAddress: string;
+    try {
+      sessionId = asSessionIdParam(req.params.sessionId, "sessionId");
+      memberAddress = asAddressParam(req.params.memberAddress, "memberAddress");
+    } catch (err) {
+      if (err instanceof InvalidParamError) {
+        res.status(400).json({ error: "InvalidParam", message: err.message, statusCode: 400 });
+        return;
+      }
+      throw err;
+    }
     const session = await getSession(sessionId);
     if (!session) {
       res.status(404).json({ error: "NotFound", message: "Session not found", statusCode: 404 });

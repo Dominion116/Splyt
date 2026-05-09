@@ -45,10 +45,22 @@ const createSchema = z.object({
  *       201:
  *         description: Session created
  */
+const HOST_ADDRESS_REGEX = /^0x[a-fA-F0-9]{40}$/;
+
 router.get("/", async (req, res, next) => {
   try {
-  const host = typeof req.query.host === "string" ? req.query.host : undefined;
-    const sessions = (await listSessions(host)).map(serializeSession).sort((left, right) => right.createdAt - left.createdAt);
+    const hostRaw = typeof req.query.host === "string" ? req.query.host : undefined;
+    if (hostRaw !== undefined && !HOST_ADDRESS_REGEX.test(hostRaw)) {
+      res.status(400).json({
+        error: "InvalidHost",
+        message: "host query parameter must be a 0x-prefixed 40-character hex address.",
+        statusCode: 400
+      });
+      return;
+    }
+    const sessions = (await listSessions(hostRaw))
+      .map(serializeSession)
+      .sort((left, right) => right.createdAt - left.createdAt);
     res.json({ sessions });
   } catch (error) {
     next(error);
