@@ -143,9 +143,20 @@ export class ChainSessionNotFoundError extends Error {
   }
 }
 
+// UUIDs without dashes are exactly 32 hex characters, which fit in a single
+// bytes32 with zero padding. Reject anything longer up-front: if the caller
+// supplies a 64+ character custom id, the previous implementation silently
+// truncated to the first 32 bytes, allowing two distinct ids to collide on
+// the same on-chain key (MED-01). The session route's Zod schema already
+// enforces UUIDv4 format; this is defence-in-depth for any other call site.
 function toBytes32(sessionId: string): Hex {
   const trimmed = sessionId.replace(/-/g, "");
-  return (`0x${trimmed.padEnd(64, "0").slice(0, 64)}`) as Hex;
+  if (!/^[0-9a-fA-F]+$/.test(trimmed) || trimmed.length === 0 || trimmed.length > 32) {
+    throw new Error(
+      `Invalid session id "${sessionId}": expected a hex/UUID string up to 32 hex characters.`
+    );
+  }
+  return (`0x${trimmed.padEnd(64, "0")}`) as Hex;
 }
 
 function getPublicClient() {
