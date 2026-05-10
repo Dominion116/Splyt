@@ -1,6 +1,5 @@
 "use client";
 
-import { Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useDashboardWallet } from "./use-wallet";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -14,7 +13,7 @@ export function DashboardHeader({ title }: { title: string }) {
       <div className="flex h-full items-center justify-between gap-3 px-5">
         <Link href="/dashboard" className="flex items-center gap-2.5 font-semibold tracking-tight">
           <span aria-hidden="true" className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground">
-            <Sparkles className="h-5 w-5" />
+            <span className="text-sm font-bold">S</span>
           </span>
           <span className="text-lg">splyt</span>
         </Link>
