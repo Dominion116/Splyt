@@ -1,6 +1,6 @@
-import { randomUUID } from "node:crypto";
 import { Router } from "express";
 import { z } from "zod";
+import { verifyMessage } from "viem/utils";
 import { validateBody } from "../middleware/validate.js";
 import { computeSplit } from "../services/ai.js";
 import { ChainSessionNotFoundError, InvalidCloseTxError, getSessionStatus, sessionExists, verifyCloseTransaction } from "../services/contract.js";
@@ -9,10 +9,17 @@ import { ParsedReceipt, putSession, getSession, listSessions, markSessionClosedL
 const router = Router();
 
 const addressSchema = z.string().regex(/^0x[a-fA-F0-9]{40}$/);
+const signatureSchema = z.string().regex(/^0x[a-fA-F0-9]{130}$/);
+
+/** Canonical message the host signs to prove ownership of the host wallet. */
+export function hostAuthMessage(sessionId: string): string {
+  return `Splyt session creation: ${sessionId}`;
+}
 
 const createSchema = z.object({
-  sessionId: z.string().min(1).optional(),
+  sessionId: z.string().uuid(),
   host: addressSchema,
+  hostSignature: signatureSchema,
   txHash: z.string().regex(/^0x[a-fA-F0-9]{64}$/).optional(),
   members: z.array(addressSchema).min(1),
   amounts: z.array(z.string().regex(/^\d+$/)).min(1),
@@ -89,7 +96,26 @@ router.post("/", validateBody(createSchema), async (req, res, next) => {
       return;
     }
 
-    const id = req.body.sessionId ?? randomUUID();
+    const id = req.body.sessionId;
+
+    // Authoritatively prove the caller controls the host wallet by verifying
+    // a signature over the canonical message bound to this sessionId. Without
+    // this check anyone could register a session attributed to any address
+    // (HIGH-02) and pollute that user's dashboard with fake receipts.
+    const isHost = await verifyMessage({
+      address: req.body.host as `0x${string}`,
+      message: hostAuthMessage(id),
+      signature: req.body.hostSignature as `0x${string}`
+    });
+    if (!isHost) {
+      res.status(401).json({
+        error: "InvalidHostSignature",
+        message: "Signature does not recover to the declared host address for this session id.",
+        statusCode: 401
+      });
+      return;
+    }
+
     const expiresInMinutes = req.body.expiresInMinutes ?? 60;
     const expiresAt = Date.now() + expiresInMinutes * 60 * 1000;
     const receipt = req.body.receipt as ParsedReceipt;
