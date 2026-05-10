@@ -24,27 +24,58 @@ function microsToString(value: bigint): string {
   return `${whole.toString()}.${frac}`;
 }
 
+// Hard bounds on what we'll accept back from the Groq vision model. A
+// crafted receipt image (or a model hallucination) can otherwise emit
+// thousands of items and arbitrarily long names that would later be
+// stored in MongoDB and served back to every session participant.
+const MAX_ITEMS = 100;
+const MAX_NAME_LENGTH = 200;
+const SAFE_AMOUNT = /^\d{1,12}(\.\d{1,6})?$/;
+
+function sanitizeName(input: unknown): string {
+  if (typeof input !== "string") return "Item";
+  // Strip control characters and zero-width joiners that could corrupt
+  // logs or downstream renderers.
+  // Strip C0 control chars (0x00-0x1F), DEL (0x7F), and zero-width
+  // joiners U+200B/U+200C/U+200D using explicit Unicode escapes.
+  const cleaned = input
+    .replace(/[\u0000-\u001F\u007F]/g, "")
+    .replace(/[\u200B\u200C\u200D]/g, "")
+    .trim();
+  return cleaned.slice(0, MAX_NAME_LENGTH) || "Item";
+}
+
+function sanitizeAmount(input: unknown, fallback = "0.000000"): string {
+  if (typeof input !== "string") return fallback;
+  return SAFE_AMOUNT.test(input) ? input : fallback;
+}
+
 function normalizeParsedReceipt(raw: ParsedReceipt): ParsedReceipt {
+  const items = raw.items.slice(0, MAX_ITEMS).map((item) => {
+    const quantity =
+      item.quantity && Number.isFinite(item.quantity)
+        ? Math.max(1, Math.min(10_000, Math.trunc(item.quantity)))
+        : undefined;
+    const unitPrice = item.unitPrice ? sanitizeAmount(item.unitPrice) : undefined;
+
+    let amount = sanitizeAmount(item.amount);
+    if (quantity && unitPrice) {
+      amount = microsToString(parseUsdToMicros(unitPrice) * BigInt(quantity));
+    }
+
+    return {
+      name: sanitizeName(item.name),
+      amount,
+      quantity,
+      unitPrice
+    };
+  });
+
   return {
-    items: raw.items.map((item) => {
-      const quantity = item.quantity && Number.isFinite(item.quantity) ? Math.max(1, Math.trunc(item.quantity)) : undefined;
-      const unitPrice = item.unitPrice;
-
-      let amount = item.amount;
-      if (quantity && unitPrice) {
-        amount = microsToString(parseUsdToMicros(unitPrice) * BigInt(quantity));
-      }
-
-      return {
-        name: item.name,
-        amount,
-        quantity,
-        unitPrice
-      };
-    }),
-    subtotal: raw.subtotal,
-    tax: raw.tax,
-    total: raw.total,
+    items,
+    subtotal: sanitizeAmount(raw.subtotal),
+    tax: sanitizeAmount(raw.tax),
+    total: sanitizeAmount(raw.total),
     currency: "cUSD"
   };
 }
