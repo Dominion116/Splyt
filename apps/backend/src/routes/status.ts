@@ -155,10 +155,17 @@ router.get("/:sessionId", statusLimiter, async (req, res) => {
   // Clients can reconnect; the per-session counter will reaccept them.
   lifetime = setTimeout(closeStream, MAX_LIFETIME_MS);
 
-  await poll();
-  pollInterval = setInterval(() => {
-    void poll();
-  }, 2000);
+  // Wrap every poll invocation in .catch so an unexpected throw (e.g. RPC
+  // timeout, JSON parse error) closes the stream cleanly instead of leaking
+  // the interval reference into the unhandled-rejection handler (LOW-04).
+  const safePoll = () =>
+    poll().catch((err) => {
+      console.error("[status:poll]", err instanceof Error ? err.message : err);
+      closeStream();
+    });
+
+  await safePoll();
+  pollInterval = setInterval(safePoll, 2000);
   heartbeat = setInterval(() => {
     res.write(": keep-alive\n\n");
   }, 15000);
