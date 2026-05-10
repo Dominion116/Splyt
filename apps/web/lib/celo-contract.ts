@@ -141,6 +141,28 @@ export async function requestWalletAccount(): Promise<Address> {
   return list[0] as Address;
 }
 
+/**
+ * Asks the connected wallet to sign a UTF-8 message via personal_sign so the
+ * backend can prove the caller controls `address` before persisting a session
+ * attributed to that address. Returns the 0x-prefixed 65-byte hex signature.
+ */
+export async function personalSign(args: { address: Address; message: string }): Promise<Hex> {
+  const provider = getProvider();
+  const signature = await provider.request({
+    method: "personal_sign",
+    params: [args.message, args.address]
+  });
+  if (typeof signature !== "string" || !/^0x[a-fA-F0-9]{130}$/.test(signature)) {
+    throw new Error("Wallet returned an invalid signature.");
+  }
+  return signature as Hex;
+}
+
+/** Canonical message string the backend expects for host-of-session proofs. */
+export function hostAuthMessage(sessionId: string): string {
+  return `Splyt session creation: ${sessionId}`;
+}
+
 export async function sendCreateSessionTransaction(args: {
   sessionId: string;
   from: Address;
