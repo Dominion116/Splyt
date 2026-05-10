@@ -128,9 +128,17 @@ function getProvider(): WalletProvider {
   return window.ethereum as WalletProvider;
 }
 
+// Reject session ids longer than 32 hex bytes — the previous slice(0, 64)
+// quietly truncated, letting two distinct ids collide on the same on-chain
+// key (MED-01). UUIDs without dashes are exactly 32 hex characters and pass.
 export function toBytes32(sessionId: string): Hex {
   const trimmed = sessionId.replace(/-/g, "");
-  return `0x${trimmed.padEnd(64, "0").slice(0, 64)}` as Hex;
+  if (!/^[0-9a-fA-F]+$/.test(trimmed) || trimmed.length === 0 || trimmed.length > 32) {
+    throw new Error(
+      `Invalid session id "${sessionId}": expected a hex/UUID string up to 32 hex characters.`
+    );
+  }
+  return `0x${trimmed.padEnd(64, "0")}` as Hex;
 }
 
 export async function requestWalletAccount(): Promise<Address> {
