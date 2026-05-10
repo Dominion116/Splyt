@@ -88,6 +88,18 @@ router.get("/:sessionId/:memberAddress/price", async (req, res) => {
     return;
   }
 
+  // Don't quote a price for an expired session — payment will be rejected
+  // by the contract anyway, so let the pay page short-circuit with a clear
+  // error rather than walk the user up to a wallet prompt that will fail.
+  if (session.expiresAt < Date.now()) {
+    res.status(410).json({
+      error: "SessionExpired",
+      message: "This session has expired and can no longer accept payments.",
+      statusCode: 410
+    });
+    return;
+  }
+
   const memberEntry = session.members.find(
     (m) => m.address.toLowerCase() === memberAddress.toLowerCase()
   );
@@ -173,6 +185,19 @@ router.post("/:sessionId/:memberAddress/confirm", validateBody(confirmSchema), a
     const memberEntry = session.members.find((m) => m.address.toLowerCase() === memberAddress.toLowerCase());
     if (!memberEntry) {
       res.status(404).json({ error: "NotFound", message: "Member not found", statusCode: 404 });
+      return;
+    }
+
+    // Reject confirms for expired sessions before paying for the on-chain
+    // verification round-trip. The contract's markPaid reverts past
+    // expiresAt anyway, so a tx submitted now would already have failed —
+    // surfacing a clear 410 here is friendlier than a chain-error 422.
+    if (session.expiresAt < Date.now()) {
+      res.status(410).json({
+        error: "SessionExpired",
+        message: "This session has expired and can no longer accept payments.",
+        statusCode: 410
+      });
       return;
     }
 
