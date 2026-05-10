@@ -77,7 +77,12 @@ app.get("/health", (_req, res) => {
   res.json({ ok: true, service: "splyt-backend" });
 });
 
-app.use("/docs", swaggerUi.serve, swaggerUi.setup(openApiDocument));
+// Mount the Swagger UI only outside of production. The interactive UI is a
+// fully-clickable attack surface against every endpoint, and we don't want
+// crawlers or curious visitors to discover it on the production hostname.
+if (process.env.NODE_ENV !== "production") {
+  app.use("/docs", swaggerUi.serve, swaggerUi.setup(openApiDocument));
+}
 app.use("/api/parse", parseRoute);
 app.use("/api/session", sessionRoute);
 app.use("/api/pay", payRoute);
@@ -88,11 +93,13 @@ app.use("/api/status", statusRoute);
 // ---------------------------------------------------------------------------
 
 app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
-  const message = error instanceof Error ? error.message : "Unexpected error";
-  console.error("[global error handler]", message);
+  // Log the full error server-side for debugging, but never echo the raw
+  // message to clients. Library errors (MongoDB auth failures, viem RPC
+  // failures, etc.) include credentials and internal URLs in their messages.
+  console.error("[global error handler]", error);
   res.status(500).json({
     error: "InternalServerError",
-    message,
+    message: "An unexpected error occurred. Please try again.",
     statusCode: 500
   });
 });
