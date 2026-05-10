@@ -69,7 +69,7 @@ export function truncateAddress(address: string, front = 6, back = 4): string {
 }
 
 export function isValidEthAddress(address: string): boolean {
-  return address.startsWith("0x") && address.length === 42;
+  return /^0x[a-fA-F0-9]{40}$/.test(address);
 }
 
 export function getSessionProgress(session: DashboardSessionRecord): number {
