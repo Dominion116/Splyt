@@ -10,7 +10,13 @@ import { Separator } from "@/components/ui/separator";
 import { useDashboardWallet } from "@/components/dashboard/use-wallet";
 import { TerminalLog, type TerminalLine } from "@/components/dashboard/terminal-log";
 import { formatUsdcPrecise, isValidEthAddress } from "@/lib/dashboard";
-import { requestWalletAccount, sendCreateSessionTransaction, waitForCeloReceipt } from "@/lib/celo-contract";
+import {
+  hostAuthMessage,
+  personalSign,
+  requestWalletAccount,
+  sendCreateSessionTransaction,
+  waitForCeloReceipt
+} from "@/lib/celo-contract";
 import { cn } from "@/lib/utils";
 
 type ParsedReceipt = {
@@ -176,12 +182,22 @@ export default function DashboardNewSplitPage() {
       setSessionMessage(`Waiting for wallet transaction · ${txHash.slice(0, 10)}...`);
       await waitForCeloReceipt(txHash);
 
+      // Prove ownership of the host wallet to the backend by signing a
+      // message bound to this sessionId. Without this signature anyone could
+      // register a session attributed to any address.
+      setSessionMessage("Sign the host confirmation in your wallet…");
+      const hostSignature = await personalSign({
+        address: hostAddress as `0x${string}`,
+        message: hostAuthMessage(sessionId)
+      });
+
       const response = await fetch(`${backendUrl}/api/session`, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           sessionId,
           host: hostAddress,
+          hostSignature,
           txHash,
           members: activeMembers,
           amounts: computedShares.map((share) => share.toString()),
