@@ -21,21 +21,26 @@ const createSchema = z.object({
   host: addressSchema,
   hostSignature: signatureSchema,
   txHash: z.string().regex(/^0x[a-fA-F0-9]{64}$/).optional(),
-  members: z.array(addressSchema).min(1),
-  amounts: z.array(z.string().regex(/^\d+$/)).min(1),
+  members: z.array(addressSchema).min(1).max(50),
+  amounts: z.array(z.string().regex(/^\d{1,30}$/)).min(1).max(50),
   mode: z.enum(["equal", "itemised", "custom"]),
   receipt: z.object({
-    items: z.array(
-      z.object({
-        name: z.string(),
-        amount: z.string(),
-        quantity: z.number().int().positive().optional(),
-        unitPrice: z.string().optional()
-      })
-    ),
-    subtotal: z.string(),
-    tax: z.string(),
-    total: z.string(),
+    // Bound every field below: a prompt-injected Groq response or a malicious
+    // client can otherwise stuff thousands of items / megabytes of names into
+    // a single session document (MED-02).
+    items: z
+      .array(
+        z.object({
+          name: z.string().min(1).max(200),
+          amount: z.string().regex(/^\d{1,12}(\.\d{1,6})?$/),
+          quantity: z.number().int().positive().max(10_000).optional(),
+          unitPrice: z.string().regex(/^\d{1,12}(\.\d{1,6})?$/).optional()
+        })
+      )
+      .max(100),
+    subtotal: z.string().regex(/^\d{1,12}(\.\d{1,6})?$/),
+    tax: z.string().regex(/^\d{1,12}(\.\d{1,6})?$/),
+    total: z.string().regex(/^\d{1,12}(\.\d{1,6})?$/),
     currency: z.literal("cUSD")
   }),
   expiresInMinutes: z.number().int().min(1).max(240).optional()
