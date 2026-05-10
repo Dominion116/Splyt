@@ -162,11 +162,25 @@ export async function waitForTransactionReceipt(hash: Hex) {
 
 // keccak256("SessionClosed(bytes32,uint256)") — precomputed, immutable for this ABI.
 const SESSION_CLOSED_TOPIC = "0x1d8ada2ed73dcd9599105b1206ea1d3aa9e687b4e8f3b49940a4b03b6360585e";
+// keccak256("MemberPaid(bytes32,address,uint256)") — precomputed, immutable.
+const MEMBER_PAID_TOPIC = "0x5d2b0b90cc08e943ce3566b9dc2e5216427f96f66e6a81294f1158f4468d30b1";
+
+/** Right-pad an Ethereum address into a 32-byte ABI-encoded hex string. */
+function addressToTopic(address: string): string {
+  return `0x000000000000000000000000${address.slice(2).toLowerCase()}`;
+}
 
 export class InvalidCloseTxError extends Error {
   constructor(reason: string) {
     super(reason);
     this.name = "InvalidCloseTxError";
+  }
+}
+
+export class InvalidPaymentTxError extends Error {
+  constructor(reason: string) {
+    super(reason);
+    this.name = "InvalidPaymentTxError";
   }
 }
 
@@ -216,6 +230,47 @@ export async function verifyCloseTransaction(
 
   throw new InvalidCloseTxError(
     "Transaction does not contain a SessionClosed event for this session."
+  );
+}
+
+/**
+ * Verifies that `txHash` is a successful `markPaid` call against the Splyt
+ * contract that emitted a `MemberPaid(sessionId, member, amount)` log for the
+ * exact (sessionId, memberAddress) pair. Without this check a member could
+ * confirm a payment in session B by submitting a txHash from session A where
+ * they happened to already be marked paid on-chain.
+ */
+export async function verifyMemberPaidTransaction(
+  txHash: Hex,
+  sessionId: string,
+  memberAddress: string
+): Promise<{ amount: bigint }> {
+  const receipt = (await waitForTransactionReceipt(txHash)) as MinimalReceipt;
+
+  if (receipt.status !== "success") {
+    throw new InvalidPaymentTxError("Payment transaction did not succeed on-chain.");
+  }
+
+  if (receipt.to?.toLowerCase() !== CONTRACT_ADDRESS.toLowerCase()) {
+    throw new InvalidPaymentTxError("Transaction was not sent to the Splyt contract.");
+  }
+
+  const expectedSessionId = toBytes32(sessionId).toLowerCase();
+  const expectedMember = addressToTopic(memberAddress);
+
+  for (const log of receipt.logs) {
+    if (log.address.toLowerCase() !== CONTRACT_ADDRESS.toLowerCase()) continue;
+    if (log.topics[0]?.toLowerCase() !== MEMBER_PAID_TOPIC) continue;
+    // topics[1] = indexed bytes32 sessionId, topics[2] = indexed address member
+    if (log.topics[1]?.toLowerCase() !== expectedSessionId) continue;
+    if (log.topics[2]?.toLowerCase() !== expectedMember) continue;
+    // data = uint256 amount in 18-decimal wei → convert to micros
+    const amount = BigInt(log.data) / MICROS_TO_WEI;
+    return { amount };
+  }
+
+  throw new InvalidPaymentTxError(
+    "Transaction does not contain a MemberPaid event for this session and member."
   );
 }
 
