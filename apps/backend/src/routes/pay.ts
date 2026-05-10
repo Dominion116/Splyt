@@ -1,7 +1,11 @@
 import { Router } from "express";
 import type { Address } from "viem";
 import { z } from "zod";
-import { getSessionStatus, waitForTransactionReceipt } from "../services/contract.js";
+import {
+  getSessionStatus,
+  InvalidPaymentTxError,
+  verifyMemberPaidTransaction
+} from "../services/contract.js";
 import { validateBody } from "../middleware/validate.js";
 import { getSession, markPaidLocally } from "../services/db.js";
 
@@ -172,8 +176,26 @@ router.post("/:sessionId/:memberAddress/confirm", validateBody(confirmSchema), a
       return;
     }
 
-    await waitForTransactionReceipt(req.body.txHash as `0x${string}`);
+    // Authoritative check: the txHash must be a successful markPaid call
+    // emitting a MemberPaid(sessionId, memberAddress, amount) log for THIS
+    // session and member. Without this an attacker could replay a txHash
+    // from another session where the same address is already marked paid.
+    try {
+      await verifyMemberPaidTransaction(
+        req.body.txHash as `0x${string}`,
+        sessionId,
+        memberAddress
+      );
+    } catch (err) {
+      if (err instanceof InvalidPaymentTxError) {
+        res.status(422).json({ error: "InvalidPaymentTx", message: err.message, statusCode: 422 });
+        return;
+      }
+      throw err;
+    }
 
+    // Belt-and-braces: confirm the chain state agrees with the event we just
+    // verified. If a reorg flipped the receipt this catches it.
     const { members: updatedStatuses } = await getSessionStatus(
       sessionId,
       asAddressArray(session.members.map((m) => m.address))
