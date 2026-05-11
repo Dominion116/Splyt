@@ -15,5 +15,8 @@ cache
 broadcast
 
 # Environment files
+**/.env
+**/.env.*
+!**/.env.example
 !.env.example
 config.bat
