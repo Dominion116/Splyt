@@ -1,15 +1,8 @@
 "use client";
 
-import { Instrument_Serif } from "next/font/google";
 import { Button } from "@/components/ui/button";
 import { motion } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
-
-const instrumentSerif = Instrument_Serif({
-  subsets: ["latin"],
-  weight: ["400"],
-  style: ["italic"],
-});
 
 export type AvatarList = {
   image: string;
@@ -34,9 +27,7 @@ function HeroSection({ avatarList }: HeroSectionProps) {
                   className="lg:text-8xl md:text-7xl text-5xl font-medium leading-14 md:leading-20 lg:leading-24"
                 >
                   Building bold brands with{" "}
-                  <span
-                    className={`${instrumentSerif.className} tracking-tight`}
-                  >
+                  <span className="font-serif italic tracking-tight">
                     thoughtful design
                   </span>
                 </motion.h1>
