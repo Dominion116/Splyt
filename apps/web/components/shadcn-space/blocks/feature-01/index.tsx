@@ -26,7 +26,7 @@ const featureData = [
 ];
 
 const Feature01 = () => {
-  return null;
+  return <Feature featureData={featureData} />;
 };
 
 export default Feature01;
