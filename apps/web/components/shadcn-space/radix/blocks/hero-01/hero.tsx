@@ -14,7 +14,7 @@ type HeroSectionProps = {
 
 function HeroSection({ avatarList }: HeroSectionProps) {
   return (
-    <section>
+    <section id="hero">
       <div className="w-full h-full relative">
         <div className="relative w-full pt-0 md:pt-20 pb-6 md:pb-10 before:absolute before:w-full before:h-full before:bg-linear-to-r before:from-sky-100 before:via-white before:to-amber-100 before:rounded-full before:top-24 before:blur-3xl before:-z-10 dark:before:from-slate-800 dark:before:via-black dark:before:to-stone-700 dark:before:rounded-full dark:before:blur-3xl dark:before:-z-10">
           <div className="container mx-auto relative z-10">
@@ -26,9 +26,9 @@ function HeroSection({ avatarList }: HeroSectionProps) {
                   transition={{ duration: 1, ease: "easeInOut" }}
                   className="lg:text-8xl md:text-7xl text-5xl font-medium leading-14 md:leading-20 lg:leading-24"
                 >
-                  Building bold brands with{" "}
+                  Snap any receipt and split the bill with{" "}
                   <span className="font-serif italic tracking-tight">
-                    thoughtful design
+                    on-chain settlement
                   </span>
                 </motion.h1>
                 <motion.p
@@ -37,9 +37,10 @@ function HeroSection({ avatarList }: HeroSectionProps) {
                   transition={{ duration: 1, delay: 0.1, ease: "easeInOut" }}
                   className="text-base font-normal max-w-2xl text-muted-foreground"
                 >
-                  At shadcn space, we help small startups tackle the world's
-                  biggest challenges with tailored solutions, guiding you from
-                  strategy to success in a competitive market.
+                  Splyt turns any shared bill into individual payment requests
+                  in seconds. Upload a receipt, let the AI compute each
+                  person's share, and everyone pays their amount directly from
+                  their wallet.
                 </motion.p>
               </div>
               <motion.div
@@ -50,7 +51,7 @@ function HeroSection({ avatarList }: HeroSectionProps) {
               >
                 <Button className="relative text-sm cursor-pointer hover:bg-primary/80 font-medium rounded-full h-12 p-1 ps-6 pe-14 group transition-all duration-500 hover:ps-14 hover:pe-6 w-fit overflow-hidden">
                   <span className="relative z-10 transition-all duration-500">
-                    Get Started
+                    Connect Wallet
                   </span>
                   <span className="absolute right-1 w-10 h-10 bg-background text-foreground rounded-full flex items-center justify-center transition-all duration-500 group-hover:right-[calc(100%-44px)] group-hover:rotate-45">
                     <ArrowUpRight size={16} />
@@ -82,7 +83,7 @@ function HeroSection({ avatarList }: HeroSectionProps) {
                       ))}
                     </div>
                     <p className="sm:text-sm text-xs font-normal text-muted-foreground">
-                      Trusted by 1000+ clients
+                      Trusted by 500+ groups
                     </p>
                   </div>
                 </div>
