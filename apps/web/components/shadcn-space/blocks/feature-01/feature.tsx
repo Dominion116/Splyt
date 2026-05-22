@@ -34,7 +34,72 @@ const Feature = ({ featureData }: { featureData: Features }) => {
                 </p>
               </div>
             </motion.div>
-            <div className="min-h-[28rem] rounded-2xl border border-dashed border-border/60 bg-muted/20" />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-6">
+              <motion.div
+                initial={{ x: -100, opacity: 0 }}
+                whileInView={{ x: 0, opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{
+                  duration: 0.8,
+                  ease: [0.21, 0.47, 0.32, 0.98],
+                }}
+                className="p-6 sm:p-16 rounded-2xl bg-[url('https://images.shadcnspace.com/assets/feature/feature-01-img.webp')] object-cover bg-center h-full w-full bg-cover bg-no-repeat"
+              >
+                <Card className="flex items-start gap-12 has-data-[slot=card-footer]:pb-6! sm:has-data-[slot=card-footer]:pb-10! pt-6 sm:py-10 border-none shadow-none ring-0 rounded-lg">
+                  <CardContent className="flex flex-col gap-6 px-6 sm:px-8">
+                    <Avatar className="size-12">
+                      <AvatarFallback>
+                        <img
+                          src="https://images.shadcnspace.com/assets/profiles/user-1.jpg"
+                          className="rounded-full"
+                        />
+                      </AvatarFallback>
+                    </Avatar>
+                    <h3 className="text-xl sm:text-2xl font-medium">
+                      &ldquo;Before Splyt, settling group dinners meant chasing
+                      people for days. Now everyone pays their share on chain
+                      before the night is over.&rdquo;
+                    </h3>
+                  </CardContent>
+                  <CardFooter className="bg-card border-none w-full px-6 sm:px-8 py-0 flex flex-col items-start gap-0.5">
+                    <p className="text-sm font-medium text-primary">
+                      SARAH CHEN
+                    </p>
+                    <span className="text-xs font-normal text-muted-foreground uppercase">
+                      PRODUCT DESIGNER @CELO
+                    </span>
+                  </CardFooter>
+                </Card>
+              </motion.div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6">
+                {featureData?.map((value, index) => {
+                  return (
+                    <motion.div
+                      key={index}
+                      initial={{ x: 100, opacity: 0 }}
+                      whileInView={{ x: 0, opacity: 1 }}
+                      viewport={{ once: true }}
+                      transition={{
+                        duration: 0.8,
+                        ease: [0.21, 0.47, 0.32, 0.98],
+                      }}
+                    >
+                      <Card className="py-8 bg-muted ring-0 border-0 h-full">
+                        <CardContent className="w-full h-full px-8 flex flex-col items-start gap-12 justify-between">
+                          <value.icon
+                            className="w-6 h-6 text-muted-foreground"
+                            strokeWidth={1.5}
+                          />
+                          <p className="text-base text-primary font-normal">
+                            {value?.content}
+                          </p>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </div>
       </div>
