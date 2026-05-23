@@ -6,7 +6,6 @@ import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuL
 import { cn } from "@/lib/utils";
 import { Menu, X } from 'lucide-react';
 import { Icon } from "@iconify/react";
-import Logo from "@/assets/logo/logo";
 import { Button } from "@/components/ui/button";
 import { motion } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
@@ -76,8 +75,8 @@ const Header = ({ navigationData, className }: HeaderProps) => {
       >
         {/* Logo */}
         <div>
-          <a href="#">
-            <Logo className="gap-3" />
+          <a href="#" className="text-xl font-semibold tracking-tight">
+            splyt.
           </a>
         </div>
 
@@ -121,8 +120,8 @@ const Header = ({ navigationData, className }: HeaderProps) => {
                 className="w-full sm:w-96 p-0 border-l-0"
               >
                 <div className="flex items-center justify-between p-6">
-                  <a href="#">
-                    <Logo className="gap-2" />
+                  <a href="#" className="text-xl font-semibold tracking-tight">
+                    splyt.
                   </a>
                   <SheetClose id="mobile-menu-close">
                     <span className="rounded-full border border-border p-2.5 block">
