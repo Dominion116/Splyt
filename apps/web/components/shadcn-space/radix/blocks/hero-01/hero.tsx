@@ -24,10 +24,10 @@ function HeroSection({ avatarList }: HeroSectionProps) {
                   initial={{ opacity: 0, y: 32 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 1, ease: "easeInOut" }}
-                  className="lg:text-8xl md:text-7xl text-5xl font-medium leading-14 md:leading-20 lg:leading-24"
+                  className="lg:text-8xl md:text-7xl text-5xl font-medium tracking-tight leading-14 md:leading-20 lg:leading-24"
                 >
                   Snap any receipt and split the bill with{" "}
-                  <span className="font-serif italic tracking-tight">
+                  <span className="font-serif italic tracking-tight"><br/>
                     on-chain settlement
                   </span>
                 </motion.h1>
