@@ -172,10 +172,8 @@ const Header = ({ navigationData, className }: HeaderProps) => {
                   <div className="mt-auto flex flex-col gap-4">
                     <div className="flex gap-3">
                       {[
-                        "lucide:dribbble",
-                        "lucide:instagram",
                         "lucide:twitter",
-                        "lucide:linkedin",
+                        "lucide:github",
                       ].map((icon) => (
                         <a
                           key={icon}
