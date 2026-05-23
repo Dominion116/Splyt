@@ -39,7 +39,7 @@ function HeroSection({ avatarList }: HeroSectionProps) {
                 >
                   Splyt turns any shared bill into individual payment requests
                   in seconds. Upload a receipt, let the AI compute each
-                  person's share, and everyone pays their amount directly from
+                  person&apos;s share, and everyone pays their amount directly from
                   their wallet.
                 </motion.p>
               </div>
