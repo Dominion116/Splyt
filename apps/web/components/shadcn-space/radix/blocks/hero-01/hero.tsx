@@ -58,7 +58,7 @@ function HeroSection({ avatarList }: HeroSectionProps) {
                   </span>
                 </Button>
                 <div className="flex items-center sm:gap-7 gap-3">
-                  <ul className="avatar flex flex-row items-center">
+                  <ul className="avatar flex flex-row items-center" aria-label="Splyt community members">
                     {avatarList.map((avatar, index) => (
                       <li key={index} className="-mr-2 z-1 avatar-hover:ml-2">
                         <img
