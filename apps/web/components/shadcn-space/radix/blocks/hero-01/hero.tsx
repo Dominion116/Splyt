@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { motion } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
 
@@ -49,14 +49,17 @@ function HeroSection({ avatarList }: HeroSectionProps) {
                 transition={{ duration: 1, delay: 0.2, ease: "easeInOut" }}
                 className="flex items-center flex-col md:flex-row justify-center gap-8"
               >
-                <Button className="relative text-sm cursor-pointer hover:bg-primary/80 font-medium rounded-full h-12 p-1 ps-6 pe-14 group transition-all duration-500 hover:ps-14 hover:pe-6 w-fit overflow-hidden">
+                <Link
+                  href="/app"
+                  className="relative inline-flex items-center text-sm font-medium rounded-full h-12 p-1 ps-6 pe-14 group transition-all duration-500 hover:ps-14 hover:pe-6 w-fit overflow-hidden bg-primary text-primary-foreground hover:bg-primary/80"
+                >
                   <span className="relative z-10 transition-all duration-500">
-                    Connect Wallet
+                    Open App
                   </span>
                   <span className="absolute right-1 w-10 h-10 bg-background text-foreground rounded-full flex items-center justify-center transition-all duration-500 group-hover:right-[calc(100%-44px)] group-hover:rotate-45">
                     <ArrowUpRight size={16} />
                   </span>
-                </Button>
+                </Link>
                 <div className="flex items-center sm:gap-7 gap-3">
                   <ul className="avatar flex flex-row items-center" aria-label="Splyt community members">
                     {avatarList.map((avatar, index) => (
