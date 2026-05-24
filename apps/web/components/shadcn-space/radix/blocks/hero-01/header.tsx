@@ -180,7 +180,7 @@ const Header = ({ navigationData, className }: HeaderProps) => {
                           aria-label={label}
                           className="flex items-center justify-center rounded-full outline outline-border hover:bg-muted transition p-3 shadow-xs"
                         >
-                          <Icon icon={icon} width={16} height={16} aria-hidden="true" />
+                          <Icon icon={icon} width={16} height={16} />
                         </a>
                       ))}
                     </div>
