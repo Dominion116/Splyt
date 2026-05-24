@@ -1,6 +1,8 @@
 import type { Address, ApiError, ParsedReceipt, SessionDetail, SessionSummary } from "./types";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:3001";
+function getBaseUrl(): string {
+  return process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:3001";
+}
 
 export class ApiRequestError extends Error {
   readonly status: number;
@@ -17,7 +19,7 @@ export class ApiRequestError extends Error {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${BASE_URL}${path}`, {
+  const res = await fetch(`${getBaseUrl()}${path}`, {
     ...init,
     headers: {
       "Content-Type": "application/json",
@@ -101,5 +103,5 @@ export async function confirmMemberPayment(sessionId: string, memberAddress: Add
 }
 
 export function statusStreamUrl(sessionId: string): string {
-  return `${BASE_URL}/api/status/${sessionId}`;
+  return `${getBaseUrl()}/api/status/${sessionId}`;
 }
