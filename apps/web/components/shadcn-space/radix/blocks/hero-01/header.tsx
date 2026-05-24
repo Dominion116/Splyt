@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetClose } from "@/components/ui/sheet";
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
 import { Menu, X } from 'lucide-react';
 import { Icon } from "@iconify/react";
-import { Button } from "@/components/ui/button";
 import { motion } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
 
@@ -21,15 +21,19 @@ type HeaderProps = {
   className?: string;
 };
 
-const ConnectWalletButton = ({ className }: { className?: string }) => (
-  <Button className={cn("relative text-sm font-medium rounded-full cursor-pointer hover:bg-primary/80 h-10 p-1 ps-4 pe-12 group transition-all duration-500 hover:ps-12 hover:pe-4 w-fit overflow-hidden", className)}>
-    <span className="relative z-10 transition-all duration-500">
-      Connect Wallet
-    </span>
+const OpenAppButton = ({ className }: { className?: string }) => (
+  <Link
+    href="/app"
+    className={cn(
+      "relative inline-flex items-center text-sm font-medium rounded-full h-10 p-1 ps-4 pe-12 group transition-all duration-500 hover:ps-12 hover:pe-4 w-fit overflow-hidden bg-primary text-primary-foreground hover:bg-primary/80",
+      className,
+    )}
+  >
+    <span className="relative z-10 transition-all duration-500">Open App</span>
     <span className="absolute right-1 w-8 h-8 bg-background text-foreground rounded-full flex items-center justify-center transition-all duration-500 group-hover:right-[calc(100%-36px)] group-hover:rotate-45">
       <ArrowUpRight size={16} />
     </span>
-  </Button>
+  </Link>
 );
 
 const Header = ({ navigationData, className }: HeaderProps) => {
@@ -100,7 +104,7 @@ const Header = ({ navigationData, className }: HeaderProps) => {
 
         {/* Desktop CTA */}
         <div className="flex gap-4">
-          <ConnectWalletButton className="hidden lg:flex" />
+          <OpenAppButton className="hidden lg:flex" />
 
           <div className="lg:hidden">
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -165,7 +169,7 @@ const Header = ({ navigationData, className }: HeaderProps) => {
                     </NavigationMenu>
 
                     <div className="w-fit">
-                      <ConnectWalletButton />
+                      <OpenAppButton />
                     </div>
                   </div>
 
