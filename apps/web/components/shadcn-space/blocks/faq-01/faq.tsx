@@ -47,7 +47,7 @@ export default function Faq() {
           >
             FAQs
           </Badge>
-          <h2 className="text-5xl font-medium text-center max-w-lg">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-center max-w-lg">
             Got questions? We have got answers ready
           </h2>
         </div>
