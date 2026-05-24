@@ -72,7 +72,7 @@ function HeroSection({ avatarList }: HeroSectionProps) {
                     ))}
                   </ul>
                   <div className="gap-1 flex flex-col items-start">
-                    <div className="flex gap-1">
+                    <div className="flex gap-1" role="img" aria-label="5 out of 5 stars">
                       {Array.from({ length: 5 }).map((_, index) => (
                         <img
                           key={index}
