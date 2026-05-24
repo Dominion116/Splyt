@@ -53,7 +53,7 @@ const Footer = () => {
                   <a href="#" aria-label="Twitter" className="text-muted-foreground hover:text-foreground">
                     <TwitterIcon />
                   </a>
-                  <a href="#" className="text-muted-foreground hover:text-foreground">
+                  <a href="#" aria-label="GitHub" className="text-muted-foreground hover:text-foreground">
                     <GithubIcon />
                   </a>
                 </div>
