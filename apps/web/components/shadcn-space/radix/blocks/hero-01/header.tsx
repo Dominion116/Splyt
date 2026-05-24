@@ -65,17 +65,16 @@ const Header = ({ navigationData, className }: HeaderProps) => {
         className,
       )}
     >
-      <div
-        className={cn(
-          "w-full max-w-6xl flex items-center h-fit justify-between gap-3.5 lg:gap-6 transition-all duration-500",
-          sticky
+                      [
+                        { icon: "lucide:twitter", label: "Twitter" },
+                        { icon: "lucide:github", label: "GitHub" },
+                      ].map(({ icon }) => (
             ? "p-2.5 bg-background/60 backdrop-blur-lg border border-border/40 shadow-2xl shadow-primary/5 rounded-full"
             : "bg-transparent border-transparent",
         )}
-      >
         {/* Logo */}
         <div>
-          <a href="#" className="text-xl font-semibold tracking-tight">
+                          <Icon icon={icon} width={16} height={16} />
             splyt.
           </a>
         </div>
@@ -172,15 +171,16 @@ const Header = ({ navigationData, className }: HeaderProps) => {
                   <div className="mt-auto flex flex-col gap-4">
                     <div className="flex gap-3">
                       {[
-                        "lucide:twitter",
-                        "lucide:github",
-                      ].map((icon) => (
+                        { icon: "lucide:twitter", label: "Twitter" },
+                        { icon: "lucide:github", label: "GitHub" },
+                      ].map(({ icon, label }) => (
                         <a
                           key={icon}
                           href="#"
+                          aria-label={label}
                           className="flex items-center justify-center rounded-full outline outline-border hover:bg-muted transition p-3 shadow-xs"
                         >
-                          <Icon icon={icon} width={16} height={16} />
+                          <Icon icon={icon} width={16} height={16} aria-hidden="true" />
                         </a>
                       ))}
                     </div>
