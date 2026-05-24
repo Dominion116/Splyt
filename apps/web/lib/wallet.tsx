@@ -2,7 +2,9 @@
 
 import {
   createContext,
+  useCallback,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -46,8 +48,18 @@ interface WalletContextValue extends WalletState {
 
 const WalletContext = createContext<WalletContextValue | null>(null);
 
+const STORAGE_KEY = "splyt:wallet:autoConnect";
+
+function detectKind(provider: Eip1193Provider | undefined): WalletKind {
+  if (!provider) return "none";
+  if (provider.isMiniPay) return "minipay";
+  if (provider.isValora) return "valora";
+  if (provider.isMetaMask) return "metamask";
+  return "injected";
+}
+
 export function WalletProvider({ children }: { children: ReactNode }) {
-  const [state] = useState<WalletState>({
+  const [state, setState] = useState<WalletState>({
     address: null,
     chainId: null,
     kind: "none",
@@ -58,6 +70,69 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   });
 
   const providerRef = useRef<Eip1193Provider | null>(null);
+
+  const applyAccounts = useCallback((accounts: unknown) => {
+    const list = Array.isArray(accounts) ? (accounts as string[]) : [];
+    const address = (list[0] ?? null) as Address | null;
+    setState((prev) => ({ ...prev, address }));
+    if (address) {
+      try {
+        localStorage.setItem(STORAGE_KEY, "1");
+      } catch {}
+    }
+  }, []);
+
+  const applyChain = useCallback((chainIdHex: unknown) => {
+    if (typeof chainIdHex !== "string") return;
+    setState((prev) => ({ ...prev, chainId: Number.parseInt(chainIdHex, 16) }));
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const provider = window.ethereum;
+    providerRef.current = provider ?? null;
+    const kind = detectKind(provider);
+    setState((prev) => ({
+      ...prev,
+      hasProvider: Boolean(provider),
+      isMiniPay: Boolean(provider?.isMiniPay),
+      kind
+    }));
+
+    if (!provider) return;
+
+    const onAccounts = (accounts: unknown) => applyAccounts(accounts);
+    const onChain = (chainId: unknown) => applyChain(chainId);
+
+    provider.on?.("accountsChanged", onAccounts);
+    provider.on?.("chainChanged", onChain);
+
+    const shouldAutoConnect =
+      provider.isMiniPay ||
+      (() => {
+        try {
+          return localStorage.getItem(STORAGE_KEY) === "1";
+        } catch {
+          return false;
+        }
+      })();
+
+    if (shouldAutoConnect) {
+      provider
+        .request({ method: "eth_accounts" })
+        .then(applyAccounts)
+        .catch(() => {});
+      provider
+        .request({ method: "eth_chainId" })
+        .then(applyChain)
+        .catch(() => {});
+    }
+
+    return () => {
+      provider.removeListener?.("accountsChanged", onAccounts);
+      provider.removeListener?.("chainChanged", onChain);
+    };
+  }, [applyAccounts, applyChain]);
 
   const value = useMemo<WalletContextValue>(
     () => ({
@@ -78,4 +153,3 @@ export function useWallet(): WalletContextValue {
   if (!ctx) throw new Error("useWallet must be used inside <WalletProvider>");
   return ctx;
 }
-
