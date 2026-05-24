@@ -82,7 +82,7 @@ export function ConnectSheet() {
         asChild
       >
         <a href="https://docs.celo.org/build-on-celo/build-with-ai/agent-skills" target="_blank" rel="noreferrer">
-          What's MiniPay?
+          Learn about MiniPay
         </a>
       </Button>
     </motion.div>
