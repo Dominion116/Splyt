@@ -65,16 +65,17 @@ const Header = ({ navigationData, className }: HeaderProps) => {
         className,
       )}
     >
-                      [
-                        { icon: "lucide:twitter", label: "Twitter" },
-                        { icon: "lucide:github", label: "GitHub" },
-                      ].map(({ icon }) => (
+      <div
+        className={cn(
+          "w-full max-w-6xl flex items-center h-fit justify-between gap-3.5 lg:gap-6 transition-all duration-500",
+          sticky
             ? "p-2.5 bg-background/60 backdrop-blur-lg border border-border/40 shadow-2xl shadow-primary/5 rounded-full"
             : "bg-transparent border-transparent",
         )}
+      >
         {/* Logo */}
         <div>
-                          <Icon icon={icon} width={16} height={16} />
+          <a href="#" className="text-xl font-semibold tracking-tight">
             splyt.
           </a>
         </div>

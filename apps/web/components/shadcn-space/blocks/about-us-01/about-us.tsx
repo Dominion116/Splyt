@@ -53,7 +53,7 @@ const AboutUs = ({
 
   return (
     <section id="performance" className="py-16 md:py-20 lg:py-24">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-16">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col items-center justify-center gap-8 md:gap-16">
           <motion.div
             initial={{ y: -40, opacity: 0 }}
