@@ -63,7 +63,7 @@ function HeroSection({ avatarList }: HeroSectionProps) {
                       <li key={index} className="-mr-2 z-1 avatar-hover:ml-2">
                         <img
                           src={avatar.image}
-                          alt="Avatar"
+                          alt={`Community member ${index + 1}`}
                           width={40}
                           height={40}
                           className="rounded-full border-2 border-white"
