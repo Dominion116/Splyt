@@ -11,7 +11,7 @@ const DOCK_HIDDEN_PATTERNS = [
   /^\/app\/connect/,
   /^\/app\/review\//,
   /^\/app\/members\//,
-  /^\/app\/split\//
+  /^\/app\/split\//,
 ];
 
 export function DockShell({ children }: { children: ReactNode }) {
