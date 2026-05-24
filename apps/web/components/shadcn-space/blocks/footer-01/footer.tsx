@@ -50,7 +50,7 @@ const Footer = () => {
                   Split any shared bill in seconds and settle on chain. No chasing, no rounding errors, no trust required.
                 </p>
                 <div className="flex items-center gap-4">
-                  <a href="#" className="text-muted-foreground hover:text-foreground">
+                  <a href="#" aria-label="Twitter" className="text-muted-foreground hover:text-foreground">
                     <TwitterIcon />
                   </a>
                   <a href="#" className="text-muted-foreground hover:text-foreground">
