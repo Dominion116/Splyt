@@ -1,3 +1,7 @@
+"use client";
+
+import { useRef } from "react";
+import { motion, useInView } from "motion/react";
 import {
   Accordion,
   AccordionContent,
@@ -6,7 +10,6 @@ import {
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { PlusIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 const FAQ_DATA = [
   {
@@ -36,6 +39,28 @@ const FAQ_DATA = [
   },
 ];
 
+const AnimatedItem = ({
+  children,
+  delay = 0,
+}: {
+  children: React.ReactNode;
+  delay?: number;
+}) => {
+  const ref = useRef(null);
+  const inView = useInView(ref, { amount: 0.5, once: false });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ scale: 0.7, opacity: 0 }}
+      animate={inView ? { scale: 1, opacity: 1 } : { scale: 0.7, opacity: 0 }}
+      transition={{ duration: 0.2, delay }}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
 export default function Faq() {
   return (
     <section id="faq">
@@ -51,20 +76,12 @@ export default function Faq() {
             Got questions? We have got answers ready
           </h2>
         </div>
-        <div>
-          <Accordion type="single" collapsible className="w-full flex flex-col gap-6">
-            {FAQ_DATA.map((faq, index) => (
+        <Accordion type="single" collapsible className="w-full flex flex-col gap-6">
+          {FAQ_DATA.map((faq, index) => (
+            <AnimatedItem key={`item-${index}`} delay={index * 0.1}>
               <AccordionItem
-                key={`item-${index}`}
                 value={`item-${index}`}
-                className={cn(
-                  "p-6 border border-border rounded-2xl flex flex-col gap-3 group/item data-[state=open]:bg-accent transition-colors animate-in fade-in slide-in-from-bottom-8 duration-700 fill-mode-both",
-                  index === 0 && "delay-100",
-                  index === 1 && "delay-200",
-                  index === 2 && "delay-300",
-                  index === 3 && "delay-400",
-                  index === 4 && "delay-500"
-                )}
+                className="p-6 border border-border rounded-2xl flex flex-col gap-3 group/item data-[state=open]:bg-accent transition-colors"
               >
                 <AccordionTrigger className="p-0 text-xl font-medium hover:no-underline **:data-[slot=accordion-trigger-icon]:hidden cursor-pointer">
                   {faq.question}
@@ -74,9 +91,9 @@ export default function Faq() {
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>
-            ))}
-          </Accordion>
-        </div>
+            </AnimatedItem>
+          ))}
+        </Accordion>
       </div>
     </section>
   );
