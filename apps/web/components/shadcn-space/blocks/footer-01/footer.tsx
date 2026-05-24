@@ -37,7 +37,7 @@ const footerSections: FooterSection[] = [
 
 const Footer = () => {
   return (
-    <footer className="py-10">
+    <footer className="relative py-10 overflow-hidden before:absolute before:w-3/4 before:h-full before:bg-linear-to-r before:from-sky-100 before:via-white before:to-amber-100 before:rounded-full before:top-0 before:left-1/2 before:-translate-x-1/2 before:blur-3xl before:-z-10 before:opacity-60 dark:before:from-slate-800 dark:before:via-black dark:before:to-stone-700">
       <div className="max-w-7xl xl:px-16 lg:px-8 px-4 mx-auto">
         <div className="flex flex-col gap-6 sm:gap-12">
           <div className="py-12 grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 lg:grid-cols-12 gap-x-8 gap-y-10 px-6 xl:px-0">
