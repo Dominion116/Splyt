@@ -138,3 +138,101 @@ export const MAX_UINT256 = maxUint256;
 export function hostAuthMessage(sessionId: string): string {
   return `Splyt session creation: ${sessionId}`;
 }
+
+export interface CreateSessionTxInput {
+  sessionId: string;
+  members: Address[];
+  amountsMicros: bigint[];
+  expiresAt: number;
+}
+
+export async function signHostMessage(
+  provider: unknown,
+  host: Address,
+  sessionId: string
+): Promise<Hex> {
+  const client = getWalletClient(provider, host);
+  return client.signMessage({ account: host, message: hostAuthMessage(sessionId) });
+}
+
+export async function createSessionTx(
+  provider: unknown,
+  host: Address,
+  input: CreateSessionTxInput
+): Promise<Hex> {
+  const client = getWalletClient(provider, host);
+  const amountsWei = input.amountsMicros.map(microsToWei);
+  const totalWei = amountsWei.reduce((acc, current) => acc + current, 0n);
+  return client.writeContract({
+    address: CONTRACT_ADDRESS,
+    abi: SPLYT_ABI,
+    functionName: "createSession",
+    account: host,
+    chain: celo,
+    args: [
+      toBytes32(input.sessionId),
+      input.members,
+      amountsWei,
+      totalWei,
+      BigInt(Math.floor(input.expiresAt / 1000))
+    ]
+  });
+}
+
+export async function closeSessionTx(
+  provider: unknown,
+  host: Address,
+  sessionId: string
+): Promise<Hex> {
+  const client = getWalletClient(provider, host);
+  return client.writeContract({
+    address: CONTRACT_ADDRESS,
+    abi: SPLYT_ABI,
+    functionName: "closeSession",
+    account: host,
+    chain: celo,
+    args: [toBytes32(sessionId)]
+  });
+}
+
+export async function markPaidTx(
+  provider: unknown,
+  member: Address,
+  sessionId: string
+): Promise<Hex> {
+  const client = getWalletClient(provider, member);
+  return client.writeContract({
+    address: CONTRACT_ADDRESS,
+    abi: SPLYT_ABI,
+    functionName: "markPaid",
+    account: member,
+    chain: celo,
+    args: [toBytes32(sessionId), member]
+  });
+}
+
+export async function approveCusdTx(
+  provider: unknown,
+  owner: Address,
+  amountWei: bigint
+): Promise<Hex> {
+  const client = getWalletClient(provider, owner);
+  return client.writeContract({
+    address: CUSD_ADDRESS,
+    abi: ERC20_ABI,
+    functionName: "approve",
+    account: owner,
+    chain: celo,
+    args: [CONTRACT_ADDRESS, amountWei]
+  });
+}
+
+export async function getCusdAllowance(owner: Address): Promise<bigint> {
+  const allowance = await getPublicClient().readContract({
+    address: CUSD_ADDRESS,
+    abi: ERC20_ABI,
+    functionName: "allowance",
+    args: [owner, CONTRACT_ADDRESS]
+  });
+  return allowance as bigint;
+}
