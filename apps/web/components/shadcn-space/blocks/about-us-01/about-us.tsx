@@ -52,7 +52,7 @@ const AboutUs = ({
   const isInView = useInView(statsRef, { once: true, margin: "-100px" });
 
   return (
-    <section id="performance" className="lg:py-20 sm:py-16 py-8">
+    <section id="performance" className="py-16 md:py-20 lg:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-16">
         <div className="flex flex-col items-center justify-center gap-8 md:gap-16">
           <motion.div
