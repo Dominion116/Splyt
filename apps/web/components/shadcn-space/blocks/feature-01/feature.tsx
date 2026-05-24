@@ -25,10 +25,10 @@ const Feature = ({ featureData }: { featureData: Features }) => {
               className="flex flex-col items-center justify-center gap-4"
             >
               <div className="flex flex-col gap-4 max-w-full items-center text-center md:max-w-xl">
-                <h2 className="text-3xl md:text-4xl font-semibold">
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight">
                   From any receipt to a clean split
                 </h2>
-                <p className="text-lg font-normal text-muted-foreground">
+                <p className="text-base font-normal text-muted-foreground">
                   Splyt takes the friction out of shared bills. Snap a photo,
                   review the split, and watch everyone settle in real time.
                 </p>
