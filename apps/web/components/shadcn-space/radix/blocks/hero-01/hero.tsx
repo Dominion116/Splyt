@@ -77,7 +77,8 @@ function HeroSection({ avatarList }: HeroSectionProps) {
                         <img
                           key={index}
                           src="https://images.shadcnspace.com/assets/svgs/icon-star.svg"
-                          alt="star"
+                          alt=""
+                          aria-hidden="true"
                           className="h-4 w-4"
                         />
                       ))}
