@@ -11,6 +11,7 @@ import {
   type ReactNode
 } from "react";
 import type { Address } from "viem";
+import { CELO_CHAIN } from "./chain";
 
 type Eip1193Provider = {
   request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
@@ -138,11 +139,66 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     () => ({
       ...state,
       provider: providerRef.current,
-      connect: async () => {},
-      disconnect: () => {},
-      switchToCelo: async () => {}
+      connect: async () => {
+        const provider = providerRef.current;
+        if (!provider) {
+          setState((prev) => ({ ...prev, error: "No wallet provider detected." }));
+          return;
+        }
+        setState((prev) => ({ ...prev, connecting: true, error: null }));
+        try {
+          const accounts = await provider.request({ method: "eth_requestAccounts" });
+          applyAccounts(accounts);
+          const chainId = await provider.request({ method: "eth_chainId" });
+          applyChain(chainId);
+        } catch (err) {
+          setState((prev) => ({
+            ...prev,
+            error: err instanceof Error ? err.message : "Failed to connect wallet."
+          }));
+        } finally {
+          setState((prev) => ({ ...prev, connecting: false }));
+        }
+      },
+      disconnect: () => {
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+        } catch {}
+        setState((prev) => ({ ...prev, address: null, chainId: null, error: null }));
+      },
+      switchToCelo: async () => {
+        const provider = providerRef.current;
+        if (!provider) return;
+        const targetHex = `0x${CELO_CHAIN.id.toString(16)}`;
+        try {
+          await provider.request({
+            method: "wallet_switchEthereumChain",
+            params: [{ chainId: targetHex }]
+          });
+        } catch (err: unknown) {
+          const code = (err as { code?: number })?.code;
+          if (code === 4902) {
+            await provider.request({
+              method: "wallet_addEthereumChain",
+              params: [
+                {
+                  chainId: targetHex,
+                  chainName: CELO_CHAIN.name,
+                  nativeCurrency: CELO_CHAIN.nativeCurrency,
+                  rpcUrls: [CELO_CHAIN.rpcUrls.default.http[0]],
+                  blockExplorerUrls: CELO_CHAIN.blockExplorers?.default
+                    ? [CELO_CHAIN.blockExplorers.default.url]
+                    : []
+                }
+              ]
+            });
+          } else {
+            throw err;
+          }
+        }
+      }
     }),
-    [state]
+    [state, applyAccounts, applyChain]
   );
 
   return <WalletContext.Provider value={value}>{children}</WalletContext.Provider>;
