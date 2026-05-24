@@ -27,6 +27,7 @@ export function formatCUSD(micros: Micros | string, opts: { compact?: boolean } 
 
 export function shortAddress(address: Address | string): string {
   if (!address) return "";
+  if (address.length <= 12) return address;
   return `${address.slice(0, 6)}…${address.slice(-4)}`;
 }
 
