@@ -1,33 +1,81 @@
 "use client";
 
-import Link from "next/link";
-import { ArrowLeft, Camera } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { motion } from "motion/react";
+import { Receipt } from "lucide-react";
+import { FlowHeader } from "@/components/app/shell/FlowHeader";
+import { ImagePicker } from "@/components/app/scan/ImagePicker";
+import { ApiRequestError, parseReceipt } from "@/lib/api";
+import { compressForParse } from "@/lib/image";
+import { putDraft } from "@/lib/draft";
+import { useWallet } from "@/lib/wallet";
 
 export default function ScanPage() {
+  const router = useRouter();
+  const { address } = useWallet();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleFile = async (file: File) => {
+    setError(null);
+    setBusy(true);
+    try {
+      const { base64, mimeType } = await compressForParse(file);
+      const receipt = await parseReceipt(base64, mimeType);
+      const draftId = crypto.randomUUID();
+      await putDraft({
+        id: draftId,
+        receipt,
+        members: address ? [address] : [],
+        mode: "equal",
+        amounts: [],
+        expiresInMinutes: 60,
+        createdAt: Date.now()
+      });
+      router.push(`/app/review/${draftId}`);
+    } catch (err) {
+      if (err instanceof ApiRequestError) {
+        setError(err.message);
+      } else if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Couldn't read this receipt. Try a clearer photo.");
+      }
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <div className="flex flex-1 flex-col">
-      <header className="flex items-center justify-between px-5 pt-6">
-        <Link
-          href="/app"
-          aria-label="Back to home"
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-border/40 bg-card text-muted-foreground transition hover:text-foreground"
-        >
-          <ArrowLeft size={16} />
-        </Link>
-        <span className="text-xs uppercase tracking-wider text-muted-foreground">Scan</span>
-        <span className="h-9 w-9" aria-hidden />
-      </header>
-
-      <div className="flex flex-1 flex-col items-center justify-center gap-4 px-5 text-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
-          <Camera size={26} />
+      <FlowHeader step="scan" label="Step 1 of 4" />
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: "easeInOut" }}
+        className="flex flex-1 flex-col gap-6 px-5 pt-6"
+      >
+        <div className="flex flex-col gap-2">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+            <Receipt size={20} />
+          </div>
+          <h1 className="text-2xl font-medium tracking-tight">Snap a receipt</h1>
+          <p className="text-sm text-muted-foreground">
+            Take a clear photo and Splyt&apos;s AI will pull out the line items, totals, and tax.
+          </p>
         </div>
-        <h1 className="text-2xl font-medium tracking-tight">Scan a receipt</h1>
-        <p className="max-w-xs text-sm text-muted-foreground">
-          The camera + receipt parser ships in the next milestone. The flow plugs into{" "}
-          <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">POST /api/parse</code>.
+
+        <ImagePicker busy={busy} onFile={handleFile} />
+
+        {error ? (
+          <p className="rounded-md bg-destructive/10 px-3 py-2 text-xs text-destructive">{error}</p>
+        ) : null}
+
+        <p className="text-xs text-muted-foreground">
+          We never store the photo. It&apos;s sent once to the parser, then dropped.
         </p>
-      </div>
+      </motion.div>
     </div>
   );
 }
