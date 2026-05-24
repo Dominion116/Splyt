@@ -12,7 +12,7 @@ const Feature = ({ featureData }: { featureData: Features }) => {
   return (
     <section id="how-it-works">
       <div className="py-16 md:py-20 lg:py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-8">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-8 md:gap-12">
             <motion.div
               initial={{ y: -20, opacity: 0 }}
