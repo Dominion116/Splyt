@@ -130,7 +130,7 @@ const Threads = ({
   const animationFrameId = useRef<number>(undefined);
 
   useEffect(() => {
-    const container = containerRef.current;
+    const container = containerRef.current!;
     if (!container) return;
 
     const renderer = new Renderer({ alpha: true });
