@@ -23,6 +23,9 @@ const instrumentSerif = Instrument_Serif({
 export const metadata: Metadata = {
   title: "Splyt",
   description: "Split bills, settle on-chain.",
+  icons: {
+    icon: "/icon.png",
+  },
 };
 
 export default function RootLayout({
