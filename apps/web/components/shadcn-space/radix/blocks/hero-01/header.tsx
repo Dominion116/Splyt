@@ -176,12 +176,14 @@ const Header = ({ navigationData, className }: HeaderProps) => {
                   <div className="mt-auto flex flex-col gap-4">
                     <div className="flex gap-3">
                       {[
-                        { icon: "lucide:twitter", label: "Twitter" },
-                        { icon: "lucide:github", label: "GitHub" },
-                      ].map(({ icon, label }) => (
+                        { icon: "lucide:twitter", label: "Twitter", href: "https://x.com/_splyt" },
+                        { icon: "lucide:github", label: "GitHub", href: "https://github.com/Dominion116/Splyt" },
+                      ].map(({ icon, label, href }) => (
                         <a
                           key={icon}
-                          href="#"
+                          href={href}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           aria-label={label}
                           className="flex items-center justify-center rounded-full outline outline-border hover:bg-muted transition p-3 shadow-xs"
                         >
