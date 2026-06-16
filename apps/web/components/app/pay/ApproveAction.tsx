@@ -11,20 +11,20 @@ interface Props {
   onApproved: () => void;
 }
 
-export function ApproveAction({ member, onApproved }: Props) {
-  const { provider } = useWallet();
+export function ApproveAction({ onApproved }: Props) {
+  const { walletClient } = useWallet();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const approve = async () => {
-    if (!provider) {
+    if (!walletClient) {
       setError("Wallet not connected.");
       return;
     }
     setBusy(true);
     setError(null);
     try {
-      const txHash = await approveCusdTx(provider, member, MAX_UINT256);
+      const txHash = await approveCusdTx(walletClient, MAX_UINT256);
       await getPublicClient().waitForTransactionReceipt({ hash: txHash });
       onApproved();
     } catch (err) {
