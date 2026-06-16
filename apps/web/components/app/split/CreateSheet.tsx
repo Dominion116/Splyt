@@ -24,7 +24,7 @@ interface Props {
 
 export function CreateSheet({ draft, open, onClose }: Props) {
   const router = useRouter();
-  const { address, provider } = useWallet();
+  const { address, walletClient } = useWallet();
   const [stage, setStage] = useState<Stage>("sign");
   const [statusMap, setStatusMap] = useState<Record<Stage, Status>>({
     sign: "active",
@@ -46,7 +46,7 @@ export function CreateSheet({ draft, open, onClose }: Props) {
   };
 
   const start = async () => {
-    if (!address || !provider) {
+    if (!address || !walletClient) {
       fail("Wallet not connected.");
       return;
     }
@@ -77,7 +77,8 @@ export function CreateSheet({ draft, open, onClose }: Props) {
 
     let signature: `0x${string}`;
     try {
-      signature = await signHostMessage(provider, address as Address, sessionId);
+      // @ts-expect-error — updating to new WalletClient signature in next commit
+      signature = await signHostMessage(walletClient, address as Address, sessionId);
     } catch (err) {
       fail(err instanceof Error ? err.message : "Signature rejected.");
       return;
@@ -86,7 +87,8 @@ export function CreateSheet({ draft, open, onClose }: Props) {
 
     let txHash: `0x${string}`;
     try {
-      txHash = await createSessionTx(provider, address as Address, {
+      // @ts-expect-error — updating to new WalletClient signature in next commit
+      txHash = await createSessionTx(walletClient, address as Address, {
         sessionId,
         members: draft.members,
         amountsMicros,
