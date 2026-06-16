@@ -1,11 +1,11 @@
 import type { ReactNode } from "react";
 import { DockShell } from "@/components/app/shell/DockShell";
-import { WalletProvider } from "@/lib/wallet";
+import { Web3Provider } from "@/context/Web3Provider";
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   return (
-    <WalletProvider>
+    <Web3Provider>
       <DockShell>{children}</DockShell>
-    </WalletProvider>
+    </Web3Provider>
   );
 }
