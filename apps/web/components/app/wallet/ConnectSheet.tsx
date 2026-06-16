@@ -1,6 +1,5 @@
 "use client";
 
-import { Icon } from "@iconify/react";
 import { ArrowUpRight, Wallet } from "lucide-react";
 import { motion } from "motion/react";
 import { useWallet } from "@/lib/wallet";
@@ -45,19 +44,20 @@ export function ConnectSheet() {
       <button
         type="button"
         onClick={connect}
-        disabled={!hasProvider || connecting}
+        disabled={connecting}
         className={cn(
-          "group flex w-full items-center justify-between gap-3 rounded-2xl border border-border/40 bg-background p-4 text-left transition",
-          hasProvider ? "hover:border-border" : "opacity-60",
-          "disabled:cursor-not-allowed"
+          "group flex w-full items-center justify-between gap-3 rounded-2xl border border-border/40 bg-background p-4 text-left transition hover:border-border",
+          "disabled:cursor-not-allowed disabled:opacity-60"
         )}
       >
         <div className="flex items-center gap-3">
           <span className="flex h-9 w-9 items-center justify-center rounded-full bg-muted">
-            <Icon icon="lucide:wallet" width={18} height={18} />
+            <Wallet size={18} className="text-muted-foreground" />
           </span>
           <div className="flex flex-col">
-            <span className="text-sm font-medium">{label}</span>
+            <span className="text-sm font-medium">
+              {connecting ? "Connecting…" : kind === "none" ? "Connect Wallet" : label}
+            </span>
             <span className="text-xs text-muted-foreground">
               {connecting ? "Waiting for wallet…" : hint}
             </span>
