@@ -20,7 +20,12 @@ export default function WalletPage() {
             <span className="text-xs uppercase tracking-wider text-muted-foreground">Connected</span>
             <AddressPill address={address} className="self-start" />
             <span className="text-xs text-muted-foreground">
-              via {kind === "minipay" ? "MiniPay" : kind} · chain {chainId ?? "?"}
+              via {
+                kind === "minipay" ? "MiniPay"
+                  : kind === "metamask" ? "MetaMask"
+                  : kind === "walletconnect" ? "WalletConnect"
+                  : "Browser wallet"
+              } · chain {chainId ?? "?"}
             </span>
           </div>
           <BalanceCard />
