@@ -28,7 +28,12 @@ declare global {
   }
 }
 
-export type WalletKind = "minipay" | "metamask" | "valora" | "injected" | "none";
+export type WalletKind =
+  | "minipay"
+  | "metamask"
+  | "walletconnect"
+  | "injected"
+  | "none";
 
 export interface WalletState {
   address: Address | null;
@@ -40,7 +45,7 @@ export interface WalletState {
   error: string | null;
 }
 
-interface WalletContextValue extends WalletState {
+export interface WalletContextValue extends WalletState {
   connect: () => Promise<void>;
   disconnect: () => void;
   switchToCelo: () => Promise<void>;
@@ -54,7 +59,6 @@ const STORAGE_KEY = "splyt:wallet:autoConnect";
 function detectKind(provider: Eip1193Provider | undefined): WalletKind {
   if (!provider) return "none";
   if (provider.isMiniPay) return "minipay";
-  if (provider.isValora) return "valora";
   if (provider.isMetaMask) return "metamask";
   return "injected";
 }
