@@ -1,11 +1,10 @@
 import {
   createPublicClient,
-  createWalletClient,
-  custom,
   http,
   maxUint256,
   type Address,
-  type Hex
+  type Hex,
+  type WalletClient
 } from "viem";
 import { celo } from "viem/chains";
 
@@ -109,14 +108,6 @@ export function getPublicClient() {
   return _publicClient;
 }
 
-export function getWalletClient(provider: unknown, account: Address) {
-  return createWalletClient({
-    chain: celo,
-    transport: custom(provider as Parameters<typeof custom>[0]),
-    account
-  });
-}
-
 export function toBytes32(sessionId: string): Hex {
   const trimmed = sessionId.replace(/-/g, "");
   if (!/^[0-9a-fA-F]+$/.test(trimmed) || trimmed.length === 0 || trimmed.length > 32) {
@@ -147,12 +138,13 @@ export interface CreateSessionTxInput {
 }
 
 export async function signHostMessage(
-  provider: unknown,
-  host: Address,
+  walletClient: WalletClient,
   sessionId: string
 ): Promise<Hex> {
-  const client = getWalletClient(provider, host);
-  return client.signMessage({ account: host, message: hostAuthMessage(sessionId) });
+  return walletClient.signMessage({
+    account: walletClient.account!,
+    message: hostAuthMessage(sessionId)
+  });
 }
 
 export async function createSessionTx(
@@ -160,7 +152,8 @@ export async function createSessionTx(
   host: Address,
   input: CreateSessionTxInput
 ): Promise<Hex> {
-  const client = getWalletClient(provider, host);
+  // @ts-expect-error — being migrated to WalletClient in next commit
+  const client = (globalThis as never).getWalletClient(provider, host);
   const amountsWei = input.amountsMicros.map(microsToWei);
   const totalWei = amountsWei.reduce((acc, current) => acc + current, 0n);
   return client.writeContract({
@@ -184,7 +177,8 @@ export async function closeSessionTx(
   host: Address,
   sessionId: string
 ): Promise<Hex> {
-  const client = getWalletClient(provider, host);
+  // @ts-expect-error — being migrated to WalletClient in next commit
+  const client = (globalThis as never).getWalletClient(provider, host);
   return client.writeContract({
     address: CONTRACT_ADDRESS,
     abi: SPLYT_ABI,
@@ -200,7 +194,8 @@ export async function markPaidTx(
   member: Address,
   sessionId: string
 ): Promise<Hex> {
-  const client = getWalletClient(provider, member);
+  // @ts-expect-error — being migrated to WalletClient in next commit
+  const client = (globalThis as never).getWalletClient(provider, member);
   return client.writeContract({
     address: CONTRACT_ADDRESS,
     abi: SPLYT_ABI,
@@ -216,7 +211,8 @@ export async function approveCusdTx(
   owner: Address,
   amountWei: bigint
 ): Promise<Hex> {
-  const client = getWalletClient(provider, owner);
+  // @ts-expect-error — being migrated to WalletClient in next commit
+  const client = (globalThis as never).getWalletClient(provider, owner);
   return client.writeContract({
     address: CUSD_ADDRESS,
     abi: ERC20_ABI,
