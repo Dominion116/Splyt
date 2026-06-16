@@ -184,34 +184,29 @@ export async function closeSessionTx(
 }
 
 export async function markPaidTx(
-  provider: unknown,
-  member: Address,
+  walletClient: WalletClient,
   sessionId: string
 ): Promise<Hex> {
-  // @ts-expect-error — being migrated to WalletClient in next commit
-  const client = (globalThis as never).getWalletClient(provider, member);
-  return client.writeContract({
+  const member = walletClient.account!.address;
+  return walletClient.writeContract({
     address: CONTRACT_ADDRESS,
     abi: SPLYT_ABI,
     functionName: "markPaid",
-    account: member,
+    account: walletClient.account!,
     chain: celo,
     args: [toBytes32(sessionId), member]
   });
 }
 
 export async function approveCusdTx(
-  provider: unknown,
-  owner: Address,
+  walletClient: WalletClient,
   amountWei: bigint
 ): Promise<Hex> {
-  // @ts-expect-error — being migrated to WalletClient in next commit
-  const client = (globalThis as never).getWalletClient(provider, owner);
-  return client.writeContract({
+  return walletClient.writeContract({
     address: CUSD_ADDRESS,
     abi: ERC20_ABI,
     functionName: "approve",
-    account: owner,
+    account: walletClient.account!,
     chain: celo,
     args: [CONTRACT_ADDRESS, amountWei]
   });
