@@ -77,8 +77,7 @@ export function CreateSheet({ draft, open, onClose }: Props) {
 
     let signature: `0x${string}`;
     try {
-      // @ts-expect-error — updating to new WalletClient signature in next commit
-      signature = await signHostMessage(walletClient, address as Address, sessionId);
+      signature = await signHostMessage(walletClient, sessionId);
     } catch (err) {
       fail(err instanceof Error ? err.message : "Signature rejected.");
       return;
@@ -87,8 +86,7 @@ export function CreateSheet({ draft, open, onClose }: Props) {
 
     let txHash: `0x${string}`;
     try {
-      // @ts-expect-error — updating to new WalletClient signature in next commit
-      txHash = await createSessionTx(walletClient, address as Address, {
+      txHash = await createSessionTx(walletClient, {
         sessionId,
         members: draft.members,
         amountsMicros,
