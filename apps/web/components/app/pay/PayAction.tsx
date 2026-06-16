@@ -17,14 +17,14 @@ interface Props {
 }
 
 export function PayAction({ sessionId, member, step, onPaid }: Props) {
-  const { provider } = useWallet();
+  const { walletClient } = useWallet();
   const [stage, setStage] = useState<Stage>("idle");
   const [error, setError] = useState<string | null>(null);
 
   const busy = stage !== "idle";
 
   const submit = async () => {
-    if (!provider) {
+    if (!walletClient) {
       setError("Wallet not connected.");
       return;
     }
@@ -32,7 +32,7 @@ export function PayAction({ sessionId, member, step, onPaid }: Props) {
     setStage("signing");
     let txHash: `0x${string}`;
     try {
-      txHash = await markPaidTx(provider, member, sessionId);
+      txHash = await markPaidTx(walletClient, sessionId);
     } catch (err) {
       setStage("idle");
       setError(err instanceof Error ? err.message : "Payment rejected.");
