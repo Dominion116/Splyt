@@ -148,19 +148,16 @@ export async function signHostMessage(
 }
 
 export async function createSessionTx(
-  provider: unknown,
-  host: Address,
+  walletClient: WalletClient,
   input: CreateSessionTxInput
 ): Promise<Hex> {
-  // @ts-expect-error — being migrated to WalletClient in next commit
-  const client = (globalThis as never).getWalletClient(provider, host);
   const amountsWei = input.amountsMicros.map(microsToWei);
   const totalWei = amountsWei.reduce((acc, current) => acc + current, 0n);
-  return client.writeContract({
+  return walletClient.writeContract({
     address: CONTRACT_ADDRESS,
     abi: SPLYT_ABI,
     functionName: "createSession",
-    account: host,
+    account: walletClient.account!,
     chain: celo,
     args: [
       toBytes32(input.sessionId),
@@ -173,17 +170,14 @@ export async function createSessionTx(
 }
 
 export async function closeSessionTx(
-  provider: unknown,
-  host: Address,
+  walletClient: WalletClient,
   sessionId: string
 ): Promise<Hex> {
-  // @ts-expect-error — being migrated to WalletClient in next commit
-  const client = (globalThis as never).getWalletClient(provider, host);
-  return client.writeContract({
+  return walletClient.writeContract({
     address: CONTRACT_ADDRESS,
     abi: SPLYT_ABI,
     functionName: "closeSession",
-    account: host,
+    account: walletClient.account!,
     chain: celo,
     args: [toBytes32(sessionId)]
   });
