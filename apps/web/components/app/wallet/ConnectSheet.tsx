@@ -3,21 +3,26 @@
 import { Icon } from "@iconify/react";
 import { ArrowUpRight, Wallet } from "lucide-react";
 import { motion } from "motion/react";
-import { useWallet, type WalletKind } from "@/lib/wallet";
+import { useWallet } from "@/lib/wallet";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const PROVIDER_LABEL: Record<WalletKind, { label: string; icon: string; hint: string }> = {
-  minipay: { label: "MiniPay", icon: "lucide:smartphone", hint: "Detected" },
-  metamask: { label: "MetaMask", icon: "logos:metamask-icon", hint: "Detected" },
-  valora: { label: "Valora", icon: "lucide:smartphone", hint: "Detected" },
-  injected: { label: "Browser wallet", icon: "lucide:wallet", hint: "Detected" },
-  none: { label: "No wallet detected", icon: "lucide:wallet", hint: "Install MiniPay or MetaMask" }
+const KIND_LABEL: Record<string, string> = {
+  minipay: "MiniPay",
+  metamask: "MetaMask",
+  walletconnect: "WalletConnect",
+  injected: "Browser wallet",
+  none: "Wallet",
 };
 
 export function ConnectSheet() {
   const { kind, hasProvider, connect, connecting, error } = useWallet();
-  const provider = PROVIDER_LABEL[kind];
+
+  const label = KIND_LABEL[kind] ?? "Wallet";
+  const hint =
+    kind === "none"
+      ? "Choose a wallet to connect"
+      : `${label} detected`;
 
   return (
     <motion.div
@@ -49,12 +54,12 @@ export function ConnectSheet() {
       >
         <div className="flex items-center gap-3">
           <span className="flex h-9 w-9 items-center justify-center rounded-full bg-muted">
-            <Icon icon={provider.icon} width={18} height={18} />
+            <Icon icon="lucide:wallet" width={18} height={18} />
           </span>
           <div className="flex flex-col">
-            <span className="text-sm font-medium">{provider.label}</span>
+            <span className="text-sm font-medium">{label}</span>
             <span className="text-xs text-muted-foreground">
-              {connecting ? "Waiting for wallet…" : provider.hint}
+              {connecting ? "Waiting for wallet…" : hint}
             </span>
           </div>
         </div>
