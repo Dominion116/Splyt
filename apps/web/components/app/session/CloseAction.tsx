@@ -14,20 +14,20 @@ interface Props {
 }
 
 export function CloseAction({ sessionId, host, onClosed }: Props) {
-  const { address, provider } = useWallet();
+  const { address, walletClient } = useWallet();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const isHost = address?.toLowerCase() === host.toLowerCase();
 
   const close = async () => {
-    if (!provider || !address) {
+    if (!walletClient || !address) {
       setError("Connect the host wallet to close.");
       return;
     }
     setBusy(true);
     setError(null);
     try {
-      const txHash = await closeSessionTx(provider, address as Address, sessionId);
+      const txHash = await closeSessionTx(walletClient, sessionId);
       await getPublicClient().waitForTransactionReceipt({ hash: txHash });
       await closeSession(sessionId, txHash);
       onClosed();
