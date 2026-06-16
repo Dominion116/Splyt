@@ -3,7 +3,6 @@
 import { ArrowUpRight, Wallet } from "lucide-react";
 import { motion } from "motion/react";
 import { useWallet } from "@/lib/wallet";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const KIND_LABEL: Record<string, string> = {
@@ -15,7 +14,7 @@ const KIND_LABEL: Record<string, string> = {
 };
 
 export function ConnectSheet() {
-  const { kind, hasProvider, connect, connecting, error } = useWallet();
+  const { kind, connecting, connect } = useWallet();
 
   const label = KIND_LABEL[kind] ?? "Wallet";
   const hint =
@@ -69,27 +68,9 @@ export function ConnectSheet() {
         />
       </button>
 
-      {!hasProvider ? (
-        <p className="text-xs text-muted-foreground">
-          Tip: open this app inside the MiniPay app on Celo, or install a browser wallet that
-          supports Celo (MetaMask, Valora) to continue.
-        </p>
-      ) : null}
-
-      {error ? (
-        <p className="rounded-md bg-destructive/10 px-3 py-2 text-xs text-destructive">{error}</p>
-      ) : null}
-
-      <Button
-        variant="ghost"
-        size="sm"
-        className="self-start text-xs text-muted-foreground"
-        asChild
-      >
-        <a href="https://docs.celo.org/build-on-celo/build-with-ai/agent-skills" target="_blank" rel="noreferrer">
-          Learn about MiniPay
-        </a>
-      </Button>
+      <p className="text-xs text-muted-foreground">
+        Supports MiniPay, MetaMask, WalletConnect, and any injected wallet on Celo.
+      </p>
     </motion.div>
   );
 }
