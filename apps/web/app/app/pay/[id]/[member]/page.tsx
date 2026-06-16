@@ -213,7 +213,7 @@ function ConnectPrompt({
   connecting
 }: {
   member: Address;
-  onConnect: () => Promise<void>;
+  onConnect: () => void;
   hasProvider: boolean;
   connecting: boolean;
 }) {
