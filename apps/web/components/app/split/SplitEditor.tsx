@@ -186,12 +186,17 @@ function ItemAssignmentSection({ receipt, members, assignments, onChange }: Item
     <div className="flex flex-col gap-2">
       <span className="text-xs uppercase tracking-wider text-muted-foreground">Assign items</span>
       <ul className="flex flex-col gap-2">
-        {receipt.items.map((_item, idx) => (
+        {receipt.items.map((item, idx) => (
           <li
             key={idx}
             className="flex flex-col gap-2 rounded-2xl border border-border/40 bg-card p-3"
           >
-            {/* item rows added next */}
+            <div className="flex items-center justify-between gap-2">
+              <span className="truncate text-sm">{item.name}</span>
+              <span className="shrink-0 font-mono text-xs text-muted-foreground">
+                {formatCUSD(microsFromDecimalString(item.amount))}
+              </span>
+            </div>
           </li>
         ))}
       </ul>
