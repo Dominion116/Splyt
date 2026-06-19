@@ -7,6 +7,18 @@ export function computeItemisedSplit(
   assignments: Record<number, Address[]>
 ): Map<Address, bigint> {
   const out = new Map<Address, bigint>(members.map((addr) => [addr, 0n]));
+
+  for (let i = 0; i < receipt.items.length; i++) {
+    const itemMicros = microsFromDecimalString(receipt.items[i].amount);
+    const assigned = members;
+    const share = itemMicros / BigInt(assigned.length);
+    const remainder = itemMicros % BigInt(assigned.length);
+    assigned.forEach((addr, j) => {
+      const bump = j < Number(remainder) ? 1n : 0n;
+      out.set(addr, (out.get(addr) ?? 0n) + share + bump);
+    });
+  }
+
   return out;
 }
 
