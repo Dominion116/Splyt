@@ -7,7 +7,7 @@ import { createSessionTx, signHostMessage } from "@/lib/chain";
 import { useWallet } from "@/lib/wallet";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { computeSplit } from "@/lib/split";
+import { computeSplit, computeItemisedSplit } from "@/lib/split";
 import { microsFromDecimalString, microsToDecimalString } from "@/lib/format";
 import type { Address, DraftSession } from "@/lib/types";
 import { deleteDraft } from "@/lib/draft";
@@ -64,6 +64,9 @@ export function CreateSheet({ draft, open, onClose }: Props) {
           fail("Custom amounts must sum to the total.");
           return;
         }
+      } else if (draft.mode === "itemised") {
+        const computed = computeItemisedSplit(draft.receipt, draft.members, draft.assignments ?? {});
+        amountsMicros = draft.members.map((member) => computed.get(member) ?? 0n);
       } else {
         const computed = computeSplit(draft.receipt, draft.members, "equal");
         amountsMicros = draft.members.map((member) => computed.get(member) ?? 0n);
