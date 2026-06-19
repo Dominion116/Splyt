@@ -182,6 +182,14 @@ interface ItemAssignmentSectionProps {
 }
 
 function ItemAssignmentSection({ receipt, members, assignments, onChange }: ItemAssignmentSectionProps) {
+  const toggleMember = (itemIdx: number, addr: Address) => {
+    const current = assignments[itemIdx]?.length > 0 ? [...assignments[itemIdx]] : [...members];
+    const pos = current.indexOf(addr);
+    const next = pos !== -1 ? current.filter((a) => a !== addr) : [...current, addr];
+    const isAll = members.length === next.length && members.every((m) => next.includes(m));
+    onChange({ ...assignments, [itemIdx]: isAll ? [] : next });
+  };
+
   return (
     <div className="flex flex-col gap-2">
       <span className="text-xs uppercase tracking-wider text-muted-foreground">Assign items</span>
@@ -196,6 +204,18 @@ function ItemAssignmentSection({ receipt, members, assignments, onChange }: Item
               <span className="shrink-0 font-mono text-xs text-muted-foreground">
                 {formatCUSD(microsFromDecimalString(item.amount))}
               </span>
+            </div>
+            <div className="flex flex-wrap gap-1">
+              {members.map((addr) => (
+                <button
+                  key={addr}
+                  type="button"
+                  onClick={() => toggleMember(idx, addr)}
+                  className="rounded-full border px-2 py-0.5 font-mono text-xs transition"
+                >
+                  {shortAddress(addr)}
+                </button>
+              ))}
             </div>
           </li>
         ))}
