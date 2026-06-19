@@ -34,6 +34,15 @@ export function computeItemisedSplit(
     });
   }
 
+  // Absorb any residual rounding error so sum always equals receipt total.
+  let sum = 0n;
+  for (const v of out.values()) sum += v;
+  const delta = microsFromDecimalString(receipt.total) - sum;
+  if (delta !== 0n) {
+    const first = members[0];
+    out.set(first, (out.get(first) ?? 0n) + delta);
+  }
+
   return out;
 }
 
