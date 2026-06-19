@@ -20,3 +20,6 @@ broadcast
 !**/.env.example
 !.env.example
 config.bat
+
+# Local planning docs
+plan.md
