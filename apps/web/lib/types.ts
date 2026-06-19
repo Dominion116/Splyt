@@ -67,6 +67,7 @@ export interface DraftSession {
   members: Address[];
   mode: SplitMode;
   amounts: string[];
+  assignments?: Record<number, Address[]>;
   expiresInMinutes: number;
   createdAt: number;
 }
