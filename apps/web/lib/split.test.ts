@@ -1,4 +1,5 @@
-import { describe, it } from "vitest";
+import { describe, it, expect } from "vitest";
+import { computeItemisedSplit } from "./split";
 import type { Address, ParsedReceipt } from "./types";
 
 const addr = (n: number): Address => `0x${n.toString().padStart(40, "0")}` as Address;
@@ -21,5 +22,11 @@ export function makeReceipt(
 }
 
 describe("computeItemisedSplit", () => {
-  // tests will be added here
+  it("splits a single item equally when no assignments are given", () => {
+    const receipt = makeReceipt([{ name: "Burger", amount: "30.000000" }]);
+    const result = computeItemisedSplit(receipt, [A, B, C], {});
+    expect(result.get(A)).toBe(10_000_000n);
+    expect(result.get(B)).toBe(10_000_000n);
+    expect(result.get(C)).toBe(10_000_000n);
+  });
 });
