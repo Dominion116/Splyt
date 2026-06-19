@@ -69,6 +69,10 @@ export function SplitEditor({ draft, onChange }: Props) {
     onChange({ ...draft, amounts: next });
   };
 
+  const setAssignments = (assignments: Record<number, Address[]>) => {
+    onChange({ ...draft, assignments });
+  };
+
   const setExpiry = (value: number) => {
     onChange({ ...draft, expiresInMinutes: value });
   };
