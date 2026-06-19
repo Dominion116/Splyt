@@ -98,12 +98,16 @@ export function SplitEditor({ draft, onChange }: Props) {
             </button>
           ))}
         </div>
-        {draft.mode === "itemised" ? (
-          <p className="text-xs text-muted-foreground">
-            Itemised assignment ships next. For now this splits equally.
-          </p>
-        ) : null}
       </div>
+
+      {draft.mode === "itemised" && draft.members.length > 0 ? (
+        <ItemAssignmentSection
+          receipt={draft.receipt}
+          members={draft.members}
+          assignments={draft.assignments ?? {}}
+          onChange={setAssignments}
+        />
+      ) : null}
 
       <div className="flex flex-col gap-2">
         <span className="text-xs uppercase tracking-wider text-muted-foreground">Expires in</span>
@@ -166,6 +170,31 @@ export function SplitEditor({ draft, onChange }: Props) {
           </p>
         ) : null}
       </div>
+    </div>
+  );
+}
+
+interface ItemAssignmentSectionProps {
+  receipt: DraftSession["receipt"];
+  members: Address[];
+  assignments: Record<number, Address[]>;
+  onChange: (next: Record<number, Address[]>) => void;
+}
+
+function ItemAssignmentSection({ receipt, members, assignments, onChange }: ItemAssignmentSectionProps) {
+  return (
+    <div className="flex flex-col gap-2">
+      <span className="text-xs uppercase tracking-wider text-muted-foreground">Assign items</span>
+      <ul className="flex flex-col gap-2">
+        {receipt.items.map((_item, idx) => (
+          <li
+            key={idx}
+            className="flex flex-col gap-2 rounded-2xl border border-border/40 bg-card p-3"
+          >
+            {/* item rows added next */}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
