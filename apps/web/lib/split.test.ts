@@ -22,6 +22,13 @@ export function makeReceipt(
 }
 
 describe("computeItemisedSplit", () => {
+  it("assigns full item cost to a single member when only that member is listed", () => {
+    const receipt = makeReceipt([{ name: "Steak", amount: "40.000000" }]);
+    const result = computeItemisedSplit(receipt, [A, B], { 0: [A] });
+    expect(result.get(A)).toBe(40_000_000n);
+    expect(result.get(B)).toBe(0n);
+  });
+
   it("splits a single item equally when no assignments are given", () => {
     const receipt = makeReceipt([{ name: "Burger", amount: "30.000000" }]);
     const result = computeItemisedSplit(receipt, [A, B, C], {});
