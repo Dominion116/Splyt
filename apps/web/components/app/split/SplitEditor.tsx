@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { computeSplit } from "@/lib/split";
+import { computeSplit, computeItemisedSplit } from "@/lib/split";
 import { formatCUSD, microsFromDecimalString, microsToDecimalString, shortAddress } from "@/lib/format";
 import type { Address, DraftSession, SplitMode } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -38,9 +38,11 @@ export function SplitEditor({ draft, onChange }: Props) {
         return new Map(draft.members.map((address, idx) => [address, customMicros[idx] ?? 0n]));
       }
     }
-    // 'itemised' mode falls back to equal split in v1 — assignment UI is deferred
+    if (draft.mode === "itemised") {
+      return computeItemisedSplit(draft.receipt, draft.members, draft.assignments ?? {});
+    }
     return computeSplit(draft.receipt, draft.members, "equal");
-  }, [draft.mode, draft.members, draft.receipt, customMicros]);
+  }, [draft.mode, draft.members, draft.receipt, draft.assignments, customMicros]);
 
   const sum = useMemo(() => {
     let total = 0n;
