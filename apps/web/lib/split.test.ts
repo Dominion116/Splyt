@@ -22,6 +22,13 @@ export function makeReceipt(
 }
 
 describe("computeItemisedSplit", () => {
+  it("does not lose a micro when item cost is indivisible by member count", () => {
+    const receipt = makeReceipt([{ name: "Tiny", amount: "0.000001" }]);
+    const result = computeItemisedSplit(receipt, [A, B], {});
+    const sum = (result.get(A) ?? 0n) + (result.get(B) ?? 0n);
+    expect(sum).toBe(1n);
+  });
+
   it("sum of per-member amounts always equals the receipt total", () => {
     const receipt = makeReceipt(
       [
