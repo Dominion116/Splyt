@@ -10,7 +10,7 @@ export function computeItemisedSplit(
 
   for (let i = 0; i < receipt.items.length; i++) {
     const itemMicros = microsFromDecimalString(receipt.items[i].amount);
-    const assigned = members;
+    const assigned = assignments[i]?.length > 0 ? assignments[i] : members;
     const share = itemMicros / BigInt(assigned.length);
     const remainder = itemMicros % BigInt(assigned.length);
     assigned.forEach((addr, j) => {
