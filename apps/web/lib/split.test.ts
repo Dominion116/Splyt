@@ -22,6 +22,21 @@ export function makeReceipt(
 }
 
 describe("computeItemisedSplit", () => {
+  it("sum of per-member amounts always equals the receipt total", () => {
+    const receipt = makeReceipt(
+      [
+        { name: "A", amount: "10.000001" },
+        { name: "B", amount: "7.000003" },
+      ],
+      "0.000000",
+      "17.000004"
+    );
+    const result = computeItemisedSplit(receipt, [A, B, C], {});
+    let sum = 0n;
+    for (const v of result.values()) sum += v;
+    expect(sum).toBe(17_000_004n);
+  });
+
   it("distributes tax gap equally among all members regardless of item assignments", () => {
     const receipt = makeReceipt(
       [{ name: "Meal", amount: "30.000000" }],
