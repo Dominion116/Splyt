@@ -22,6 +22,17 @@ export function makeReceipt(
 }
 
 describe("computeItemisedSplit", () => {
+  it("distributes tax gap equally among all members regardless of item assignments", () => {
+    const receipt = makeReceipt(
+      [{ name: "Meal", amount: "30.000000" }],
+      "3.000000",
+      "33.000000"
+    );
+    const result = computeItemisedSplit(receipt, [A, B], { 0: [A] });
+    expect(result.get(A)).toBe(31_500_000n); // 30 + 1.5 tax
+    expect(result.get(B)).toBe(1_500_000n);  // 0 + 1.5 tax
+  });
+
   it("handles multiple items each assigned to different member subsets", () => {
     const receipt = makeReceipt([
       { name: "Pizza", amount: "24.000000" },
