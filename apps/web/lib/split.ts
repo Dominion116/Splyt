@@ -19,6 +19,21 @@ export function computeItemisedSplit(
     });
   }
 
+  // Any gap between item totals and the receipt total (tax, fees, rounding)
+  // is distributed equally among all members.
+  let itemsTotal = 0n;
+  for (const v of out.values()) itemsTotal += v;
+  const gap = microsFromDecimalString(receipt.total) - itemsTotal;
+
+  if (gap !== 0n) {
+    const share = gap / BigInt(members.length);
+    const remainder = gap % BigInt(members.length);
+    members.forEach((addr, i) => {
+      const bump = i < Number(remainder) ? 1n : 0n;
+      out.set(addr, (out.get(addr) ?? 0n) + share + bump);
+    });
+  }
+
   return out;
 }
 
