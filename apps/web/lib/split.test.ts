@@ -22,6 +22,15 @@ export function makeReceipt(
 }
 
 describe("computeItemisedSplit", () => {
+  it("treats assigning all members explicitly the same as an empty assignment", () => {
+    const receipt = makeReceipt([{ name: "Dish", amount: "15.000000" }]);
+    const withEmpty = computeItemisedSplit(receipt, [A, B, C], {});
+    const withAll = computeItemisedSplit(receipt, [A, B, C], { 0: [A, B, C] });
+    expect(withEmpty.get(A)).toBe(withAll.get(A));
+    expect(withEmpty.get(B)).toBe(withAll.get(B));
+    expect(withEmpty.get(C)).toBe(withAll.get(C));
+  });
+
   it("does not lose a micro when item cost is indivisible by member count", () => {
     const receipt = makeReceipt([{ name: "Tiny", amount: "0.000001" }]);
     const result = computeItemisedSplit(receipt, [A, B], {});
