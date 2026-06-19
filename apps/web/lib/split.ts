@@ -1,6 +1,15 @@
 import type { Address, ParsedReceipt, SplitMode } from "./types";
 import { microsFromDecimalString } from "./format";
 
+export function computeItemisedSplit(
+  receipt: ParsedReceipt,
+  members: Address[],
+  assignments: Record<number, Address[]>
+): Map<Address, bigint> {
+  const out = new Map<Address, bigint>(members.map((addr) => [addr, 0n]));
+  return out;
+}
+
 export function computeSplit(
   receipt: ParsedReceipt,
   members: Address[],
