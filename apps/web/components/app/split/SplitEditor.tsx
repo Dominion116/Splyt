@@ -186,6 +186,7 @@ function ItemAssignmentSection({ receipt, members, assignments, onChange }: Item
     const current = assignments[itemIdx]?.length > 0 ? [...assignments[itemIdx]] : [...members];
     const pos = current.indexOf(addr);
     const next = pos !== -1 ? current.filter((a) => a !== addr) : [...current, addr];
+    if (next.length === 0) return; // must keep at least one assignee per item
     const isAll = members.length === next.length && members.every((m) => next.includes(m));
     onChange({ ...assignments, [itemIdx]: isAll ? [] : next });
   };
