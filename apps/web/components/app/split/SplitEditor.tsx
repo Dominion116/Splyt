@@ -206,16 +206,25 @@ function ItemAssignmentSection({ receipt, members, assignments, onChange }: Item
               </span>
             </div>
             <div className="flex flex-wrap gap-1">
-              {members.map((addr) => (
-                <button
-                  key={addr}
-                  type="button"
-                  onClick={() => toggleMember(idx, addr)}
-                  className="rounded-full border px-2 py-0.5 font-mono text-xs transition"
-                >
-                  {shortAddress(addr)}
-                </button>
-              ))}
+              {members.map((addr) => {
+                const assigned = assignments[idx]?.length > 0 ? assignments[idx] : null;
+                const active = !assigned || assigned.includes(addr);
+                return (
+                  <button
+                    key={addr}
+                    type="button"
+                    onClick={() => toggleMember(idx, addr)}
+                    className={cn(
+                      "rounded-full border px-2 py-0.5 font-mono text-xs transition",
+                      active
+                        ? "border-primary/30 bg-primary/10 text-primary"
+                        : "border-border/40 bg-muted text-muted-foreground"
+                    )}
+                  >
+                    {shortAddress(addr)}
+                  </button>
+                );
+              })}
             </div>
           </li>
         ))}
