@@ -43,6 +43,12 @@ export function DraftRecoveryList() {
     setDrafts((prev) => prev?.filter((d) => d.id !== id) ?? []);
   };
 
+  const clearAll = async () => {
+    if (!drafts) return;
+    await Promise.all(drafts.map((d) => deleteDraft(d.id).catch(() => {})));
+    setDrafts([]);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -50,9 +56,20 @@ export function DraftRecoveryList() {
       transition={{ duration: 0.3, ease: "easeOut" }}
       className="flex flex-col gap-2"
     >
-      <span className="text-xs uppercase tracking-wider text-muted-foreground">
-        Saved drafts ({drafts.length})
-      </span>
+      <div className="flex items-center justify-between">
+        <span className="text-xs uppercase tracking-wider text-muted-foreground">
+          Saved drafts ({drafts.length})
+        </span>
+        {drafts.length > 1 && (
+          <button
+            type="button"
+            onClick={clearAll}
+            className="text-xs text-muted-foreground underline-offset-2 transition hover:text-destructive hover:underline"
+          >
+            Clear all
+          </button>
+        )}
+      </div>
       <ul className="flex flex-col gap-2">
         <AnimatePresence initial={false}>
         {(showAll ? drafts : drafts.slice(0, PREVIEW_LIMIT)).map((draft) => (
