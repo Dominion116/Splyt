@@ -6,7 +6,9 @@ export function validateBody<T extends ZodTypeAny>(schema: T) {
     const parsed = schema.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({
-        error: "Validation failed",
+        error: "ValidationFailed",
+        message: "Request body failed schema validation.",
+        statusCode: 400,
         details: parsed.error.flatten()
       });
       return;

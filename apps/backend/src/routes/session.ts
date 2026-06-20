@@ -186,7 +186,7 @@ router.post("/:sessionId/close", validateBody(closeSchema), async (req, res, nex
 
     const session = await getSession(sessionId);
     if (!session) {
-      res.status(404).json({ error: "Session not found" });
+      res.status(404).json({ error: "NotFound", message: "Session not found", statusCode: 404 });
       return;
     }
 
@@ -236,7 +236,7 @@ router.get("/:sessionId", async (req, res, next) => {
   try {
     const session = await getSession(String(req.params.sessionId));
     if (!session) {
-      res.status(404).json({ error: "Session not found" });
+      res.status(404).json({ error: "NotFound", message: "Session not found", statusCode: 404 });
       return;
     }
     try {
