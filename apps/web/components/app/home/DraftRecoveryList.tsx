@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ClipboardList, Trash2 } from "lucide-react";
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { deleteDraft, listDrafts, purgeOldDrafts } from "@/lib/draft";
 import { formatCUSD, formatRelativeTime, microsFromDecimalString } from "@/lib/format";
@@ -51,10 +51,14 @@ export function DraftRecoveryList() {
         Saved drafts ({drafts.length})
       </span>
       <ul className="flex flex-col gap-2">
+        <AnimatePresence initial={false}>
         {drafts.map((draft) => (
-          <li
+          <motion.li
             key={draft.id}
-            className="flex items-center gap-3 rounded-2xl border border-border/40 bg-card p-4"
+            initial={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+            transition={{ duration: 0.2 }}
+            className="flex items-center gap-3 overflow-hidden rounded-2xl border border-border/40 bg-card p-4"
           >
             <Link
               href={`/app/review/${draft.id}`}
@@ -94,8 +98,9 @@ export function DraftRecoveryList() {
             >
               <Trash2 size={14} />
             </button>
-          </li>
+          </motion.li>
         ))}
+        </AnimatePresence>
       </ul>
     </motion.div>
   );
