@@ -62,6 +62,12 @@ export function DraftRecoveryList() {
                     {draft.mode}
                   </span>
                 </div>
+                {draft.receipt.items[0]?.name ? (
+                  <span className="truncate text-xs text-muted-foreground">
+                    {draft.receipt.items[0].name}
+                    {draft.receipt.items.length > 1 ? ` +${draft.receipt.items.length - 1} more` : ""}
+                  </span>
+                ) : null}
                 <span className="text-xs text-muted-foreground">
                   {draft.members.length} member{draft.members.length !== 1 ? "s" : ""} ·{" "}
                   {draft.receipt.items.length} item{draft.receipt.items.length !== 1 ? "s" : ""} ·{" "}
