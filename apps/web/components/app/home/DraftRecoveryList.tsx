@@ -8,13 +8,19 @@ import { formatCUSD, formatRelativeTime, microsFromDecimalString } from "@/lib/f
 import type { DraftSession } from "@/lib/types";
 
 export function DraftRecoveryList() {
+  const [mounted, setMounted] = useState(false);
   const [drafts, setDrafts] = useState<DraftSession[] | null>(null);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
     listDrafts()
       .then((all) => setDrafts(all.sort((a, b) => b.createdAt - a.createdAt)))
       .catch(() => setDrafts([]));
-  }, []);
+  }, [mounted]);
 
   if (!drafts || drafts.length === 0) return null;
 
