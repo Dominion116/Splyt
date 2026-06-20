@@ -50,6 +50,7 @@ export function DraftRecoveryList() {
           >
             <Link
               href={`/app/review/${draft.id}`}
+              aria-label={`Resume draft — ${formatCUSD(microsFromDecimalString(draft.receipt.total))}`}
               className="flex min-w-0 flex-1 items-center gap-3"
             >
               <ClipboardList size={14} className="shrink-0 text-muted-foreground" />
