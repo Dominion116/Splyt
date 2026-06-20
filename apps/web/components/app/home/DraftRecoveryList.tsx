@@ -41,7 +41,9 @@ export function DraftRecoveryList() {
 
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-xs uppercase tracking-wider text-muted-foreground">Saved drafts</span>
+      <span className="text-xs uppercase tracking-wider text-muted-foreground">
+        Saved drafts ({drafts.length})
+      </span>
       <ul className="flex flex-col gap-2">
         {drafts.map((draft) => (
           <li
