@@ -5,6 +5,7 @@ import { Greeting } from "@/components/app/home/Greeting";
 import { BalanceCard } from "@/components/app/home/BalanceCard";
 import { PrimaryAction } from "@/components/app/home/PrimaryAction";
 import { SessionList } from "@/components/app/home/SessionList";
+import { DraftRecoveryList } from "@/components/app/home/DraftRecoveryList";
 import { ConnectSheet } from "@/components/app/wallet/ConnectSheet";
 import { useWallet } from "@/lib/wallet";
 
@@ -23,6 +24,7 @@ export default function HomePage() {
         >
           <BalanceCard />
           <PrimaryAction />
+          <DraftRecoveryList />
           <SessionList host={address} />
         </motion.div>
       ) : (
