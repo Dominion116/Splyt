@@ -53,10 +53,15 @@ export function DraftRecoveryList() {
               className="flex min-w-0 flex-1 items-center gap-3"
             >
               <ClipboardList size={14} className="shrink-0 text-muted-foreground" />
-              <div className="flex min-w-0 flex-col">
-                <span className="text-sm font-medium">
-                  {formatCUSD(microsFromDecimalString(draft.receipt.total))}
-                </span>
+              <div className="flex min-w-0 flex-col gap-0.5">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">
+                    {formatCUSD(microsFromDecimalString(draft.receipt.total))}
+                  </span>
+                  <span className="rounded-full bg-muted px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+                    {draft.mode}
+                  </span>
+                </div>
                 <span className="text-xs text-muted-foreground">
                   {draft.members.length} member{draft.members.length !== 1 ? "s" : ""} ·{" "}
                   {draft.receipt.items.length} item{draft.receipt.items.length !== 1 ? "s" : ""} ·{" "}
