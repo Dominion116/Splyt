@@ -21,7 +21,13 @@ export function DraftRecoveryList() {
       .catch(() => {})
       .finally(() => {
         listDrafts()
-          .then((all) => setDrafts(all.sort((a, b) => b.createdAt - a.createdAt)))
+          .then((all) =>
+            setDrafts(
+              all
+                .filter((d) => d.id && d.receipt?.total)
+                .sort((a, b) => b.createdAt - a.createdAt)
+            )
+          )
           .catch(() => setDrafts([]));
       });
   }, [mounted]);
