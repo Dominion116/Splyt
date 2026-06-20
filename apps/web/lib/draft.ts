@@ -63,3 +63,12 @@ export async function listDrafts(): Promise<DraftSession[]> {
     req.onerror = () => reject(req.error);
   });
 }
+
+export async function purgeOldDrafts(olderThanDays: number): Promise<void> {
+  if (typeof indexedDB === "undefined") return;
+  const cutoff = Date.now() - olderThanDays * 24 * 60 * 60 * 1000;
+  const all = await listDrafts();
+  await Promise.all(
+    all.filter((d) => d.createdAt < cutoff).map((d) => deleteDraft(d.id))
+  );
+}
