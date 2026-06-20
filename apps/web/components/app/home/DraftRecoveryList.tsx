@@ -45,6 +45,7 @@ export function DraftRecoveryList() {
 
   const clearAll = async () => {
     if (!drafts) return;
+    if (!window.confirm(`Delete all ${drafts.length} saved drafts? This can't be undone.`)) return;
     await Promise.all(drafts.map((d) => deleteDraft(d.id).catch(() => {})));
     setDrafts([]);
   };
