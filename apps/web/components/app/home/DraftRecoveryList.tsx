@@ -36,7 +36,19 @@ export function DraftRecoveryList() {
       });
   }, [mounted]);
 
-  if (!drafts || drafts.length === 0) return null;
+  if (!drafts) return null;
+
+  if (drafts.length === 0) {
+    return (
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="text-xs text-muted-foreground"
+      >
+        All drafts cleared.
+      </motion.p>
+    );
+  }
 
   const remove = async (id: string) => {
     await deleteDraft(id).catch(() => {});
