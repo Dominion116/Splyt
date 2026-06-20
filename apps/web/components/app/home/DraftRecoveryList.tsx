@@ -11,6 +11,9 @@ import type { DraftSession } from "@/lib/types";
 export function DraftRecoveryList() {
   const [mounted, setMounted] = useState(false);
   const [drafts, setDrafts] = useState<DraftSession[] | null>(null);
+  const [showAll, setShowAll] = useState(false);
+
+  const PREVIEW_LIMIT = 3;
 
   useEffect(() => {
     setMounted(true);
@@ -52,7 +55,7 @@ export function DraftRecoveryList() {
       </span>
       <ul className="flex flex-col gap-2">
         <AnimatePresence initial={false}>
-        {drafts.map((draft) => (
+        {(showAll ? drafts : drafts.slice(0, PREVIEW_LIMIT)).map((draft) => (
           <motion.li
             key={draft.id}
             initial={{ opacity: 1, height: "auto" }}
