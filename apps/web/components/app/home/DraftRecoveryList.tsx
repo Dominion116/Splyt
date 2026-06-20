@@ -105,6 +105,15 @@ export function DraftRecoveryList() {
         ))}
         </AnimatePresence>
       </ul>
+      {drafts.length > PREVIEW_LIMIT && (
+        <button
+          type="button"
+          onClick={() => setShowAll((v) => !v)}
+          className="self-start text-xs text-muted-foreground underline-offset-2 transition hover:text-foreground hover:underline"
+        >
+          {showAll ? "Show less" : `Show ${drafts.length - PREVIEW_LIMIT} more`}
+        </button>
+      )}
     </motion.div>
   );
 }
