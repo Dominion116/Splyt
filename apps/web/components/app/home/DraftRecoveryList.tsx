@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ClipboardList, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { deleteDraft, listDrafts } from "@/lib/draft";
+import { deleteDraft, listDrafts, purgeOldDrafts } from "@/lib/draft";
 import { formatCUSD, formatRelativeTime, microsFromDecimalString } from "@/lib/format";
 import type { DraftSession } from "@/lib/types";
 
@@ -17,9 +17,13 @@ export function DraftRecoveryList() {
 
   useEffect(() => {
     if (!mounted) return;
-    listDrafts()
-      .then((all) => setDrafts(all.sort((a, b) => b.createdAt - a.createdAt)))
-      .catch(() => setDrafts([]));
+    purgeOldDrafts(7)
+      .catch(() => {})
+      .finally(() => {
+        listDrafts()
+          .then((all) => setDrafts(all.sort((a, b) => b.createdAt - a.createdAt)))
+          .catch(() => setDrafts([]));
+      });
   }, [mounted]);
 
   if (!drafts || drafts.length === 0) return null;
