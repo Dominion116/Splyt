@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ClipboardList, Trash2 } from "lucide-react";
+import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { deleteDraft, listDrafts, purgeOldDrafts } from "@/lib/draft";
 import { formatCUSD, formatRelativeTime, microsFromDecimalString } from "@/lib/format";
@@ -40,7 +41,12 @@ export function DraftRecoveryList() {
   };
 
   return (
-    <div className="flex flex-col gap-2">
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
+      className="flex flex-col gap-2"
+    >
       <span className="text-xs uppercase tracking-wider text-muted-foreground">
         Saved drafts ({drafts.length})
       </span>
@@ -91,6 +97,6 @@ export function DraftRecoveryList() {
           </li>
         ))}
       </ul>
-    </div>
+    </motion.div>
   );
 }
