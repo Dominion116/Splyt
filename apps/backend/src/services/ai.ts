@@ -87,13 +87,13 @@ export async function parseReceipt(imageBase64: string, mimeType: string): Promi
     throw new ParseError("AI service not configured - GROQ_API_KEY environment variable is required");
   }
 
-    console.info(`[ai:${aiId}] Starting Groq Vision parse: mimeType=${mimeType}, imageSize=${imageBase64.length}`);
-    const startTime = Date.now();
+  console.info(`[ai:${aiId}] Starting Groq Vision parse: mimeType=${mimeType}, imageSize=${imageBase64.length}`);
+  const startTime = Date.now();
 
-    const response = await groq.chat.completions.create({
-      model: GROQ_VISION_MODEL,
-      max_tokens: 900,
-      response_format: { type: "json_object" },
+  const response = await groq.chat.completions.create({
+    model: GROQ_VISION_MODEL,
+    max_tokens: 900,
+    response_format: { type: "json_object" },
     messages: [
       {
         role: "system",
@@ -124,12 +124,12 @@ export async function parseReceipt(imageBase64: string, mimeType: string): Promi
   });
 
   const elapsed = Date.now() - startTime;
-      console.info(`[ai:${aiId}] Groq API response received (${elapsed}ms), processing...`);
-  
+  console.info(`[ai:${aiId}] Groq API response received (${elapsed}ms), processing...`);
+
   const first = response.choices[0]?.message;
-    if (!first || !first.content) {
-      throw new ParseError(`Groq API returned empty response (choices=${response.choices.length})`);
-    }
+  if (!first || !first.content) {
+    throw new ParseError(`Groq API returned empty response (choices=${response.choices.length})`);
+  }
 
   console.debug(`[ai:${aiId}] Response content length: ${first.content.length}`);
   
