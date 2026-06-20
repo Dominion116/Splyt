@@ -4,10 +4,8 @@ import { Loader2, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { approveCusdTx, getPublicClient, MAX_UINT256 } from "@/lib/chain";
 import { useWallet } from "@/lib/wallet";
-import type { Address } from "@/lib/types";
 
 interface Props {
-  member: Address;
   onApproved: () => void;
 }
 

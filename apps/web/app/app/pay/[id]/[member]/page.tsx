@@ -35,6 +35,7 @@ export default function PayPage({ params }: Props) {
   const { address, connect, hasProvider, connecting } = useWallet();
   const [session, setSession] = useState<SessionDetail | null>(null);
   const [phase, setPhase] = useState<Phase>({ kind: "loading" });
+  const [neededApproval, setNeededApproval] = useState(false);
 
   const matchesMember = address?.toLowerCase() === member.toLowerCase();
 
@@ -47,6 +48,7 @@ export default function PayPage({ params }: Props) {
       if (allowance >= amountWei) {
         setPhase({ kind: "ready-to-pay", amountMicros: price.price, allowanceSufficient: true });
       } else {
+        setNeededApproval(true);
         setPhase({ kind: "needs-approve", amountMicros: price.price });
       }
     } catch (err) {
@@ -118,6 +120,7 @@ export default function PayPage({ params }: Props) {
             session,
             sessionId: id,
             member,
+            payStep: neededApproval ? 2 : 1,
             onApproved: refreshPrice,
             onPaid: (txHash) =>
               setPhase((prev) =>
@@ -137,10 +140,11 @@ function renderPhase(args: {
   session: SessionDetail | null;
   sessionId: string;
   member: Address;
+  payStep: 1 | 2;
   onApproved: () => void;
   onPaid: (txHash: string) => void;
 }) {
-  const { phase, session, sessionId, member, onApproved, onPaid } = args;
+  const { phase, session, sessionId, member, payStep, onApproved, onPaid } = args;
   if (!session) {
     return (
       <div className="flex items-center justify-center gap-2 py-12 text-sm text-muted-foreground">
@@ -195,9 +199,9 @@ function renderPhase(args: {
         memberCount={session.members.length}
       />
       {phase.kind === "needs-approve" ? (
-        <ApproveAction member={member} onApproved={onApproved} />
+        <ApproveAction onApproved={onApproved} />
       ) : (
-        <PayAction sessionId={sessionId} member={member} step={1} onPaid={onPaid} />
+        <PayAction sessionId={sessionId} member={member} step={payStep} onPaid={onPaid} />
       )}
       <p className="text-xs text-muted-foreground">
         Your wallet sends cUSD directly to the Splyt contract. The host can&apos;t collect until everyone pays.
