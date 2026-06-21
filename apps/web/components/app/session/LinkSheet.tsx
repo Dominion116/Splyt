@@ -1,6 +1,6 @@
 "use client";
 
-import { X } from "lucide-react";
+import { Copy, X } from "lucide-react";
 import { motion } from "motion/react";
 import { useEffect, useRef } from "react";
 import QRCode from "qrcode";
@@ -50,6 +50,16 @@ export function LinkSheet({ link, onClose }: Props) {
 
         <div className="flex justify-center">
           <canvas ref={canvasRef} className="rounded-xl" />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <button
+            type="button"
+            className="flex h-11 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
+          >
+            <Copy size={14} />
+            Copy link
+          </button>
         </div>
       </motion.div>
     </div>
