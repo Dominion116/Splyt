@@ -6,5 +6,8 @@ interface Props {
 }
 
 export function LinkSheet({ link, onClose }: Props) {
-  return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4">
+    </div>
+  );
 }
