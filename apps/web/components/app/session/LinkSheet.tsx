@@ -37,6 +37,8 @@ export function LinkSheet({ link, onClose }: Props) {
             {link}
           </p>
         </div>
+
+        <canvas className="rounded-xl" />
       </motion.div>
     </div>
   );
