@@ -2,7 +2,7 @@
 
 import { Copy, X } from "lucide-react";
 import { motion } from "motion/react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import QRCode from "qrcode";
 
 interface Props {
@@ -11,6 +11,7 @@ interface Props {
 }
 
 export function LinkSheet({ link, onClose }: Props) {
+  const [copied, setCopied] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
