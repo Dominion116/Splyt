@@ -4,6 +4,7 @@ import { Check, Clock, Copy } from "lucide-react";
 import { useState } from "react";
 import { formatCUSD, shortAddress } from "@/lib/format";
 import type { Address, LiveMember } from "@/lib/types";
+import { LinkSheet } from "./LinkSheet";
 
 interface Props {
   members: LiveMember[];
