@@ -77,13 +77,16 @@ export function LinkSheet({ link, onClose }: Props) {
             {copied ? <Check size={14} /> : <Copy size={14} />}
             {copied ? "Copied!" : "Copy link"}
           </button>
-          <button
-            type="button"
-            className="flex h-11 items-center justify-center gap-2 rounded-full border border-border/40 bg-card px-4 text-sm font-medium text-foreground transition hover:bg-muted"
-          >
-            <Share2 size={14} />
-            Share
-          </button>
+          {canShare ? (
+            <button
+              type="button"
+              onClick={share}
+              className="flex h-11 items-center justify-center gap-2 rounded-full border border-border/40 bg-card px-4 text-sm font-medium text-foreground transition hover:bg-muted"
+            >
+              <Share2 size={14} />
+              Share
+            </button>
+          ) : null}
         </div>
       </motion.div>
     </div>
