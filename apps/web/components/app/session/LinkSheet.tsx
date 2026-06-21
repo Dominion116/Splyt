@@ -24,6 +24,7 @@ export function LinkSheet({ link, onClose }: Props) {
     try {
       await navigator.clipboard.writeText(link);
       setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
     } catch {}
   };
 
