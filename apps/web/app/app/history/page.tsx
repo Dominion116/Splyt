@@ -17,6 +17,7 @@ export default function HistoryPage() {
       {address ? (
         <>
           <DraftRecoveryList />
+          <hr className="border-border/40" />
           <SessionList host={address} />
         </>
       ) : (
