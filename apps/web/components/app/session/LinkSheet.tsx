@@ -1,5 +1,10 @@
 "use client";
 
-export function LinkSheet() {
+interface Props {
+  link: string;
+  onClose: () => void;
+}
+
+export function LinkSheet({ link, onClose }: Props) {
   return null;
 }
