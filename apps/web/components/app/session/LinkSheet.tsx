@@ -30,6 +30,10 @@ export function LinkSheet({ link, onClose }: Props) {
             <X size={14} />
           </button>
         </div>
+
+        <div className="flex flex-col gap-1.5">
+          <span className="text-xs text-muted-foreground">Payment link</span>
+        </div>
       </motion.div>
     </div>
   );
