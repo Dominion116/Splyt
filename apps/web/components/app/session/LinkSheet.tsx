@@ -1,6 +1,6 @@
 "use client";
 
-import { Copy, X } from "lucide-react";
+import { Check, Copy, X } from "lucide-react";
 import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import QRCode from "qrcode";
@@ -66,8 +66,8 @@ export function LinkSheet({ link, onClose }: Props) {
             onClick={copy}
             className="flex h-11 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
           >
-            <Copy size={14} />
-            Copy link
+            {copied ? <Check size={14} /> : <Copy size={14} />}
+            {copied ? "Copied!" : "Copy link"}
           </button>
         </div>
       </motion.div>
