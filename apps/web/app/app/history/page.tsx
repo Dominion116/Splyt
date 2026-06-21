@@ -1,6 +1,7 @@
 "use client";
 
 import { Clock } from "lucide-react";
+import { DraftRecoveryList } from "@/components/app/home/DraftRecoveryList";
 import { SessionList } from "@/components/app/home/SessionList";
 import { useWallet } from "@/lib/wallet";
 
@@ -14,7 +15,10 @@ export default function HistoryPage() {
         <h1 className="text-2xl font-medium tracking-tight">History</h1>
       </div>
       {address ? (
-        <SessionList host={address} />
+        <>
+          <DraftRecoveryList />
+          <SessionList host={address} />
+        </>
       ) : (
         <p className="text-sm text-muted-foreground">Connect your wallet to see your past splits.</p>
       )}
