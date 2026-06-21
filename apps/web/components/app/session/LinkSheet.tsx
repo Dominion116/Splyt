@@ -2,6 +2,7 @@
 
 import { X } from "lucide-react";
 import { motion } from "motion/react";
+import { useRef } from "react";
 
 interface Props {
   link: string;
@@ -9,6 +10,8 @@ interface Props {
 }
 
 export function LinkSheet({ link, onClose }: Props) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4">
       <motion.div
@@ -38,7 +41,7 @@ export function LinkSheet({ link, onClose }: Props) {
           </p>
         </div>
 
-        <canvas className="rounded-xl" />
+        <canvas ref={canvasRef} className="rounded-xl" />
       </motion.div>
     </div>
   );
