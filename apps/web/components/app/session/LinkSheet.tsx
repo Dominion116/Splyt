@@ -48,7 +48,9 @@ export function LinkSheet({ link, onClose }: Props) {
           </p>
         </div>
 
-        <canvas ref={canvasRef} className="rounded-xl" />
+        <div className="flex justify-center">
+          <canvas ref={canvasRef} className="rounded-xl" />
+        </div>
       </motion.div>
     </div>
   );
