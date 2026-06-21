@@ -29,6 +29,12 @@ export function LinkSheet({ link, onClose }: Props) {
     } catch {}
   };
 
+  const share = async () => {
+    try {
+      await navigator.share({ url: link, title: "Pay with Splyt" });
+    } catch {}
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4">
       <motion.div
