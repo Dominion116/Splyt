@@ -7,13 +7,13 @@ Work through them one at a time.
 
 ## Tier 1 — Quick Wins
 
-### 1. Draft Recovery on Home Screen *(partially done)*
+### 1. Draft Recovery on Home Screen ✅ DONE
 **What:** Show abandoned drafts from IndexedDB on the home screen so users can resume an incomplete split.  
-**Files:**
-- `apps/web/components/app/home/DraftRecoveryList.tsx` ← already created
-- `apps/web/app/app/page.tsx` ← already updated  
-
-**Still needed:** Verify it renders correctly with the dev server.
+**Delivered across 25 commits:**
+- `lib/draft.ts` — added `purgeOldDrafts()` and `getDraftCount()` utilities
+- `DraftRecoveryList.tsx` — full component with mount guard, auto-purge, malformed-draft filter, item count, mode badge, first-item hint, aria-label, empty-members fallback, live count in heading, motion entry, AnimatePresence exit, show-all toggle, clear-all with confirm, empty-state fade-in
+- `app/app/page.tsx` — draft list shown above "New split" CTA
+- `app/app/history/page.tsx` — draft list also shown at the top of History tab with divider
 
 ---
 
