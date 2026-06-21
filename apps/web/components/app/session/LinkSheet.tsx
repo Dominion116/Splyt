@@ -16,6 +16,8 @@ export function LinkSheet({ link, onClose }: Props) {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.3 }}
         className="flex w-full max-w-[420px] flex-col gap-5 rounded-2xl border border-border/40 bg-card p-6"
+        role="dialog"
+        aria-label="Payment link"
       >
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-medium tracking-tight">Pay link</h2>
