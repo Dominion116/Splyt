@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Clock, Copy } from "lucide-react";
+import { Check, Clock, Share2 } from "lucide-react";
 import { useState } from "react";
 import { formatCUSD, shortAddress } from "@/lib/format";
 import type { Address, LiveMember } from "@/lib/types";
@@ -31,17 +31,8 @@ function MemberRow({
   sessionId: string;
   origin: string;
 }) {
-  const [copied, setCopied] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
   const link = `${origin}/app/pay/${sessionId}/${member.address}`;
-
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(link);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1200);
-    } catch {}
-  };
 
   return (
     <li className="flex items-center justify-between gap-3 rounded-2xl border border-border/40 bg-card p-4">
@@ -54,14 +45,15 @@ function MemberRow({
         {!member.paid ? (
           <button
             type="button"
-            onClick={copy}
-            aria-label="Copy pay link"
+            onClick={() => setSheetOpen(true)}
+            aria-label="Share pay link"
             className="flex h-8 w-8 items-center justify-center rounded-full border border-border/40 text-muted-foreground transition hover:text-foreground"
           >
-            {copied ? <Check size={12} /> : <Copy size={12} />}
+            <Share2 size={12} />
           </button>
         ) : null}
       </div>
+      {sheetOpen ? <LinkSheet link={link} onClose={() => setSheetOpen(false)} /> : null}
     </li>
   );
 }
