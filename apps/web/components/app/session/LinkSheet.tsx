@@ -45,6 +45,7 @@ export function LinkSheet({ link, onClose }: Props) {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.3 }}
         className="flex w-full max-w-[420px] flex-col gap-5 rounded-2xl border border-border/40 bg-card p-6"
+        onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-label="Payment link"
       >
