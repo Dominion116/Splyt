@@ -23,8 +23,8 @@ export default function HomePage() {
           className="flex flex-col gap-5"
         >
           <BalanceCard />
-          <PrimaryAction />
           <DraftRecoveryList />
+          <PrimaryAction />
           <SessionList host={address} />
         </motion.div>
       ) : (
