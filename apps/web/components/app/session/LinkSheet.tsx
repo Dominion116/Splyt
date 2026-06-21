@@ -84,6 +84,7 @@ export function LinkSheet({ link, onClose }: Props) {
           <button
             type="button"
             onClick={copy}
+            aria-label="Copy payment link"
             className="flex h-11 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
           >
             {copied ? <Check size={14} /> : <Copy size={14} />}
@@ -93,6 +94,7 @@ export function LinkSheet({ link, onClose }: Props) {
             <button
               type="button"
               onClick={share}
+              aria-label="Share payment link"
               className="flex h-11 items-center justify-center gap-2 rounded-full border border-border/40 bg-card px-4 text-sm font-medium text-foreground transition hover:bg-muted"
             >
               <Share2 size={14} />
