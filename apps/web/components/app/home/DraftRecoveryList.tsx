@@ -115,9 +115,11 @@ export function DraftRecoveryList() {
                   </span>
                 ) : null}
                 <span className="text-xs text-muted-foreground">
-                  {draft.members.length === 0
-                    ? "No members added"
-                    : `${draft.members.length} member${draft.members.length !== 1 ? "s" : ""}`}{" "}
+                  {draft.members.length === 0 ? (
+                    <span className="italic">No members added yet</span>
+                  ) : (
+                    `${draft.members.length} member${draft.members.length !== 1 ? "s" : ""}`
+                  )}{" "}
                   · {draft.receipt.items.length} item{draft.receipt.items.length !== 1 ? "s" : ""} ·{" "}
                   {formatRelativeTime(draft.createdAt)}
                 </span>
