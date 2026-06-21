@@ -32,6 +32,7 @@ function MemberRow({
   origin: string;
 }) {
   const [copied, setCopied] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const link = `${origin}/app/pay/${sessionId}/${member.address}`;
 
   const copy = async () => {
