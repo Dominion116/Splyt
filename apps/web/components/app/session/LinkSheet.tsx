@@ -21,6 +21,14 @@ export function LinkSheet({ link, onClose }: Props) {
     }
   }, [link]);
 
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(link);
