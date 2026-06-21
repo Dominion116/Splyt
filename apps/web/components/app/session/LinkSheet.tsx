@@ -33,6 +33,9 @@ export function LinkSheet({ link, onClose }: Props) {
 
         <div className="flex flex-col gap-1.5">
           <span className="text-xs text-muted-foreground">Payment link</span>
+          <p className="rounded-xl border border-border/40 bg-background px-3 py-2.5 font-mono text-xs">
+            {link}
+          </p>
         </div>
       </motion.div>
     </div>
