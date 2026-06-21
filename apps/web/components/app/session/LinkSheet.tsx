@@ -12,6 +12,7 @@ interface Props {
 
 export function LinkSheet({ link, onClose }: Props) {
   const [copied, setCopied] = useState(false);
+  const canShare = typeof navigator !== "undefined" && "share" in navigator;
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
