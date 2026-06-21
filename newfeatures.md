@@ -17,7 +17,7 @@ Work through them one at a time.
 
 ---
 
-### 2. Payment Link Sheet (QR / Share)
+### 2. Payment Link Sheet (QR / Share) ✅ DONE
 **What:** When the host taps the copy-link icon next to an unpaid member in the session room, open a bottom sheet that prominently shows the full payment link, a large **Copy** button, and a **Share** button (native Web Share API). Optionally render a QR code using the `qrcode` npm package.  
 **Files to touch:**
 - `apps/web/components/app/session/MemberStatusList.tsx` — replace the raw copy icon with a button that opens the sheet
