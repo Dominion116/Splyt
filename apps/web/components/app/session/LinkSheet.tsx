@@ -1,5 +1,6 @@
 "use client";
 
+import { X } from "lucide-react";
 import { motion } from "motion/react";
 
 interface Props {
@@ -18,6 +19,14 @@ export function LinkSheet({ link, onClose }: Props) {
       >
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-medium tracking-tight">Pay link</h2>
+          <button
+            type="button"
+            aria-label="Close"
+            onClick={onClose}
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-border/40 text-muted-foreground transition hover:text-foreground"
+          >
+            <X size={14} />
+          </button>
         </div>
       </motion.div>
     </div>
