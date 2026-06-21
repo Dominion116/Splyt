@@ -64,6 +64,17 @@ export async function listDrafts(): Promise<DraftSession[]> {
   });
 }
 
+export async function getDraftCount(): Promise<number> {
+  if (typeof indexedDB === "undefined") return 0;
+  const db = await openDb();
+  return new Promise<number>((resolve, reject) => {
+    const transaction = db.transaction(STORE, "readonly");
+    const req = transaction.objectStore(STORE).count();
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
 export async function purgeOldDrafts(olderThanDays: number): Promise<void> {
   if (typeof indexedDB === "undefined") return;
   const cutoff = Date.now() - olderThanDays * 24 * 60 * 60 * 1000;
