@@ -20,6 +20,13 @@ export function LinkSheet({ link, onClose }: Props) {
     }
   }, [link]);
 
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopied(true);
+    } catch {}
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4">
       <motion.div
@@ -56,6 +63,7 @@ export function LinkSheet({ link, onClose }: Props) {
         <div className="flex flex-col gap-2">
           <button
             type="button"
+            onClick={copy}
             className="flex h-11 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
           >
             <Copy size={14} />
