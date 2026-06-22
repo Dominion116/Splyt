@@ -42,6 +42,7 @@ export function SessionList({ host, filter = "all" }: Props) {
     setSessions(null);
     setCursor(null);
     setHasMore(false);
+    setLoadMoreError(null);
     listSessions(host, { limit: 20 })
       .then((page) => {
         if (!cancelled) {
