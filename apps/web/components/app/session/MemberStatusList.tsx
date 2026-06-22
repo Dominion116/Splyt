@@ -39,8 +39,7 @@ function MemberRow({
   const link = `${origin}/app/pay/${sessionId}/${member.address}`;
 
   const handleNudge = async () => {
-    const displayName = name.trim() || shortAddress(member.address as Address);
-    const greeting = name.trim() ? `Hey ${displayName}` : "Hey";
+    const greeting = name.trim() ? `Hey ${name.trim()}` : "Hey";
     const text = `${greeting}! Your share for this Splyt is ${formatCUSD(member.amountDue)} — link expires soon: ${link}`;
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
