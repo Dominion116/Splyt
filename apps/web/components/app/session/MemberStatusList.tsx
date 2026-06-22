@@ -93,14 +93,24 @@ function MemberRow({
       <div className="flex items-center gap-2">
         <StatusPill paid={member.paid} />
         {!member.paid ? (
-          <button
-            type="button"
-            onClick={() => setSheetOpen(true)}
-            aria-label="Share pay link"
-            className="flex h-8 w-8 items-center justify-center rounded-full border border-border/40 text-muted-foreground transition hover:text-foreground"
-          >
-            <Share2 size={12} />
-          </button>
+          <>
+            <button
+              type="button"
+              onClick={handleNudge}
+              aria-label="Send payment nudge"
+              className="flex h-8 w-8 items-center justify-center rounded-full border border-border/40 text-muted-foreground transition hover:text-foreground"
+            >
+              <Bell size={12} />
+            </button>
+            <button
+              type="button"
+              onClick={() => setSheetOpen(true)}
+              aria-label="Share pay link"
+              className="flex h-8 w-8 items-center justify-center rounded-full border border-border/40 text-muted-foreground transition hover:text-foreground"
+            >
+              <Share2 size={12} />
+            </button>
+          </>
         ) : null}
       </div>
       {sheetOpen ? <LinkSheet link={link} onClose={() => setSheetOpen(false)} /> : null}
