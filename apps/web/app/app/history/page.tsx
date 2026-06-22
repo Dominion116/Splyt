@@ -30,7 +30,24 @@ export default function HistoryPage() {
         <>
           <DraftRecoveryList />
           <hr className="border-border/40" />
-          <SessionList host={address} />
+          <div className="flex gap-1 rounded-full border border-border/40 bg-muted/50 p-0.5">
+            {FILTER_TABS.map((tab) => (
+              <button
+                key={tab.value}
+                type="button"
+                onClick={() => setFilter(tab.value)}
+                className={cn(
+                  "flex-1 rounded-full px-3 py-1.5 text-xs capitalize transition",
+                  filter === tab.value
+                    ? "bg-background text-foreground shadow-xs"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+          <SessionList host={address} filter={filter} />
         </>
       ) : (
         <p className="text-sm text-muted-foreground">Connect your wallet to see your past splits.</p>
