@@ -113,7 +113,7 @@ export function SessionList({ host, filter = "all" }: Props) {
       : `${filter.charAt(0).toUpperCase() + filter.slice(1)} splits`;
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2" aria-live="polite" aria-busy={loadingMore}>
       <span className="text-xs uppercase tracking-wider text-muted-foreground">{heading}</span>
       <ul className="flex flex-col gap-2">
         {visible.map((session) => (
