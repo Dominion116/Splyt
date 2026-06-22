@@ -219,11 +219,13 @@ function ItemAssignmentSection({ receipt, members, assignments, onChange }: Item
               {members.map((addr) => {
                 const assigned = assignments[idx]?.length > 0 ? assignments[idx] : null;
                 const active = !assigned || assigned.includes(addr);
+                const chipLabel = getContactName(addr) || shortAddress(addr);
                 return (
                   <button
                     key={addr}
                     type="button"
                     onClick={() => toggleMember(idx, addr)}
+                    title={addr}
                     className={cn(
                       "rounded-full border px-2 py-0.5 font-mono text-xs transition",
                       active
@@ -231,7 +233,7 @@ function ItemAssignmentSection({ receipt, members, assignments, onChange }: Item
                         : "border-border/40 bg-muted text-muted-foreground"
                     )}
                   >
-                    {shortAddress(addr)}
+                    {chipLabel}
                   </button>
                 );
               })}
