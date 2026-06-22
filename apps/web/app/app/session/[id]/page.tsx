@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { use, useEffect, useMemo, useState } from "react";
 import { motion } from "motion/react";
-import { ArrowLeft, Check, Loader2, Share2 } from "lucide-react";
+import { ArrowLeft, Check, Loader2, Share2, Receipt } from "lucide-react";
 import { ApiRequestError, getSession } from "@/lib/api";
 import { useSessionStream } from "@/lib/sse";
 import { Countdown } from "@/components/app/common/Countdown";
