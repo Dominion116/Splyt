@@ -7,3 +7,18 @@ export interface Template {
   mode: SplitMode;
   createdAt: number;
 }
+
+const DB_NAME = "splyt-templates";
+const STORE_NAME = "templates";
+const DB_VERSION = 1;
+
+function openTemplatesDb(): Promise<IDBDatabase> {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = () => {
+      req.result.createObjectStore(STORE_NAME, { keyPath: "id" });
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
