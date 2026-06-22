@@ -33,6 +33,7 @@ function MemberRow({
   origin: string;
 }) {
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [nudgeSent, setNudgeSent] = useState(false);
   const [name, setName] = useState(() => getContactName(member.address) ?? "");
   const [editing, setEditing] = useState(false);
   const link = `${origin}/app/pay/${sessionId}/${member.address}`;
@@ -56,6 +57,8 @@ function MemberRow({
         // Clipboard write denied — silently ignore.
       }
     }
+    setNudgeSent(true);
+    setTimeout(() => setNudgeSent(false), 2000);
   };
 
   const saveName = () => {
@@ -101,7 +104,7 @@ function MemberRow({
               onClick={handleNudge}
               aria-label="Send payment nudge"
               title="Nudge — share a payment reminder"
-              className="flex h-8 w-8 items-center justify-center rounded-full border border-border/40 text-muted-foreground transition hover:text-foreground"
+              className={`flex h-8 w-8 items-center justify-center rounded-full border transition ${nudgeSent ? "border-primary/40 text-primary" : "border-border/40 text-muted-foreground hover:text-foreground"}`}
             >
               <Bell size={12} />
             </button>
