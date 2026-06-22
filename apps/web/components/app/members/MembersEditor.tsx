@@ -136,7 +136,7 @@ export function MembersEditor({ members, hostAddress, onChange }: Props) {
                   className="flex items-center justify-between gap-3 rounded-2xl border border-border/40 bg-card p-3"
                 >
                   <div className="flex flex-col gap-0.5">
-                    <span className="font-mono text-xs">{shortAddress(address)}</span>
+                    <span className="font-mono text-xs" title={address}>{shortAddress(address)}</span>
                     {contactName ? (
                       <span className="text-xs italic text-muted-foreground">{contactName}</span>
                     ) : null}
