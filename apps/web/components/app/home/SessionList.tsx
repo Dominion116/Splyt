@@ -70,6 +70,7 @@ export function SessionList({ host, filter = "all" }: Props) {
     setLoadingMore(true);
     try {
       const page = await listSessions(host, { limit: 20, before: cursor });
+      if (page.sessions.length === 0) { setHasMore(false); return; }
       setSessions((prev) => [...(prev ?? []), ...page.sessions]);
       setCursor(page.nextCursor);
       setHasMore(page.nextCursor !== null);
