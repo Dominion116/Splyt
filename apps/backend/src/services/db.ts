@@ -111,7 +111,12 @@ export function validateEnvironment(): void {
   }
 }
 
-export async function listSessions(host?: string): Promise<SessionRecord[]> {
+export interface ListSessionsOptions {
+  limit?: number;
+  before?: number;
+}
+
+export async function listSessions(host?: string, options?: ListSessionsOptions): Promise<SessionRecord[]> {
   const collection = await getSessionsCollection();
   if (host) {
     const items = await collection
