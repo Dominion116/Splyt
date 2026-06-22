@@ -7,7 +7,10 @@ import { Camera, Loader2 } from "lucide-react";
 import { FlowHeader } from "@/components/app/shell/FlowHeader";
 import { ReviewEditor } from "@/components/app/review/ReviewEditor";
 import { ForwardCTA } from "@/components/app/common/ForwardCTA";
+import { ImagePicker } from "@/components/app/scan/ImagePicker";
 import { getDraft, putDraft } from "@/lib/draft";
+import { ApiRequestError, parseReceipt } from "@/lib/api";
+import { compressForParse } from "@/lib/image";
 import type { DraftSession, ParsedReceipt } from "@/lib/types";
 
 interface Props {
