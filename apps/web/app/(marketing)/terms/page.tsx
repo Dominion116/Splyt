@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   return (
     <>
-      <div className="max-w-3xl mx-auto px-4 xl:px-0 py-20">
+      <div className="max-w-6xl mx-auto px-4 xl:px-0 py-20">
         <div className="mb-12">
           <Link
             href="/"
@@ -36,25 +36,31 @@ export default function TermsPage() {
           </div>
         </div>
 
-        <div className="mb-10">
-          <TableOfContents sections={termsSections} />
-        </div>
+        <div className="lg:grid lg:grid-cols-[260px_1fr] lg:gap-16">
+          <aside className="hidden lg:block">
+            <div className="sticky top-8">
+              <TableOfContents sections={termsSections} />
+            </div>
+          </aside>
 
-        <div className="flex flex-col divide-y divide-border">
-          {termsSections.map(({ id, title, body }) => (
-            <section key={id} id={id} className="py-8 scroll-mt-8 group rounded-lg transition-colors hover:bg-muted/30 px-4 -mx-4">
-              <h2 className="text-lg font-semibold mb-3 flex items-center">
-                {title}
-                <SectionAnchor id={id} />
-              </h2>
-              <p className="text-base text-muted-foreground leading-relaxed whitespace-pre-line">{body}</p>
-            </section>
-          ))}
-        </div>
+          <div>
+            <div className="flex flex-col divide-y divide-border">
+              {termsSections.map(({ id, title, body }) => (
+                <section key={id} id={id} className="py-8 scroll-mt-8 group rounded-lg transition-colors hover:bg-muted/30 px-4 -mx-4">
+                  <h2 className="text-lg font-semibold mb-3 flex items-center">
+                    {title}
+                    <SectionAnchor id={id} />
+                  </h2>
+                  <p className="text-base text-muted-foreground leading-relaxed whitespace-pre-line">{body}</p>
+                </section>
+              ))}
+            </div>
 
-        <div className="mt-16 pt-8 border-t border-border text-sm text-muted-foreground flex flex-wrap gap-4">
-          <Link href="/privacy" className="hover:text-foreground transition">Privacy Policy</Link>
-          <Link href="/" className="hover:text-foreground transition">Home</Link>
+            <div className="mt-16 pt-8 border-t border-border text-sm text-muted-foreground flex flex-wrap gap-4">
+              <Link href="/privacy" className="hover:text-foreground transition">Privacy Policy</Link>
+              <Link href="/" className="hover:text-foreground transition">Home</Link>
+            </div>
+          </div>
         </div>
       </div>
       <Footer />
