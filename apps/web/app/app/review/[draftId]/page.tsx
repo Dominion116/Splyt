@@ -132,7 +132,7 @@ export default function ReviewPage({ params }: Props) {
 
         <ReviewEditor receipt={draft.receipt} onChange={handleChange} />
 
-        <ForwardCTA label="Add members" onClick={handleContinue} busy={saving} />
+        <ForwardCTA label="Add members" onClick={handleContinue} busy={saving || rescanning} />
       </motion.div>
     </div>
   );
