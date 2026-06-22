@@ -3,6 +3,7 @@ import Link from "next/link";
 import Footer from "@/components/shadcn-space/blocks/footer-01/footer";
 import { SectionAnchor } from "@/components/legal/SectionAnchor";
 import { termsSections, estimateReadingTime } from "@/lib/terms-sections";
+import { TableOfContents } from "@/components/legal/TableOfContents";
 
 const readingTime = estimateReadingTime(termsSections);
 
@@ -33,6 +34,10 @@ export default function TermsPage() {
             <span>·</span>
             <span>{readingTime} min read</span>
           </div>
+        </div>
+
+        <div className="mb-10">
+          <TableOfContents sections={termsSections} />
         </div>
 
         <div className="flex flex-col divide-y divide-border">
