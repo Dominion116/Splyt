@@ -183,14 +183,44 @@ export function CreateSheet({ draft, open, onClose }: Props) {
           <p className="rounded-md bg-destructive/10 px-3 py-2 text-xs text-destructive">{error}</p>
         ) : null}
 
-        <button
-          type="button"
-          onClick={start}
-          disabled={statusMap.sign === "active" && stage !== "sign"}
-          className="flex h-11 items-center justify-center rounded-full bg-primary px-4 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
-        >
-          {error ? "Retry" : "Start"}
-        </button>
+        {createdSessionId ? (
+          <div className="flex flex-col gap-3 rounded-2xl border border-border/40 bg-background p-4">
+            <p className="text-sm font-medium">Save as template?</p>
+            <p className="text-xs text-muted-foreground">Store the member list and split mode for future splits.</p>
+            <input
+              type="text"
+              placeholder="Template name (optional)"
+              value={templateName}
+              onChange={(e) => setTemplateName(e.target.value)}
+              className="rounded-xl border border-border/40 bg-card px-3 py-2 text-sm outline-none focus:border-border"
+            />
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={handleSaveTemplate}
+                className="flex flex-1 items-center justify-center rounded-full bg-primary px-4 py-2 text-xs font-medium text-primary-foreground transition hover:bg-primary/90"
+              >
+                Save &amp; continue
+              </button>
+              <button
+                type="button"
+                onClick={handleSkipTemplate}
+                className="flex flex-1 items-center justify-center rounded-full border border-border/40 px-4 py-2 text-xs text-muted-foreground transition hover:text-foreground"
+              >
+                Skip
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={start}
+            disabled={statusMap.sign === "active" && stage !== "sign"}
+            className="flex h-11 items-center justify-center rounded-full bg-primary px-4 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
+          >
+            {error ? "Retry" : "Start"}
+          </button>
+        )}
       </motion.div>
     </div>
   );
