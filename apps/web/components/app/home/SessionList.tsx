@@ -116,6 +116,12 @@ export function SessionList({ host, filter = "all" }: Props) {
         ))}
       </ul>
       {error ? <p className="text-xs text-destructive">{error}</p> : null}
+      <div ref={sentinelRef} />
+      {loadingMore ? (
+        <div className="flex items-center justify-center gap-2 py-3 text-xs text-muted-foreground">
+          <Loader2 size={12} className="animate-spin" /> Loading more…
+        </div>
+      ) : null}
     </div>
   );
 }
