@@ -143,6 +143,8 @@ export default function SessionRoomPage({ params }: Props) {
           </div>
         </div>
 
+        {!settled ? <ExpiryBanner expiresAt={session.expiresAt} /> : null}
+
         {members ? (
           <MemberStatusList members={members} sessionId={id} origin={origin} />
         ) : null}
