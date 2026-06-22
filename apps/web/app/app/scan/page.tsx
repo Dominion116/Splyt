@@ -21,7 +21,7 @@ export default function ScanPage() {
   const handleManualEntry = async () => {
     const draftId = crypto.randomUUID();
     const blankReceipt: ParsedReceipt = {
-      items: [{ name: "", amount: "0.000000" }],
+      items: [{ name: "Item 1", amount: "0.000000" }],
       subtotal: "0.000000",
       tax: "0.000000",
       total: "0.000000",
