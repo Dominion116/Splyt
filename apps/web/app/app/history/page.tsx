@@ -50,7 +50,9 @@ export default function HistoryPage() {
               </button>
             ))}
           </div>
-          <SessionList host={address} filter={filter} />
+          <div className="-mt-2">
+            <SessionList host={address} filter={filter} />
+          </div>
         </>
       ) : (
         <p className="text-sm text-muted-foreground">Connect your wallet to see your past splits.</p>
