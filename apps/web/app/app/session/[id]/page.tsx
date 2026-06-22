@@ -91,7 +91,7 @@ export default function SessionRoomPage({ params }: Props) {
     const memberCount = members?.length ?? 0;
     const text = [
       `Splyt · ${formatCUSD(session.total)}`,
-      `${memberCount} member${memberCount !== 1 ? "s" : ""} · all paid ✓`,
+      `${paidCount}/${memberCount} member${memberCount !== 1 ? "s" : ""} · all paid ✓`,
       "Settled on Celo"
     ].join("\n");
     if (typeof navigator !== "undefined" && navigator.share) {
