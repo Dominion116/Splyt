@@ -61,8 +61,11 @@ export function SessionList({ host, filter = "all" }: Props) {
     };
   }, [host]);
 
+  const [loadMoreError, setLoadMoreError] = useState<string | null>(null);
+
   const loadMore = useCallback(async () => {
     if (!hasMore || loadingMore || cursor == null) return;
+    setLoadMoreError(null);
     setLoadingMore(true);
     try {
       const page = await listSessions(host, { limit: 20, before: cursor });
@@ -70,7 +73,7 @@ export function SessionList({ host, filter = "all" }: Props) {
       setCursor(page.nextCursor);
       setHasMore(page.nextCursor !== null);
     } catch {
-      // silently ignore next-page errors
+      setLoadMoreError("Couldn't load more sessions.");
     } finally {
       setLoadingMore(false);
     }
@@ -122,6 +125,9 @@ export function SessionList({ host, filter = "all" }: Props) {
         <div className="flex items-center justify-center gap-2 py-3 text-xs text-muted-foreground">
           <Loader2 size={12} className="animate-spin" /> Loading more…
         </div>
+      ) : null}
+      {loadMoreError ? (
+        <p className="text-xs text-destructive">{loadMoreError}</p>
       ) : null}
       {!loadingMore && hasMore ? (
         <button
