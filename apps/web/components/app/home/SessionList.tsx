@@ -142,13 +142,19 @@ function StatusChip({ settled, expired, paid }: { settled: boolean; expired: boo
   );
 }
 
-function EmptySessions() {
+const EMPTY_MESSAGES: Record<SessionFilter, string> = {
+  all: "Snap a receipt to create your first one. Members get a link — they pay from their own wallet.",
+  open: "No open splits right now.",
+  settled: "No settled splits yet.",
+  expired: "No expired splits."
+};
+
+function EmptySessions({ filter }: { filter: SessionFilter }) {
+  const title = filter === "all" ? "No splits yet" : `No ${filter} splits`;
   return (
     <div className="flex flex-col items-start gap-2 rounded-2xl border border-dashed border-border/60 bg-card/40 p-5">
-      <span className="text-sm font-medium">No splits yet</span>
-      <span className="text-xs text-muted-foreground">
-        Snap a receipt to create your first one. Members get a link — they pay from their own wallet.
-      </span>
+      <span className="text-sm font-medium">{title}</span>
+      <span className="text-xs text-muted-foreground">{EMPTY_MESSAGES[filter]}</span>
     </div>
   );
 }
