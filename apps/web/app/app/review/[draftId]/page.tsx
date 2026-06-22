@@ -23,6 +23,7 @@ export default function ReviewPage({ params }: Props) {
   const [draft, setDraft] = useState<DraftSession | null>(null);
   const [missing, setMissing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [showRescan, setShowRescan] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
