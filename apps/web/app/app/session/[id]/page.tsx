@@ -177,7 +177,7 @@ export default function SessionRoomPage({ params }: Props) {
               type="button"
               onClick={shareSummary}
               aria-label="Share session summary"
-              className="flex items-center justify-center gap-2 rounded-full border border-border/40 bg-card px-4 py-2.5 text-xs text-muted-foreground transition hover:text-foreground"
+              className="flex w-full items-center justify-center gap-2 rounded-full border border-border/40 bg-card px-4 py-2.5 text-xs text-muted-foreground transition hover:border-border hover:text-foreground"
             >
               <Receipt size={12} /> Share summary
             </button>
