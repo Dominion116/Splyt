@@ -87,6 +87,7 @@ function SessionRow({ session }: { session: SessionSummary }) {
   const paidCount = session.members.filter((m) => m.paid).length;
   const total = session.members.length;
   const settled = Boolean(session.closeTxHash);
+  const allPaid = paidCount === total;
   const expired = !settled && session.expiresAt < Date.now();
 
   return (
@@ -102,7 +103,7 @@ function SessionRow({ session }: { session: SessionSummary }) {
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <StatusChip settled={settled} expired={expired} paid={paidCount === total} />
+          <StatusChip settled={settled} expired={expired} paid={allPaid} />
           <ArrowUpRight
             size={14}
             className="text-muted-foreground transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-foreground"
