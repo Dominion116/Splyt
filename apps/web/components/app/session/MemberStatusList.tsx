@@ -37,6 +37,25 @@ function MemberRow({
   const [editing, setEditing] = useState(false);
   const link = `${origin}/app/pay/${sessionId}/${member.address}`;
 
+  const handleNudge = async () => {
+    const text = `Hey! Your share for this Splyt is ${formatCUSD(member.amountDue)} — link expires soon: ${link}`;
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({ title: "Splyt payment reminder", text });
+        return;
+      } catch {
+        // User cancelled or not supported — fall through.
+      }
+    }
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        // Clipboard write denied — silently ignore.
+      }
+    }
+  };
+
   const saveName = () => {
     setContactName(member.address, name);
     setEditing(false);
