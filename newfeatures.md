@@ -35,8 +35,17 @@ Work through them one at a time.
 
 ---
 
-### 4. Terms of Service Page
-**Status: DONE.** The page at `apps/web/app/(marketing)/terms/page.tsx` already has full content.
+### 4. Terms of Service Page ✅ DONE
+**Delivered across 28 commits:**
+- `apps/web/app/(marketing)/terms/page.tsx` — whitespace-pre-line body text, section ids for deep-linking, SectionAnchor on each heading, two-column layout with sticky ToC on desktop, mobile JumpToDropdown, ReadingProgress bar, BackToTop button, section count + reading time in header, last-updated pill badge, hover highlights, divide-y section separators, semantic `<main>`, print-friendly styles, OpenGraph + Twitter card metadata
+- `apps/web/app/(marketing)/privacy/page.tsx` — full parity: section ids, SectionAnchor, sticky ToC, mobile JumpToDropdown, ReadingProgress, BackToTop, hover highlights, semantic `<main>`, print styles, OG metadata
+- `apps/web/lib/terms-sections.ts` ← new file (section data + `estimateReadingTime`)
+- `apps/web/components/legal/SectionAnchor.tsx` ← new file
+- `apps/web/components/legal/TableOfContents.tsx` ← new file (IntersectionObserver scroll-spy)
+- `apps/web/components/legal/BackToTop.tsx` ← new file
+- `apps/web/components/legal/JumpToDropdown.tsx` ← new file
+- `apps/web/components/legal/ReadingProgress.tsx` ← new file
+- `apps/web/components/shadcn-space/blocks/footer-01/footer.tsx` — legal links upgraded to Next.js `<Link>`
 
 ---
 
