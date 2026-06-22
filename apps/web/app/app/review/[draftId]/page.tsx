@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
 import { motion } from "motion/react";
-import { Loader2 } from "lucide-react";
+import { Camera, Loader2 } from "lucide-react";
 import { FlowHeader } from "@/components/app/shell/FlowHeader";
 import { ReviewEditor } from "@/components/app/review/ReviewEditor";
 import { ForwardCTA } from "@/components/app/common/ForwardCTA";
