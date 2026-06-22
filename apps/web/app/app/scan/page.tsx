@@ -94,6 +94,20 @@ export default function ScanPage() {
           <p className="rounded-md bg-destructive/10 px-3 py-2 text-xs text-destructive">{error}</p>
         ) : null}
 
+        <div className="flex items-center gap-3 text-xs text-muted-foreground/60">
+          <hr className="flex-1 border-border/40" />
+          or
+          <hr className="flex-1 border-border/40" />
+        </div>
+
+        <button
+          type="button"
+          onClick={handleManualEntry}
+          className="flex items-center justify-center gap-2 rounded-full border border-border/40 bg-card px-4 py-2.5 text-xs text-muted-foreground transition hover:border-border hover:text-foreground"
+        >
+          <FileText size={12} /> Enter manually
+        </button>
+
         <p className="text-xs text-muted-foreground">
           We never store the photo. It&apos;s sent once to the parser, then dropped.
         </p>
