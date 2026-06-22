@@ -27,6 +27,8 @@ export default function TermsPage() {
           <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
             <span>Last updated: June 16, 2026</span>
             <span>·</span>
+            <span>{termsSections.length} sections</span>
+            <span>·</span>
             <span>{readingTime} min read</span>
           </div>
         </div>
