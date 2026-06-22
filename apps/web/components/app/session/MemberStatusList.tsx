@@ -45,8 +45,18 @@ function MemberRow({
   return (
     <li className="flex items-center justify-between gap-3 rounded-2xl border border-border/40 bg-card p-4">
       <div className="flex flex-col gap-0.5">
-        <span className="font-mono text-xs">{shortAddress(member.address as Address)}</span>
-        <span className="text-xs text-muted-foreground">{formatCUSD(member.amountDue)}</span>
+        <div className="flex items-center gap-1">
+          <span className="text-xs">{name || shortAddress(member.address as Address)}</span>
+          <button
+            type="button"
+            onClick={() => setEditing(true)}
+            aria-label="Edit contact name"
+            className="text-muted-foreground/50 transition hover:text-muted-foreground"
+          >
+            <Pencil size={10} />
+          </button>
+        </div>
+        <span className="font-mono text-xs text-muted-foreground">{formatCUSD(member.amountDue)}</span>
       </div>
       <div className="flex items-center gap-2">
         <StatusPill paid={member.paid} />
