@@ -8,8 +8,24 @@ import { ApiRequestError, listSessions } from "@/lib/api";
 import { formatCUSD, formatRelativeTime } from "@/lib/format";
 import type { SessionSummary } from "@/lib/types";
 
+type SessionFilter = "all" | "open" | "settled" | "expired";
+
+function applyFilter(sessions: SessionSummary[], filter: SessionFilter): SessionSummary[] {
+  if (filter === "all") return sessions;
+  return sessions.filter((session) => {
+    const settled = Boolean(session.closeTxHash);
+    const expired = !settled && session.expiresAt < Date.now();
+    const open = !settled && !expired;
+    if (filter === "settled") return settled;
+    if (filter === "expired") return expired;
+    if (filter === "open") return open;
+    return true;
+  });
+}
+
 interface Props {
   host: Address;
+  filter?: SessionFilter;
 }
 
 export function SessionList({ host }: Props) {
