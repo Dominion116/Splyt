@@ -131,7 +131,7 @@ export function CreateSheet({ draft, open, onClose }: Props) {
 
     setStatusMap((prev) => ({ ...prev, register: "done" }));
     await deleteDraft(draft.id).catch(() => {});
-    router.push(`/app/session/${sessionId}`);
+    setCreatedSessionId(sessionId);
   };
 
   return (
