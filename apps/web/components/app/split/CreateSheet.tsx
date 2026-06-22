@@ -36,6 +36,21 @@ export function CreateSheet({ draft, open, onClose }: Props) {
   const [createdSessionId, setCreatedSessionId] = useState<string | null>(null);
   const [templateName, setTemplateName] = useState("");
 
+  const handleSaveTemplate = async () => {
+    await saveTemplate({
+      id: crypto.randomUUID(),
+      name: templateName.trim() || "My template",
+      members: draft.members,
+      mode: draft.mode,
+      createdAt: Date.now()
+    }).catch(() => {});
+    router.push(`/app/session/${createdSessionId}`);
+  };
+
+  const handleSkipTemplate = () => {
+    router.push(`/app/session/${createdSessionId}`);
+  };
+
   if (!open) return null;
 
   const advance = (next: Stage) => {
