@@ -23,6 +23,16 @@ function openTemplatesDb(): Promise<IDBDatabase> {
   });
 }
 
+export async function listTemplates(): Promise<Template[]> {
+  const db = await openTemplatesDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, "readonly");
+    const req = tx.objectStore(STORE_NAME).getAll();
+    req.onsuccess = () => { db.close(); resolve(req.result as Template[]); };
+    req.onerror = () => { db.close(); reject(req.error); };
+  });
+}
+
 export async function saveTemplate(template: Template): Promise<void> {
   const db = await openTemplatesDb();
   return new Promise((resolve, reject) => {
