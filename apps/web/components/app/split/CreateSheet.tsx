@@ -53,24 +53,29 @@ export function CreateSheet({ draft, open, onClose }: Props) {
 
   if (!open) return null;
 
-  const advance = (next: Stage) => {
-    setStatusMap((prev) => ({ ...prev, [stage]: "done", [next]: "active" }));
-    setStage(next);
-  };
-
-  const fail = (message: string) => {
-    setStatusMap((prev) => ({ ...prev, [stage]: "error" }));
-    setError(message);
-  };
-
   const start = async () => {
     if (!address || !walletClient) {
-      fail("Wallet not connected.");
+      setStatusMap((prev) => ({ ...prev, sign: "error" }));
+      setError("Wallet not connected.");
       return;
     }
     setError(null);
     setStage("sign");
     setStatusMap({ sign: "active", tx: "pending", register: "pending" });
+
+    // Track stage locally so async continuations always mark the correct step.
+    let current: Stage = "sign";
+
+    const advance = (next: Stage) => {
+      setStatusMap((prev) => ({ ...prev, [current]: "done", [next]: "active" }));
+      current = next;
+      setStage(next);
+    };
+
+    const fail = (message: string) => {
+      setStatusMap((prev) => ({ ...prev, [current]: "error" }));
+      setError(message);
+    };
 
     const sessionId = crypto.randomUUID();
     let amountsMicros: bigint[];
