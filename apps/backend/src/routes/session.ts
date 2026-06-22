@@ -43,7 +43,7 @@ const createSchema = z.object({
     total: z.string().regex(/^\d{1,12}(\.\d{1,6})?$/),
     currency: z.literal("cUSD")
   }),
-  expiresInMinutes: z.number().int().min(1).max(240).optional()
+  expiresInMinutes: z.number().int().min(1).max(10_080).optional()
 });
 
 /**
