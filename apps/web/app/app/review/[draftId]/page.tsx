@@ -104,11 +104,21 @@ export default function ReviewPage({ params }: Props) {
         transition={{ duration: 0.4, ease: "easeInOut" }}
         className="flex flex-1 flex-col gap-5 px-5 pt-6 pb-6"
       >
-        <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-medium tracking-tight">Look right?</h1>
-          <p className="text-sm text-muted-foreground">
-            Tweak any item or total. We&apos;ll split whatever the total says.
-          </p>
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex flex-col gap-1">
+            <h1 className="text-2xl font-medium tracking-tight">Look right?</h1>
+            <p className="text-sm text-muted-foreground">
+              Tweak any item or total. We&apos;ll split whatever the total says.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => { setShowRescan((prev) => !prev); setRescanError(null); }}
+            aria-label="Re-scan receipt"
+            className="flex shrink-0 items-center gap-1.5 rounded-full border border-border/40 bg-card px-3 py-1.5 text-xs text-muted-foreground transition hover:text-foreground"
+          >
+            <Camera size={12} /> Re-scan
+          </button>
         </div>
 
         <ReviewEditor receipt={draft.receipt} onChange={handleChange} />
