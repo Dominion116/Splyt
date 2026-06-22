@@ -85,7 +85,8 @@ export default function ScanPage() {
           </div>
           <h1 className="text-2xl font-medium tracking-tight">Snap a receipt</h1>
           <p className="text-sm text-muted-foreground">
-            Take a clear photo and Splyt&apos;s AI will pull out the line items, totals, and tax.
+            Take a clear photo and Splyt&apos;s AI will pull out the line items, totals, and tax. Or type
+            the items in yourself.
           </p>
         </div>
 
