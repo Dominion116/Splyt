@@ -113,7 +113,9 @@ export function SplitEditor({ draft, onChange }: Props) {
       ) : null}
 
       <div className="flex flex-col gap-2">
-        <span className="text-xs uppercase tracking-wider text-muted-foreground">Expires in</span>
+        <span className="text-xs uppercase tracking-wider text-muted-foreground">
+          Expires in{draft.expiresInMinutes >= 1440 ? " (long session)" : ""}
+        </span>
         <div className="flex flex-wrap gap-1.5">
           {EXPIRY_OPTIONS.map((option) => (
             <button
