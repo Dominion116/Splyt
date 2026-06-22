@@ -121,6 +121,15 @@ export default function ReviewPage({ params }: Props) {
           </button>
         </div>
 
+        {showRescan ? (
+          <div className="flex flex-col gap-3">
+            <ImagePicker busy={rescanning} onFile={handleRescan} />
+            {rescanError ? (
+              <p className="rounded-md bg-destructive/10 px-3 py-2 text-xs text-destructive">{rescanError}</p>
+            ) : null}
+          </div>
+        ) : null}
+
         <ReviewEditor receipt={draft.receipt} onChange={handleChange} />
 
         <ForwardCTA label="Add members" onClick={handleContinue} busy={saving} />
