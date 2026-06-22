@@ -128,7 +128,16 @@ export function SessionList({ host, filter = "all" }: Props) {
         </div>
       ) : null}
       {loadMoreError ? (
-        <p className="text-xs text-destructive">{loadMoreError}</p>
+        <div className="flex items-center gap-2 text-xs text-destructive">
+          <span>{loadMoreError}</span>
+          <button
+            type="button"
+            onClick={() => void loadMore()}
+            className="underline hover:no-underline"
+          >
+            Retry
+          </button>
+        </div>
       ) : null}
       {!loadingMore && hasMore ? (
         <button
