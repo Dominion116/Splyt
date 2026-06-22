@@ -25,3 +25,11 @@ export function setContactName(address: string, name: string): void {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   }
 }
+
+export function removeContactName(address: string): void {
+  const data = load();
+  delete data[address.toLowerCase()];
+  if (typeof window !== "undefined") {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }
+}
