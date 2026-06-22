@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ArrowUpRight, Check, Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { Address } from "viem";
 import { ApiRequestError, listSessions } from "@/lib/api";
 import { formatCUSD, formatRelativeTime } from "@/lib/format";
