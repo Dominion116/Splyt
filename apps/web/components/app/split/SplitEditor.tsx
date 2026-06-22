@@ -114,7 +114,7 @@ export function SplitEditor({ draft, onChange }: Props) {
 
       <div className="flex flex-col gap-2">
         <span className="text-xs uppercase tracking-wider text-muted-foreground">Expires in</span>
-        <div className="flex gap-1.5">
+        <div className="flex flex-wrap gap-1.5">
           {EXPIRY_OPTIONS.map((option) => (
             <button
               key={option.value}
