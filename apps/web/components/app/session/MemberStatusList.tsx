@@ -51,6 +51,7 @@ function MemberRow({
             value={name}
             onChange={(e) => setName(e.target.value)}
             onBlur={saveName}
+            onKeyDown={(e) => { if (e.key === "Enter") saveName(); }}
             placeholder="Add a name…"
             className="bg-transparent text-xs outline-none"
           />
