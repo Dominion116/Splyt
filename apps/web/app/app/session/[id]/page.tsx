@@ -98,11 +98,17 @@ export default function SessionRoomPage({ params }: Props) {
       try {
         await navigator.share({ title: "Splyt summary", text });
         return;
-      } catch {}
+      } catch {
+        // User cancelled or share not supported — fall through to clipboard.
+      }
     }
-    try {
-      await navigator.clipboard.writeText(text);
-    } catch {}
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        // Clipboard write denied — silently ignore.
+      }
+    }
   };
 
   const share = async () => {
