@@ -71,10 +71,21 @@ router.get("/", async (req, res, next) => {
       });
       return;
     }
-    const sessions = (await listSessions(hostRaw))
-      .map(serializeSession)
-      .sort((left, right) => right.createdAt - left.createdAt);
-    res.json({ sessions });
+
+    const limitRaw = typeof req.query.limit === "string" ? parseInt(req.query.limit, 10) : 20;
+    const limit = Number.isFinite(limitRaw) && limitRaw > 0 ? Math.min(limitRaw, 100) : 20;
+
+    const beforeRaw = typeof req.query.before === "string" ? parseInt(req.query.before, 10) : undefined;
+    const before = beforeRaw !== undefined && Number.isFinite(beforeRaw) && beforeRaw > 0 ? beforeRaw : undefined;
+
+    const paginationOptions: ListSessionsOptions = { limit: limit + 1, before };
+    const records = await listSessions(hostRaw, paginationOptions);
+    const hasMore = records.length > limit;
+    const page = records.slice(0, limit);
+    const nextCursor = hasMore && page.length > 0 ? page[page.length - 1].createdAt : null;
+
+    const sessions = page.map(serializeSession);
+    res.json({ sessions, nextCursor });
   } catch (error) {
     next(error);
   }
