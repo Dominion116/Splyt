@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Footer from "@/components/shadcn-space/blocks/footer-01/footer";
 import { SectionAnchor } from "@/components/legal/SectionAnchor";
-import { termsSections } from "@/lib/terms-sections";
+import { termsSections, estimateReadingTime } from "@/lib/terms-sections";
+
+const readingTime = estimateReadingTime(termsSections);
 
 export const metadata: Metadata = {
   title: "Terms of Service — Splyt",
@@ -22,7 +24,11 @@ export default function TermsPage() {
             ← Back to home
           </Link>
           <h1 className="text-4xl font-semibold tracking-tight mb-3">Terms of Service</h1>
-          <p className="text-sm text-muted-foreground">Last updated: June 16, 2026</p>
+          <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+            <span>Last updated: June 16, 2026</span>
+            <span>·</span>
+            <span>{readingTime} min read</span>
+          </div>
         </div>
 
         <div className="flex flex-col gap-10">

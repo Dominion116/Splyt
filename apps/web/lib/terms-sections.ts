@@ -4,6 +4,14 @@ export type LegalSection = {
   body: string;
 };
 
+export function estimateReadingTime(sections: LegalSection[]): number {
+  const totalWords = sections.reduce(
+    (sum, s) => sum + s.body.split(/\s+/).length,
+    0
+  );
+  return Math.max(1, Math.round(totalWords / 200));
+}
+
 export const termsSections: LegalSection[] = [
   {
     id: "acceptance",
