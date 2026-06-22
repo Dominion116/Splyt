@@ -125,22 +125,30 @@ export function MembersEditor({ members, hostAddress, onChange }: Props) {
           </p>
         ) : (
           <ul className="flex flex-col gap-1.5">
-            {members.map((address) => (
-              <li
-                key={address}
-                className="flex items-center justify-between gap-3 rounded-2xl border border-border/40 bg-card p-3"
-              >
-                <span className="font-mono text-xs">{shortAddress(address)}</span>
-                <button
-                  type="button"
-                  onClick={() => remove(address)}
-                  className="text-muted-foreground transition hover:text-destructive"
-                  aria-label={`Remove ${address}`}
+            {members.map((address) => {
+              const contactName = getContactName(address);
+              return (
+                <li
+                  key={address}
+                  className="flex items-center justify-between gap-3 rounded-2xl border border-border/40 bg-card p-3"
                 >
-                  <X size={14} />
-                </button>
-              </li>
-            ))}
+                  <div className="flex flex-col gap-0.5">
+                    <span className="font-mono text-xs">{shortAddress(address)}</span>
+                    {contactName ? (
+                      <span className="text-xs italic text-muted-foreground">{contactName}</span>
+                    ) : null}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => remove(address)}
+                    className="text-muted-foreground transition hover:text-destructive"
+                    aria-label={`Remove ${address}`}
+                  >
+                    <X size={14} />
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>
