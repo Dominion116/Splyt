@@ -109,7 +109,7 @@ export function SessionList({ host, filter = "all" }: Props) {
 
   const heading =
     filter === "all"
-      ? "Recent splits"
+      ? `Recent splits (${visible.length}${hasMore ? "+" : ""})`
       : `${filter.charAt(0).toUpperCase() + filter.slice(1)} splits`;
 
   return (
