@@ -28,7 +28,7 @@ interface Props {
   filter?: SessionFilter;
 }
 
-export function SessionList({ host }: Props) {
+export function SessionList({ host, filter = "all" }: Props) {
   const [sessions, setSessions] = useState<SessionSummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
