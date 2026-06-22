@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { motion } from "motion/react";
-import { Receipt } from "lucide-react";
+import { FileText, Receipt } from "lucide-react";
 import { FlowHeader } from "@/components/app/shell/FlowHeader";
 import { ImagePicker } from "@/components/app/scan/ImagePicker";
 import { ApiRequestError, parseReceipt } from "@/lib/api";
