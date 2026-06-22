@@ -5,6 +5,7 @@ import { SectionAnchor } from "@/components/legal/SectionAnchor";
 import { termsSections, estimateReadingTime } from "@/lib/terms-sections";
 import { TableOfContents } from "@/components/legal/TableOfContents";
 import { BackToTop } from "@/components/legal/BackToTop";
+import { JumpToDropdown } from "@/components/legal/JumpToDropdown";
 
 const readingTime = estimateReadingTime(termsSections);
 
@@ -45,6 +46,10 @@ export default function TermsPage() {
           </aside>
 
           <div>
+            <div className="lg:hidden mb-8 print:hidden">
+              <JumpToDropdown sections={termsSections} />
+            </div>
+
             <div className="flex flex-col divide-y divide-border">
               {termsSections.map(({ id, title, body }) => (
                 <section key={id} id={id} className="py-8 scroll-mt-8 group rounded-lg transition-colors hover:bg-muted/30 px-4 -mx-4">
