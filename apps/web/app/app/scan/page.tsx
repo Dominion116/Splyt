@@ -38,8 +38,8 @@ export default function ScanPage() {
     await putDraft({
       id: draftId,
       receipt: blankReceipt,
-      members: address ? [address] : [],
-      mode: "equal",
+      members: templateApplied?.members ?? (address ? [address] : []),
+      mode: templateApplied?.mode ?? "equal",
       amounts: [],
       expiresInMinutes: 60,
       createdAt: Date.now()
