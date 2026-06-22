@@ -18,6 +18,27 @@ export default function ScanPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const handleManualEntry = async () => {
+    const draftId = crypto.randomUUID();
+    const blankReceipt: ParsedReceipt = {
+      items: [{ name: "", amount: "0.000000" }],
+      subtotal: "0.000000",
+      tax: "0.000000",
+      total: "0.000000",
+      currency: "cUSD"
+    };
+    await putDraft({
+      id: draftId,
+      receipt: blankReceipt,
+      members: address ? [address] : [],
+      mode: "equal",
+      amounts: [],
+      expiresInMinutes: 60,
+      createdAt: Date.now()
+    });
+    router.push(`/app/review/${draftId}`);
+  };
+
   const handleFile = async (file: File) => {
     setError(null);
     setBusy(true);
