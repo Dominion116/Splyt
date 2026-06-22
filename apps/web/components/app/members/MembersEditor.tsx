@@ -100,6 +100,9 @@ export function MembersEditor({ members, hostAddress, onChange }: Props) {
           <div className="flex flex-col">
             <span className="text-sm font-medium">Include me in the split</span>
             <span className="font-mono text-xs text-muted-foreground">{shortAddress(hostAddress)}</span>
+            {getContactName(hostAddress) ? (
+              <span className="text-xs italic text-muted-foreground">{getContactName(hostAddress)}</span>
+            ) : null}
           </div>
           <span
             className={`flex h-6 w-10 items-center rounded-full p-0.5 transition ${
