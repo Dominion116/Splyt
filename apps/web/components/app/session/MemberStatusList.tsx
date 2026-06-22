@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Clock, Share2 } from "lucide-react";
+import { Check, Clock, Pencil, Share2 } from "lucide-react";
 import { useState } from "react";
 import { formatCUSD, shortAddress } from "@/lib/format";
 import type { Address, LiveMember } from "@/lib/types";
