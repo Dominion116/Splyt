@@ -97,6 +97,14 @@ export default function ScanPage() {
           </p>
         </div>
 
+        <TemplateList onUseTemplate={handleUseTemplate} />
+
+        {templateApplied ? (
+          <p className="text-xs text-primary">
+            ✓ Template applied — {templateApplied.members.length} member{templateApplied.members.length !== 1 ? "s" : ""}, {templateApplied.mode} split
+          </p>
+        ) : null}
+
         <ImagePicker busy={busy} onFile={handleFile} />
 
         {error ? (
