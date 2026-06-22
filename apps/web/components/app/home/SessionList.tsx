@@ -116,11 +116,20 @@ export function SessionList({ host, filter = "all" }: Props) {
         ))}
       </ul>
       {error ? <p className="text-xs text-destructive">{error}</p> : null}
-      <div ref={sentinelRef} />
+      <div ref={sentinelRef} aria-hidden />
       {loadingMore ? (
         <div className="flex items-center justify-center gap-2 py-3 text-xs text-muted-foreground">
           <Loader2 size={12} className="animate-spin" /> Loading more…
         </div>
+      ) : null}
+      {!loadingMore && hasMore ? (
+        <button
+          type="button"
+          onClick={() => void loadMore()}
+          className="flex w-full items-center justify-center py-2 text-xs text-muted-foreground transition hover:text-foreground"
+        >
+          Load more
+        </button>
       ) : null}
     </div>
   );
