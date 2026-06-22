@@ -35,9 +35,9 @@ export default function TermsPage() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-10">
+        <div className="flex flex-col divide-y divide-border">
           {termsSections.map(({ id, title, body }) => (
-            <section key={id} id={id} className="scroll-mt-8 group rounded-lg transition-colors hover:bg-muted/30 px-4 -mx-4">
+            <section key={id} id={id} className="py-8 scroll-mt-8 group rounded-lg transition-colors hover:bg-muted/30 px-4 -mx-4">
               <h2 className="text-lg font-semibold mb-3 flex items-center">
                 {title}
                 <SectionAnchor id={id} />
