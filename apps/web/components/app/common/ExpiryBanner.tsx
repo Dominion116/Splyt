@@ -28,9 +28,10 @@ export function ExpiryBanner({ expiresAt }: Props) {
   return (
     <div
       role="alert"
-      className="flex items-center gap-2 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-xs text-amber-600 dark:text-amber-400 animate-pulse"
+      aria-live="polite"
+      className="flex flex-wrap items-center gap-2 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-xs text-amber-600 dark:text-amber-400 animate-pulse"
     >
-      <span className="font-medium">Session closes in {formatted}</span>
+      <span className="font-medium">⚠ Session closes in {formatted}</span>
       <span className="text-amber-500/70">— share payment links now.</span>
     </div>
   );
