@@ -10,6 +10,17 @@ import { ReadingProgress } from "@/components/legal/ReadingProgress";
 export const metadata: Metadata = {
   title: "Privacy Policy — Splyt",
   description: "Read the Splyt Privacy Policy.",
+  openGraph: {
+    title: "Privacy Policy — Splyt",
+    description: "Read the Splyt Privacy Policy.",
+    type: "website",
+    url: "https://splyt.app/privacy",
+  },
+  twitter: {
+    card: "summary",
+    title: "Privacy Policy — Splyt",
+    description: "Read the Splyt Privacy Policy.",
+  },
 };
 
 const sections = [
