@@ -7,6 +7,7 @@ import { ArrowLeft, Check, Loader2, Share2 } from "lucide-react";
 import { ApiRequestError, getSession } from "@/lib/api";
 import { useSessionStream } from "@/lib/sse";
 import { Countdown } from "@/components/app/common/Countdown";
+import { ExpiryBanner } from "@/components/app/common/ExpiryBanner";
 import { MemberStatusList } from "@/components/app/session/MemberStatusList";
 import { CloseAction } from "@/components/app/session/CloseAction";
 import { formatCUSD } from "@/lib/format";
