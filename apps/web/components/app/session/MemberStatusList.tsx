@@ -99,6 +99,7 @@ function MemberRow({
               type="button"
               onClick={handleNudge}
               aria-label="Send payment nudge"
+              title="Nudge — share a payment reminder"
               className="flex h-8 w-8 items-center justify-center rounded-full border border-border/40 text-muted-foreground transition hover:text-foreground"
             >
               <Bell size={12} />
