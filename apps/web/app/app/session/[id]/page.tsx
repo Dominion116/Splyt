@@ -169,8 +169,17 @@ export default function SessionRoomPage({ params }: Props) {
         ) : null}
 
         {settled ? (
-          <div className="flex items-center justify-center gap-2 rounded-2xl border border-primary/30 bg-primary/10 p-4 text-sm text-primary">
-            <Check size={14} /> Settled. Funds were transferred to the host.
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-center gap-2 rounded-2xl border border-primary/30 bg-primary/10 p-4 text-sm text-primary">
+              <Check size={14} /> Settled. Funds were transferred to the host.
+            </div>
+            <button
+              type="button"
+              onClick={shareSummary}
+              className="flex items-center justify-center gap-2 rounded-full border border-border/40 bg-card px-4 py-2.5 text-xs text-muted-foreground transition hover:text-foreground"
+            >
+              <Receipt size={12} /> Share summary
+            </button>
           </div>
         ) : allPaid ? (
           <CloseAction
