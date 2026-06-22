@@ -6,6 +6,7 @@ import { termsSections, estimateReadingTime } from "@/lib/terms-sections";
 import { TableOfContents } from "@/components/legal/TableOfContents";
 import { BackToTop } from "@/components/legal/BackToTop";
 import { JumpToDropdown } from "@/components/legal/JumpToDropdown";
+import { ReadingProgress } from "@/components/legal/ReadingProgress";
 
 const readingTime = estimateReadingTime(termsSections);
 
@@ -18,6 +19,7 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   return (
     <>
+      <ReadingProgress />
       <div className="max-w-6xl mx-auto px-4 xl:px-0 py-20">
         <div className="mb-12">
           <Link
