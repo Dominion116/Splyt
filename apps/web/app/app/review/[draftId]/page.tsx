@@ -44,6 +44,23 @@ export default function ReviewPage({ params }: Props) {
     setDraft({ ...draft, receipt: next });
   };
 
+  const handleRescan = async (file: File) => {
+    setRescanError(null);
+    setRescanning(true);
+    try {
+      const { base64, mimeType } = await compressForParse(file);
+      const receipt = await parseReceipt(base64, mimeType);
+      if (draft) setDraft({ ...draft, receipt });
+      setShowRescan(false);
+    } catch (err) {
+      if (err instanceof ApiRequestError) setRescanError(err.message);
+      else if (err instanceof Error) setRescanError(err.message);
+      else setRescanError("Couldn't read this receipt. Try a clearer photo.");
+    } finally {
+      setRescanning(false);
+    }
+  };
+
   const handleContinue = async () => {
     if (!draft) return;
     setSaving(true);
