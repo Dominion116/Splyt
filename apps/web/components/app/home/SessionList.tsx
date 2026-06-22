@@ -39,9 +39,16 @@ export function SessionList({ host, filter = "all" }: Props) {
   useEffect(() => {
     let cancelled = false;
     setError(null);
-    listSessions(host)
-      .then((items) => {
-        if (!cancelled) setSessions(items);
+    setSessions(null);
+    setCursor(null);
+    setHasMore(false);
+    listSessions(host, { limit: 20 })
+      .then((page) => {
+        if (!cancelled) {
+          setSessions(page.sessions);
+          setCursor(page.nextCursor);
+          setHasMore(page.nextCursor !== null);
+        }
       })
       .catch((err: unknown) => {
         if (cancelled) return;
