@@ -13,6 +13,17 @@ const readingTime = estimateReadingTime(termsSections);
 export const metadata: Metadata = {
   title: "Terms of Service — Splyt",
   description: "Read the Splyt Terms of Service.",
+  openGraph: {
+    title: "Terms of Service — Splyt",
+    description: "Read the Splyt Terms of Service.",
+    type: "website",
+    url: "https://splyt.app/terms",
+  },
+  twitter: {
+    card: "summary",
+    title: "Terms of Service — Splyt",
+    description: "Read the Splyt Terms of Service.",
+  },
 };
 
 
