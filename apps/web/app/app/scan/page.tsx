@@ -10,7 +10,9 @@ import { ApiRequestError, parseReceipt } from "@/lib/api";
 import { compressForParse } from "@/lib/image";
 import { putDraft } from "@/lib/draft";
 import { useWallet } from "@/lib/wallet";
-import type { ParsedReceipt } from "@/lib/types";
+import { TemplateList } from "@/components/app/home/TemplateList";
+import type { ParsedReceipt, SplitMode } from "@/lib/types";
+import type { Address } from "viem";
 
 export default function ScanPage() {
   const router = useRouter();
