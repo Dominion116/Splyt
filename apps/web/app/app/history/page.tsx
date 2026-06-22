@@ -1,9 +1,13 @@
 "use client";
 
 import { Clock } from "lucide-react";
+import { useState } from "react";
 import { DraftRecoveryList } from "@/components/app/home/DraftRecoveryList";
 import { SessionList } from "@/components/app/home/SessionList";
 import { useWallet } from "@/lib/wallet";
+import { cn } from "@/lib/utils";
+
+type SessionFilter = "all" | "open" | "settled" | "expired";
 
 export default function HistoryPage() {
   const { address } = useWallet();
