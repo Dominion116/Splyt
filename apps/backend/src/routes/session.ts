@@ -85,6 +85,7 @@ router.get("/", async (req, res, next) => {
     const nextCursor = hasMore && page.length > 0 ? page[page.length - 1].createdAt : null;
 
     const sessions = page.map(serializeSession);
+    // nextCursor is the createdAt of the last returned record; null means no further pages.
     res.json({ sessions, nextCursor });
   } catch (error) {
     next(error);
