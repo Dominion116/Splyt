@@ -3,6 +3,8 @@ import Link from "next/link";
 import Footer from "@/components/shadcn-space/blocks/footer-01/footer";
 import { SectionAnchor } from "@/components/legal/SectionAnchor";
 import { TableOfContents } from "@/components/legal/TableOfContents";
+import { BackToTop } from "@/components/legal/BackToTop";
+import { JumpToDropdown } from "@/components/legal/JumpToDropdown";
 
 export const metadata: Metadata = {
   title: "Privacy Policy — Splyt",
@@ -100,6 +102,10 @@ export default function PrivacyPage() {
           </aside>
 
           <div>
+            <div className="lg:hidden mb-8 print:hidden">
+              <JumpToDropdown sections={sections} />
+            </div>
+
             <div className="flex flex-col gap-10">
               {sections.map(({ id, title, body }) => (
                 <section key={id} id={id} className="scroll-mt-8 group rounded-lg transition-colors hover:bg-muted/30 px-4 -mx-4 py-2">
@@ -119,6 +125,7 @@ export default function PrivacyPage() {
           </div>
         </div>
       </div>
+      <BackToTop />
       <Footer />
     </>
   );
