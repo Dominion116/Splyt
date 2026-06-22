@@ -22,3 +22,13 @@ function openTemplatesDb(): Promise<IDBDatabase> {
     req.onerror = () => reject(req.error);
   });
 }
+
+export async function saveTemplate(template: Template): Promise<void> {
+  const db = await openTemplatesDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, "readwrite");
+    tx.objectStore(STORE_NAME).put(template);
+    tx.oncomplete = () => { db.close(); resolve(); };
+    tx.onerror = () => { db.close(); reject(tx.error); };
+  });
+}
