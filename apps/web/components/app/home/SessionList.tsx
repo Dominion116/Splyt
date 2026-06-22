@@ -61,6 +61,32 @@ export function SessionList({ host, filter = "all" }: Props) {
     };
   }, [host]);
 
+  const loadMore = useCallback(async () => {
+    if (!hasMore || loadingMore || cursor == null) return;
+    setLoadingMore(true);
+    try {
+      const page = await listSessions(host, { limit: 20, before: cursor });
+      setSessions((prev) => [...(prev ?? []), ...page.sessions]);
+      setCursor(page.nextCursor);
+      setHasMore(page.nextCursor !== null);
+    } catch {
+      // silently ignore next-page errors
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [host, cursor, hasMore, loadingMore]);
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel || !hasMore) return;
+    const observer = new IntersectionObserver(
+      (entries) => { if (entries[0].isIntersecting) void loadMore(); },
+      { threshold: 0.1 }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasMore, loadMore]);
+
   if (sessions === null) {
     return (
       <div className="flex items-center gap-2 rounded-2xl border border-border/40 bg-card p-5 text-sm text-muted-foreground">
