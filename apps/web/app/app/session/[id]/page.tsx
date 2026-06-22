@@ -87,8 +87,8 @@ export default function SessionRoomPage({ params }: Props) {
   const link = `${origin}/app/session/${id}`;
 
   const shareSummary = async () => {
-    const paidCount = members?.filter((m) => m.paid).length ?? 0;
-    const memberCount = members?.length ?? 0;
+    const memberCount = members?.length ?? session.members.length;
+    const paidCount = members?.filter((m) => m.paid).length ?? memberCount;
     const text = [
       `Splyt · ${formatCUSD(session.total)}`,
       `${paidCount}/${memberCount} member${memberCount !== 1 ? "s" : ""} · all paid ✓`,
