@@ -42,3 +42,13 @@ export async function saveTemplate(template: Template): Promise<void> {
     tx.onerror = () => { db.close(); reject(tx.error); };
   });
 }
+
+export async function deleteTemplate(id: string): Promise<void> {
+  const db = await openTemplatesDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, "readwrite");
+    tx.objectStore(STORE_NAME).delete(id);
+    tx.oncomplete = () => { db.close(); resolve(); };
+    tx.onerror = () => { db.close(); reject(tx.error); };
+  });
+}
