@@ -148,6 +148,8 @@ export function SessionList({ host, filter = "all" }: Props) {
         >
           Load more
         </button>
+      ) : !loadingMore && sessions && sessions.length > 0 && !hasMore ? (
+        <p className="text-center text-xs text-muted-foreground/50">All splits loaded</p>
       ) : null}
     </div>
   );
