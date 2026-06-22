@@ -20,7 +20,7 @@ export default function TermsPage() {
   return (
     <>
       <ReadingProgress />
-      <div className="max-w-6xl mx-auto px-4 xl:px-0 py-20">
+      <main className="max-w-6xl mx-auto px-4 xl:px-0 py-20">
         <div className="mb-12">
           <Link
             href="/"
@@ -64,13 +64,13 @@ export default function TermsPage() {
               ))}
             </div>
 
-            <div className="mt-16 pt-8 border-t border-border text-sm text-muted-foreground flex flex-wrap gap-4">
+            <div className="mt-16 pt-8 border-t border-border text-sm text-muted-foreground flex flex-wrap gap-4 print:hidden">
               <Link href="/privacy" className="hover:text-foreground transition">Privacy Policy</Link>
               <Link href="/" className="hover:text-foreground transition">Home</Link>
             </div>
           </div>
         </div>
-      </div>
+      </main>
       <BackToTop />
       <Footer />
     </>
