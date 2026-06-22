@@ -1,7 +1,7 @@
 "use client";
 
 import { Clock } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DraftRecoveryList } from "@/components/app/home/DraftRecoveryList";
 import { SessionList } from "@/components/app/home/SessionList";
 import { useWallet } from "@/lib/wallet";
@@ -19,6 +19,8 @@ const FILTER_TABS: { label: string; value: SessionFilter }[] = [
 export default function HistoryPage() {
   const { address } = useWallet();
   const [filter, setFilter] = useState<SessionFilter>("all");
+
+  useEffect(() => { setFilter("all"); }, [address]);
 
   return (
     <div className="flex flex-1 flex-col gap-6 px-5 pt-8">
