@@ -148,7 +148,7 @@ export function SplitEditor({ draft, onChange }: Props) {
               <div className="flex flex-col gap-0">
                 <span className="text-xs" title={address}>{contactName || shortAddress(address)}</span>
                 {contactName ? (
-                  <span className="font-mono text-[10px] text-muted-foreground/60">{shortAddress(address)}</span>
+                  <span className="font-mono text-[10px] text-muted-foreground/60" title={address}>{shortAddress(address)}</span>
                 ) : null}
               </div>
               {draft.mode === "custom" ? (
