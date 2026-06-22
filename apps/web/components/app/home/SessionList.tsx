@@ -31,6 +31,10 @@ interface Props {
 export function SessionList({ host, filter = "all" }: Props) {
   const [sessions, setSessions] = useState<SessionSummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [cursor, setCursor] = useState<number | null>(null);
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let cancelled = false;
