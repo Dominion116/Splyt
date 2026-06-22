@@ -19,6 +19,11 @@ export default function ScanPage() {
   const { address } = useWallet();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [templateApplied, setTemplateApplied] = useState<{ members: Address[]; mode: SplitMode } | null>(null);
+
+  const handleUseTemplate = (members: Address[], mode: SplitMode) => {
+    setTemplateApplied({ members, mode });
+  };
 
   const handleManualEntry = async () => {
     if (busy) return;
