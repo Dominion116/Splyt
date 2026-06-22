@@ -4,7 +4,7 @@ import { verifyMessage } from "viem/utils";
 import { validateBody } from "../middleware/validate.js";
 import { computeSplit } from "../services/ai.js";
 import { ChainSessionNotFoundError, InvalidCloseTxError, getSessionStatus, sessionExists, verifyCloseTransaction } from "../services/contract.js";
-import { ParsedReceipt, putSession, getSession, listSessions, markSessionClosedLocally, serializeSession } from "../services/db.js";
+import { ParsedReceipt, putSession, getSession, listSessions, markSessionClosedLocally, serializeSession, ListSessionsOptions } from "../services/db.js";
 
 const router = Router();
 
