@@ -86,6 +86,25 @@ export default function SessionRoomPage({ params }: Props) {
   const settled = Boolean(session.closeTxHash);
   const link = `${origin}/app/session/${id}`;
 
+  const shareSummary = async () => {
+    const paidCount = members?.filter((m) => m.paid).length ?? 0;
+    const memberCount = members?.length ?? 0;
+    const text = [
+      `Splyt · ${formatCUSD(session.total)}`,
+      `${memberCount} member${memberCount !== 1 ? "s" : ""} · all paid ✓`,
+      "Settled on Celo"
+    ].join("\n");
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({ title: "Splyt summary", text });
+        return;
+      } catch {}
+    }
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {}
+  };
+
   const share = async () => {
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
