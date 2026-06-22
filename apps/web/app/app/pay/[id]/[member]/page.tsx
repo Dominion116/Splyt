@@ -190,10 +190,11 @@ function renderPhase(args: {
 
   const paidCount = session.members.filter((m) => m.paid).length;
   const settled = Boolean(session.closeTxHash);
+  const expiresAt = session?.expiresAt ?? 0;
 
   return (
     <>
-      {!settled ? <ExpiryBanner expiresAt={session.expiresAt} /> : null}
+      {!settled ? <ExpiryBanner expiresAt={expiresAt} /> : null}
       <OweCard
         amountMicros={phase.amountMicros}
         total={session.total}
