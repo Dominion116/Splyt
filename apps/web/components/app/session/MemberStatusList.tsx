@@ -37,6 +37,11 @@ function MemberRow({
   const [editing, setEditing] = useState(false);
   const link = `${origin}/app/pay/${sessionId}/${member.address}`;
 
+  const saveName = () => {
+    setContactName(member.address, name);
+    setEditing(false);
+  };
+
   return (
     <li className="flex items-center justify-between gap-3 rounded-2xl border border-border/40 bg-card p-4">
       <div className="flex flex-col gap-0.5">
