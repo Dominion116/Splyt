@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Footer from "@/components/shadcn-space/blocks/footer-01/footer";
 import { SectionAnchor } from "@/components/legal/SectionAnchor";
+import { TableOfContents } from "@/components/legal/TableOfContents";
 
 export const metadata: Metadata = {
   title: "Privacy Policy — Splyt",
@@ -79,7 +80,7 @@ const sections = [
 export default function PrivacyPage() {
   return (
     <>
-      <div className="max-w-3xl mx-auto px-4 xl:px-0 py-20">
+      <div className="max-w-6xl mx-auto px-4 xl:px-0 py-20">
         <div className="mb-12">
           <Link
             href="/"
@@ -91,21 +92,31 @@ export default function PrivacyPage() {
           <p className="text-sm text-muted-foreground">Last updated: June 16, 2026</p>
         </div>
 
-        <div className="flex flex-col gap-10">
-          {sections.map(({ id, title, body }) => (
-            <section key={id} id={id} className="scroll-mt-8 group">
-              <h2 className="text-lg font-semibold mb-3 flex items-center">
-                {title}
-                <SectionAnchor id={id} />
-              </h2>
-              <p className="text-base text-muted-foreground leading-relaxed whitespace-pre-line">{body}</p>
-            </section>
-          ))}
-        </div>
+        <div className="lg:grid lg:grid-cols-[260px_1fr] lg:gap-16">
+          <aside className="hidden lg:block">
+            <div className="sticky top-8">
+              <TableOfContents sections={sections} />
+            </div>
+          </aside>
 
-        <div className="mt-16 pt-8 border-t border-border text-sm text-muted-foreground flex flex-wrap gap-4">
-          <Link href="/terms" className="hover:text-foreground transition">Terms of Service</Link>
-          <Link href="/" className="hover:text-foreground transition">Home</Link>
+          <div>
+            <div className="flex flex-col gap-10">
+              {sections.map(({ id, title, body }) => (
+                <section key={id} id={id} className="scroll-mt-8 group rounded-lg transition-colors hover:bg-muted/30 px-4 -mx-4 py-2">
+                  <h2 className="text-lg font-semibold mb-3 flex items-center">
+                    {title}
+                    <SectionAnchor id={id} />
+                  </h2>
+                  <p className="text-base text-muted-foreground leading-relaxed whitespace-pre-line">{body}</p>
+                </section>
+              ))}
+            </div>
+
+            <div className="mt-16 pt-8 border-t border-border text-sm text-muted-foreground flex flex-wrap gap-4">
+              <Link href="/terms" className="hover:text-foreground transition">Terms of Service</Link>
+              <Link href="/" className="hover:text-foreground transition">Home</Link>
+            </div>
+          </div>
         </div>
       </div>
       <Footer />
