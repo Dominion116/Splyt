@@ -118,13 +118,19 @@ export interface ListSessionsOptions {
 
 export async function listSessions(host?: string, options?: ListSessionsOptions): Promise<SessionRecord[]> {
   const collection = await getSessionsCollection();
-  if (host) {
-    const items = await collection
-      .find({ host }, { collation: ADDRESS_COLLATION })
-      .toArray();
-    return items.map(fromStoredSession);
+  const limit = Math.min(options?.limit ?? 21, 101);
+  const query: Record<string, unknown> = {};
+  if (host) query.host = host;
+  if (options?.before !== undefined) {
+    query.createdAt = { $lt: options.before };
   }
-  const items = await collection.find({}).toArray();
+
+  const findOptions = host ? { collation: ADDRESS_COLLATION } : undefined;
+  const items = await collection
+    .find(query, findOptions)
+    .sort({ createdAt: -1 })
+    .limit(limit)
+    .toArray();
   return items.map(fromStoredSession);
 }
 
