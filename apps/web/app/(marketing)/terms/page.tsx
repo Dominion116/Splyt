@@ -25,7 +25,9 @@ export default function TermsPage() {
           </Link>
           <h1 className="text-4xl font-semibold tracking-tight mb-3">Terms of Service</h1>
           <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-            <span>Last updated: June 16, 2026</span>
+            <span className="inline-flex items-center rounded-full border border-border px-2.5 py-0.5 text-xs font-medium">
+              Last updated: June 16, 2026
+            </span>
             <span>·</span>
             <span>{termsSections.length} sections</span>
             <span>·</span>
