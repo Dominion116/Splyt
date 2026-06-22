@@ -15,7 +15,12 @@ export function getContactName(address: string): string | null {
 
 export function setContactName(address: string, name: string): void {
   const data = load();
-  data[address.toLowerCase()] = name;
+  const trimmed = name.trim();
+  if (trimmed) {
+    data[address.toLowerCase()] = trimmed;
+  } else {
+    delete data[address.toLowerCase()];
+  }
   if (typeof window !== "undefined") {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   }
