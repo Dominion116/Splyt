@@ -68,6 +68,7 @@ function MemberRow({
             </button>
           </div>
         )}
+        <span className="font-mono text-[10px] text-muted-foreground/60">{shortAddress(member.address as Address)}</span>
         <span className="font-mono text-xs text-muted-foreground">{formatCUSD(member.amountDue)}</span>
       </div>
       <div className="flex items-center gap-2">
