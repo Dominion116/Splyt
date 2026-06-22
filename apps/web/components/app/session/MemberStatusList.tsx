@@ -33,6 +33,7 @@ function MemberRow({
   origin: string;
 }) {
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [name, setName] = useState(() => getContactName(member.address) ?? "");
   const link = `${origin}/app/pay/${sessionId}/${member.address}`;
 
   return (
