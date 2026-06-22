@@ -48,6 +48,7 @@ export interface ListSessionsParams {
 
 export interface ListSessionsPage {
   sessions: SessionSummary[];
+  /** createdAt timestamp of the last record on this page; null when no further pages exist. */
   nextCursor: number | null;
 }
 
