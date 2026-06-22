@@ -6,6 +6,7 @@ import { motion } from "motion/react";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { ApiRequestError, getMemberPrice, getSession } from "@/lib/api";
 import { ConnectSheet } from "@/components/app/wallet/ConnectSheet";
+import { ExpiryBanner } from "@/components/app/common/ExpiryBanner";
 import { OweCard } from "@/components/app/pay/OweCard";
 import { ApproveAction } from "@/components/app/pay/ApproveAction";
 import { PayAction } from "@/components/app/pay/PayAction";
