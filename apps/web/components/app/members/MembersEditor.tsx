@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import { useState } from "react";
 import type { Address } from "@/lib/types";
 import { shortAddress } from "@/lib/format";
+import { getContactName } from "@/lib/contacts";
 
 const ADDRESS_REGEX = /^0x[a-fA-F0-9]{40}$/;
 
