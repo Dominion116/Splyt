@@ -10,6 +10,7 @@ import { ApiRequestError, parseReceipt } from "@/lib/api";
 import { compressForParse } from "@/lib/image";
 import { putDraft } from "@/lib/draft";
 import { useWallet } from "@/lib/wallet";
+import type { ParsedReceipt } from "@/lib/types";
 
 export default function ScanPage() {
   const router = useRouter();
