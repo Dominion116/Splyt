@@ -141,9 +141,16 @@ export function SplitEditor({ draft, onChange }: Props) {
           </span>
         </div>
         <ul className="flex flex-col divide-y divide-border/40">
-          {draft.members.map((address, idx) => (
+          {draft.members.map((address, idx) => {
+            const contactName = getContactName(address);
+            return (
             <li key={address} className="flex items-center justify-between gap-3 py-2.5">
-              <span className="font-mono text-xs">{shortAddress(address)}</span>
+              <div className="flex flex-col gap-0">
+                <span className="text-xs">{contactName || shortAddress(address)}</span>
+                {contactName ? (
+                  <span className="font-mono text-[10px] text-muted-foreground/60">{shortAddress(address)}</span>
+                ) : null}
+              </div>
               {draft.mode === "custom" ? (
                 <CustomAmountInput
                   value={
@@ -158,7 +165,8 @@ export function SplitEditor({ draft, onChange }: Props) {
                 </span>
               )}
             </li>
-          ))}
+            );
+          })}
         </ul>
         {draft.mode === "custom" ? (
           <p
