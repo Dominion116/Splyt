@@ -38,8 +38,9 @@ function MemberRow({
   const link = `${origin}/app/pay/${sessionId}/${member.address}`;
 
   const handleNudge = async () => {
-    const displayName = name || shortAddress(member.address as Address);
-    const text = `Hey${name ? ` ${displayName}` : ""}! Your share for this Splyt is ${formatCUSD(member.amountDue)} — link expires soon: ${link}`;
+    const displayName = name.trim() || shortAddress(member.address as Address);
+    const greeting = name.trim() ? `Hey ${displayName}` : "Hey";
+    const text = `${greeting}! Your share for this Splyt is ${formatCUSD(member.amountDue)} — link expires soon: ${link}`;
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
         await navigator.share({ title: "Splyt payment reminder", text });
