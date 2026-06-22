@@ -24,6 +24,8 @@ export default function ReviewPage({ params }: Props) {
   const [missing, setMissing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [showRescan, setShowRescan] = useState(false);
+  const [rescanning, setRescanning] = useState(false);
+  const [rescanError, setRescanError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
