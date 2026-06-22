@@ -33,6 +33,8 @@ export function CreateSheet({ draft, open, onClose }: Props) {
     register: "pending"
   });
   const [error, setError] = useState<string | null>(null);
+  const [createdSessionId, setCreatedSessionId] = useState<string | null>(null);
+  const [templateName, setTemplateName] = useState("");
 
   if (!open) return null;
 
