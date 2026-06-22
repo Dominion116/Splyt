@@ -4,6 +4,7 @@ import Footer from "@/components/shadcn-space/blocks/footer-01/footer";
 import { SectionAnchor } from "@/components/legal/SectionAnchor";
 import { termsSections, estimateReadingTime } from "@/lib/terms-sections";
 import { TableOfContents } from "@/components/legal/TableOfContents";
+import { BackToTop } from "@/components/legal/BackToTop";
 
 const readingTime = estimateReadingTime(termsSections);
 
@@ -63,6 +64,7 @@ export default function TermsPage() {
           </div>
         </div>
       </div>
+      <BackToTop />
       <Footer />
     </>
   );
