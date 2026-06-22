@@ -194,7 +194,7 @@ function renderPhase(args: {
 
   return (
     <>
-      {!settled ? <ExpiryBanner expiresAt={expiresAt} /> : null}
+      {!settled && phase.kind !== "paid" ? <ExpiryBanner expiresAt={expiresAt} /> : null}
       <OweCard
         amountMicros={phase.amountMicros}
         total={session.total}
