@@ -5,6 +5,7 @@ import { computeSplit, computeItemisedSplit } from "@/lib/split";
 import { formatCUSD, microsFromDecimalString, microsToDecimalString, shortAddress } from "@/lib/format";
 import type { Address, DraftSession, SplitMode } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { getContactName } from "@/lib/contacts";
 
 const EXPIRY_OPTIONS = [
   { label: "15m", value: 15 },
