@@ -41,10 +41,23 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return (await res.json()) as T;
 }
 
-export async function listSessions(host?: Address): Promise<SessionSummary[]> {
-  const query = host ? `?host=${host}` : "";
-  const data = await request<{ sessions: SessionSummary[] }>(`/api/session${query}`);
-  return data.sessions;
+export interface ListSessionsParams {
+  limit?: number;
+  before?: number;
+}
+
+export interface ListSessionsPage {
+  sessions: SessionSummary[];
+  nextCursor: number | null;
+}
+
+export async function listSessions(host?: Address, params?: ListSessionsParams): Promise<ListSessionsPage> {
+  const qs = new URLSearchParams();
+  if (host) qs.set("host", host);
+  if (params?.limit != null) qs.set("limit", String(params.limit));
+  if (params?.before != null) qs.set("before", String(params.before));
+  const query = qs.toString() ? `?${qs.toString()}` : "";
+  return request<ListSessionsPage>(`/api/session${query}`);
 }
 
 export async function getSession(sessionId: string): Promise<SessionDetail> {
