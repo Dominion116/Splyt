@@ -12,3 +12,11 @@ function load(): Record<string, string> {
 export function getContactName(address: string): string | null {
   return load()[address.toLowerCase()] ?? null;
 }
+
+export function setContactName(address: string, name: string): void {
+  const data = load();
+  data[address.toLowerCase()] = name;
+  if (typeof window !== "undefined") {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }
+}
