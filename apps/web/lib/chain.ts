@@ -35,9 +35,15 @@ export const SPLYT_ABI = [
     name: "markPaid",
     stateMutability: "nonpayable",
     inputs: [
-      { name: "sessionId", type: "bytes32" },
-      { name: "member", type: "address" }
+      { name: "sessionId", type: "bytes32" }
     ],
+    outputs: []
+  },
+  {
+    type: "function",
+    name: "cancelSession",
+    stateMutability: "nonpayable",
+    inputs: [{ name: "sessionId", type: "bytes32" }],
     outputs: []
   },
   {
@@ -187,14 +193,13 @@ export async function markPaidTx(
   walletClient: WalletClient,
   sessionId: string
 ): Promise<Hex> {
-  const member = walletClient.account!.address;
   return walletClient.writeContract({
     address: CONTRACT_ADDRESS,
     abi: SPLYT_ABI,
     functionName: "markPaid",
     account: walletClient.account!,
     chain: celo,
-    args: [toBytes32(sessionId), member]
+    args: [toBytes32(sessionId)]
   });
 }
 

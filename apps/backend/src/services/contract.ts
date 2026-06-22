@@ -74,9 +74,15 @@ const ABI = [
     name: "markPaid",
     stateMutability: "nonpayable",
     inputs: [
-      { name: "sessionId", type: "bytes32" },
-      { name: "member", type: "address" }
+      { name: "sessionId", type: "bytes32" }
     ],
+    outputs: []
+  },
+  {
+    type: "function",
+    name: "cancelSession",
+    stateMutability: "nonpayable",
+    inputs: [{ name: "sessionId", type: "bytes32" }],
     outputs: []
   },
   {
