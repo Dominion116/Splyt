@@ -5,6 +5,7 @@ import { useState } from "react";
 import { formatCUSD, shortAddress } from "@/lib/format";
 import type { Address, LiveMember } from "@/lib/types";
 import { LinkSheet } from "./LinkSheet";
+import { getContactName, setContactName } from "@/lib/contacts";
 
 interface Props {
   members: LiveMember[];
