@@ -94,7 +94,7 @@ function MemberRow({
       <div className="flex items-center gap-2">
         <StatusPill paid={member.paid} />
         {!member.paid ? (
-          <>
+          <div className="flex items-center gap-1">
             <button
               type="button"
               onClick={handleNudge}
@@ -112,7 +112,7 @@ function MemberRow({
             >
               <Share2 size={12} />
             </button>
-          </>
+          </div>
         ) : null}
       </div>
       {sheetOpen ? <LinkSheet link={link} onClose={() => setSheetOpen(false)} /> : null}
