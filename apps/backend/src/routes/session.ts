@@ -43,6 +43,7 @@ const createSchema = z.object({
     total: z.string().regex(/^\d{1,12}(\.\d{1,6})?$/),
     currency: z.literal("cUSD")
   }),
+  // 10 080 min = 7 days maximum; no contract change required.
   expiresInMinutes: z.number().int().min(1).max(10_080).optional()
 });
 
