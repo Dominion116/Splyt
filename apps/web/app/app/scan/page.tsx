@@ -103,7 +103,9 @@ export default function ScanPage() {
         <button
           type="button"
           onClick={handleManualEntry}
-          className="flex items-center justify-center gap-2 rounded-full border border-border/40 bg-card px-4 py-2.5 text-xs text-muted-foreground transition hover:border-border hover:text-foreground"
+          disabled={busy}
+          aria-label="Enter receipt manually"
+          className="flex w-full items-center justify-center gap-2 rounded-full border border-border/40 bg-card px-4 py-2.5 text-xs text-muted-foreground transition hover:border-border hover:text-foreground disabled:opacity-50"
         >
           <FileText size={12} /> Enter manually
         </button>
