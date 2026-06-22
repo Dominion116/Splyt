@@ -18,6 +18,7 @@ const FILTER_TABS: { label: string; value: SessionFilter }[] = [
 
 export default function HistoryPage() {
   const { address } = useWallet();
+  const [filter, setFilter] = useState<SessionFilter>("all");
 
   return (
     <div className="flex flex-1 flex-col gap-6 px-5 pt-8">
