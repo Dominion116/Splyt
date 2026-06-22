@@ -9,6 +9,13 @@ import { cn } from "@/lib/utils";
 
 type SessionFilter = "all" | "open" | "settled" | "expired";
 
+const FILTER_TABS: { label: string; value: SessionFilter }[] = [
+  { label: "All", value: "all" },
+  { label: "Open", value: "open" },
+  { label: "Settled", value: "settled" },
+  { label: "Expired", value: "expired" }
+];
+
 export default function HistoryPage() {
   const { address } = useWallet();
 
