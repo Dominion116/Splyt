@@ -18,7 +18,8 @@ export function ExpiryBanner({ expiresAt }: Props) {
     return () => clearInterval(id);
   }, [expiresAt]);
 
-  if (remaining > TEN_MINUTES_MS || remaining <= 0) return null;
+  if (remaining > TEN_MINUTES_MS) return null;
+  if (remaining <= 0) return null;
 
   const totalSeconds = Math.max(0, Math.floor(remaining / 1000));
   const minutes = Math.floor(totalSeconds / 60);
