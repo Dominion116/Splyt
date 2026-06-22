@@ -12,6 +12,7 @@ import { microsFromDecimalString, microsToDecimalString } from "@/lib/format";
 import type { Address, DraftSession } from "@/lib/types";
 import { deleteDraft } from "@/lib/draft";
 import { getPublicClient } from "@/lib/chain";
+import { saveTemplate } from "@/lib/templates";
 
 type Stage = "sign" | "tx" | "register";
 type Status = "pending" | "active" | "done" | "error";
