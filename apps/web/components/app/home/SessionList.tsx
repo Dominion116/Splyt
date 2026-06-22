@@ -59,15 +59,22 @@ export function SessionList({ host, filter = "all" }: Props) {
     );
   }
 
-  if (sessions.length === 0) {
-    return <EmptySessions />;
+  const visible = applyFilter(sessions, filter);
+
+  if (visible.length === 0) {
+    return <EmptySessions filter={filter} />;
   }
+
+  const heading =
+    filter === "all"
+      ? "Recent splits"
+      : `${filter.charAt(0).toUpperCase() + filter.slice(1)} splits`;
 
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-xs uppercase tracking-wider text-muted-foreground">Recent splits</span>
+      <span className="text-xs uppercase tracking-wider text-muted-foreground">{heading}</span>
       <ul className="flex flex-col gap-2">
-        {sessions.slice(0, 6).map((session) => (
+        {visible.map((session) => (
           <SessionRow key={session.id} session={session} />
         ))}
       </ul>
