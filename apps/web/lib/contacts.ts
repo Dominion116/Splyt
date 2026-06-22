@@ -8,3 +8,7 @@ function load(): Record<string, string> {
     return {};
   }
 }
+
+export function getContactName(address: string): string | null {
+  return load()[address.toLowerCase()] ?? null;
+}
