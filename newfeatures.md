@@ -25,7 +25,7 @@ Work through them one at a time.
 
 ---
 
-### 3. Member Nicknames / Address Book
+### 3. Member Nicknames / Address Book ✅ DONE
 **What:** Let the host (and any user) save a human-readable name for a wallet address (`0x1a2b…` → "Alice"). Names are stored in `localStorage`. They appear everywhere an address is shortened: session room, member list, split screen.  
 **Files to touch:**
 - `apps/web/lib/contacts.ts` ← new file (get/set/list contact names in localStorage)
