@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Footer from "@/components/shadcn-space/blocks/footer-01/footer";
+import { SectionAnchor } from "@/components/legal/SectionAnchor";
 
 export const metadata: Metadata = {
   title: "Terms of Service — Splyt",
@@ -97,8 +98,11 @@ export default function TermsPage() {
 
         <div className="flex flex-col gap-10">
           {sections.map(({ id, title, body }) => (
-            <section key={id} id={id} className="scroll-mt-8">
-              <h2 className="text-lg font-semibold mb-3">{title}</h2>
+            <section key={id} id={id} className="scroll-mt-8 group">
+              <h2 className="text-lg font-semibold mb-3 flex items-center">
+                {title}
+                <SectionAnchor id={id} />
+              </h2>
               <p className="text-base text-muted-foreground leading-relaxed whitespace-pre-line">{body}</p>
             </section>
           ))}
