@@ -77,11 +77,12 @@ export function SessionList({ host, filter = "all" }: Props) {
   }, [host, cursor, hasMore, loadingMore]);
 
   useEffect(() => {
+    if (typeof IntersectionObserver === "undefined") return;
     const sentinel = sentinelRef.current;
     if (!sentinel || !hasMore) return;
     const observer = new IntersectionObserver(
       (entries) => { if (entries[0].isIntersecting) void loadMore(); },
-      { threshold: 0.1 }
+      { rootMargin: "200px", threshold: 0 }
     );
     observer.observe(sentinel);
     return () => observer.disconnect();
