@@ -121,7 +121,7 @@ export function SplitEditor({ draft, onChange }: Props) {
               type="button"
               onClick={() => setExpiry(option.value)}
               className={cn(
-                "rounded-full border border-border/40 bg-card px-3 py-2 text-xs transition",
+                "min-w-10 whitespace-nowrap rounded-full border border-border/40 bg-card px-3 py-2 text-xs transition",
                 draft.expiresInMinutes === option.value
                   ? "border-primary/40 bg-primary/10 text-primary"
                   : "text-muted-foreground hover:text-foreground"
