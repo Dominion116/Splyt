@@ -19,6 +19,7 @@ export default function ScanPage() {
   const [error, setError] = useState<string | null>(null);
 
   const handleManualEntry = async () => {
+    if (busy) return;
     const draftId = crypto.randomUUID();
     const blankReceipt: ParsedReceipt = {
       items: [{ name: "Item 1", amount: "0.000000" }],
