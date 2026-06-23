@@ -47,7 +47,7 @@ const DockIconButton = React.forwardRef<HTMLButtonElement, DockIconButtonProps>(
         whileTap={{ scale: 0.95 }}
         onClick={onClick}
         className={cn(
-          "relative group p-3 rounded-lg",
+          "relative group flex flex-1 items-center justify-center p-3 rounded-lg",
           "hover:bg-secondary transition-colors",
           className
         )}
@@ -77,7 +77,7 @@ const Dock = React.forwardRef<HTMLDivElement, DockProps>(
           animate="animate"
           variants={floatingAnimation}
           className={cn(
-            "flex items-center gap-1 p-2 rounded-2xl",
+            "w-full flex items-center justify-between gap-1 p-2 rounded-2xl",
             "backdrop-blur-lg border shadow-lg",
             "bg-background/90 border-border",
             "hover:shadow-xl transition-shadow duration-300"

@@ -55,13 +55,12 @@ export function Dock() {
   return (
     <nav
       aria-label="Primary"
-      className="fixed inset-x-0 z-40 flex justify-center px-4"
+      className="fixed inset-x-0 z-40 flex justify-center"
       style={{ bottom: "max(1rem, env(safe-area-inset-bottom))" }}
     >
-      <DockUI
-        items={items}
-        className="w-full max-w-[420px] flex justify-center"
-      />
+      <div className="w-full max-w-[420px] px-5">
+        <DockUI items={items} className="w-full" />
+      </div>
     </nav>
   );
 }
