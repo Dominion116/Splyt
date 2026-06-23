@@ -104,9 +104,15 @@ export function ReviewEditor({ receipt, onChange }: Props) {
         ) : null}
       </div>
 
-      <p className="text-xs text-muted-foreground">
-        Items sum to {formatCUSD(sum)}. Total is the source of truth — Splyt splits the total.
-      </p>
+      {totalMicros === 0n ? (
+        <p className="rounded-md bg-destructive/10 px-3 py-2 text-xs text-destructive">
+          Total is $0.00 — update the total before continuing.
+        </p>
+      ) : (
+        <p className="text-xs text-muted-foreground">
+          Items sum to {formatCUSD(sum)}. Total is the source of truth — Splyt splits the total.
+        </p>
+      )}
     </div>
   );
 }

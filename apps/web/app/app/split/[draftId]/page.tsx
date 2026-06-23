@@ -70,8 +70,9 @@ export default function SplitPage({ params }: Props) {
   const canCreate = (() => {
     if (!address) return false;
     if (draft.members.length === 0) return false;
-    if (draft.mode !== "custom") return true;
     const total = microsFromDecimalString(draft.receipt.total);
+    if (total === 0n) return false;
+    if (draft.mode !== "custom") return true;
     let sum = 0n;
     if (draft.amounts.length !== draft.members.length) return false;
     for (const value of draft.amounts) {
@@ -106,9 +107,11 @@ export default function SplitPage({ params }: Props) {
               ? "Connect wallet to continue"
               : draft.members.length === 0
                 ? "Add a member first"
-                : !canCreate
-                  ? "Adjust amounts"
-                  : "Sign & create"
+                : microsFromDecimalString(draft.receipt.total) === 0n
+                  ? "Total is $0 — go back and fix"
+                  : !canCreate
+                    ? "Adjust amounts"
+                    : "Sign & create"
           }
           onClick={() => setCreateOpen(true)}
           disabled={!canCreate}
