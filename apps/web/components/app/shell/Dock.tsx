@@ -1,18 +1,56 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Clock, Home, Plus, Wallet } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Dock as DockUI } from "@/components/ui/dock-two";
 
-const TABS = [
-  { href: "/app", icon: Home, label: "Home", match: (p: string) => p === "/app" },
-  { href: "/app/history", icon: Clock, label: "History", match: (p: string) => p.startsWith("/app/history") },
-  { href: "/app/wallet", icon: Wallet, label: "Wallet", match: (p: string) => p.startsWith("/app/wallet") }
+const NAV_ITEMS = [
+  {
+    icon: Home,
+    label: "Home",
+    href: "/app",
+    match: (p: string) => p === "/app",
+  },
+  {
+    icon: Clock,
+    label: "History",
+    href: "/app/history",
+    match: (p: string) => p.startsWith("/app/history"),
+  },
 ] as const;
 
 export function Dock() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const items = [
+    ...NAV_ITEMS.slice(0, 1).map((t) => ({
+      icon: t.icon,
+      label: t.label,
+      active: t.match(pathname),
+      onClick: () => router.push(t.href),
+    })),
+    {
+      icon: Plus,
+      label: "New Split",
+      active: pathname === "/app/scan",
+      onClick: () => router.push("/app/scan"),
+      iconClassName: "w-5 h-5",
+      className: "bg-primary rounded-full text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/30",
+    },
+    ...NAV_ITEMS.slice(1).map((t) => ({
+      icon: t.icon,
+      label: t.label,
+      active: t.match(pathname),
+      onClick: () => router.push(t.href),
+    })),
+    {
+      icon: Wallet,
+      label: "Wallet",
+      active: pathname.startsWith("/app/wallet"),
+      onClick: () => router.push("/app/wallet"),
+    },
+  ];
 
   return (
     <nav
@@ -20,48 +58,10 @@ export function Dock() {
       className="fixed inset-x-0 z-40 flex justify-center px-4"
       style={{ bottom: "max(1rem, env(safe-area-inset-bottom))" }}
     >
-      <div className="relative flex w-full max-w-[420px] items-center gap-1 rounded-full border border-border/40 bg-card/80 p-1.5 shadow-2xl shadow-primary/5 backdrop-blur-lg">
-        {TABS.slice(0, 1).map((tab) => (
-          <DockTab key={tab.href} tab={tab} active={tab.match(pathname)} />
-        ))}
-
-        <Link
-          href="/app/scan"
-          aria-label="New split"
-          className="group relative mx-1 flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 transition active:translate-y-px"
-        >
-          <Plus size={20} strokeWidth={2.5} />
-        </Link>
-
-        {TABS.slice(1).map((tab) => (
-          <DockTab key={tab.href} tab={tab} active={tab.match(pathname)} />
-        ))}
-      </div>
+      <DockUI
+        items={items}
+        className="w-full max-w-[420px] flex justify-center"
+      />
     </nav>
-  );
-}
-
-function DockTab({
-  tab,
-  active
-}: {
-  tab: { href: string; icon: typeof Home; label: string };
-  active: boolean;
-}) {
-  const Icon = tab.icon;
-  return (
-    <Link
-      href={tab.href}
-      aria-label={tab.label}
-      aria-current={active ? "page" : undefined}
-      className={cn(
-        "flex h-10 flex-1 items-center justify-center rounded-full transition",
-        active
-          ? "bg-background text-foreground shadow-xs"
-          : "text-muted-foreground hover:text-foreground"
-      )}
-    >
-      <Icon size={18} />
-    </Link>
   );
 }
