@@ -8,7 +8,7 @@ import { useWallet } from "@/lib/wallet";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { computeSplit, computeItemisedSplit } from "@/lib/split";
-import { microsFromDecimalString, microsToDecimalString } from "@/lib/format";
+import { microsFromDecimalString } from "@/lib/format";
 import type { Address, DraftSession } from "@/lib/types";
 import { deleteDraft } from "@/lib/draft";
 import { getPublicClient } from "@/lib/chain";
@@ -36,6 +36,31 @@ export function CreateSheet({ draft, open, onClose }: Props) {
   const [createdSessionId, setCreatedSessionId] = useState<string | null>(null);
   const [templateName, setTemplateName] = useState("");
 
+  // Persisted across retries so a failed registration can be retried without
+  // re-signing or re-submitting the on-chain transaction.
+  const [confirmedSessionId, setConfirmedSessionId] = useState<string | null>(null);
+  const [confirmedTxHash, setConfirmedTxHash] = useState<`0x${string}` | null>(null);
+  const [confirmedSignature, setConfirmedSignature] = useState<`0x${string}` | null>(null);
+
+  const computeAmounts = (): bigint[] | null => {
+    try {
+      if (draft.mode === "custom") {
+        const micros = draft.amounts.map((v) => microsFromDecimalString(v || "0.000000"));
+        const total = micros.reduce((acc, cur) => acc + cur, 0n);
+        if (total !== microsFromDecimalString(draft.receipt.total)) return null;
+        return micros;
+      }
+      if (draft.mode === "itemised") {
+        const computed = computeItemisedSplit(draft.receipt, draft.members, draft.assignments ?? {});
+        return draft.members.map((m) => computed.get(m) ?? 0n);
+      }
+      const computed = computeSplit(draft.receipt, draft.members, "equal");
+      return draft.members.map((m) => computed.get(m) ?? 0n);
+    } catch {
+      return null;
+    }
+  };
+
   const handleSaveTemplate = async () => {
     await saveTemplate({
       id: crypto.randomUUID(),
@@ -60,8 +85,6 @@ export function CreateSheet({ draft, open, onClose }: Props) {
       return;
     }
     setError(null);
-    setStage("sign");
-    setStatusMap({ sign: "active", tx: "pending", register: "pending" });
 
     // Track stage locally so async continuations always mark the correct step.
     let current: Stage = "sign";
@@ -77,27 +100,50 @@ export function CreateSheet({ draft, open, onClose }: Props) {
       setError(message);
     };
 
-    const sessionId = crypto.randomUUID();
-    let amountsMicros: bigint[];
-    try {
-      if (draft.mode === "custom") {
-        amountsMicros = draft.amounts.map((value) => microsFromDecimalString(value || "0.000000"));
-        const total = amountsMicros.reduce((acc, current) => acc + current, 0n);
-        if (total !== microsFromDecimalString(draft.receipt.total)) {
-          fail("Custom amounts must sum to the total.");
-          return;
-        }
-      } else if (draft.mode === "itemised") {
-        const computed = computeItemisedSplit(draft.receipt, draft.members, draft.assignments ?? {});
-        amountsMicros = draft.members.map((member) => computed.get(member) ?? 0n);
-      } else {
-        const computed = computeSplit(draft.receipt, draft.members, "equal");
-        amountsMicros = draft.members.map((member) => computed.get(member) ?? 0n);
+    // If the on-chain tx already confirmed on a previous attempt, skip directly
+    // to registration so we don't create a second on-chain session on retry.
+    if (confirmedSessionId && confirmedTxHash && confirmedSignature) {
+      setStage("register");
+      setStatusMap({ sign: "done", tx: "done", register: "active" });
+      current = "register";
+
+      const amountsMicros = computeAmounts();
+      if (!amountsMicros) { fail("Couldn't compute split."); return; }
+
+      try {
+        await createSession({
+          sessionId: confirmedSessionId,
+          host: address as Address,
+          hostSignature: confirmedSignature,
+          txHash: confirmedTxHash,
+          members: draft.members,
+          amounts: amountsMicros.map(String),
+          mode: draft.mode,
+          receipt: draft.receipt,
+          expiresInMinutes: draft.expiresInMinutes
+        });
+      } catch (err) {
+        if (err instanceof ApiRequestError) fail(err.message);
+        else fail(err instanceof Error ? err.message : "Couldn't register session.");
+        return;
       }
-    } catch (err) {
-      fail(err instanceof Error ? err.message : "Couldn't compute split.");
+
+      setStatusMap((prev) => ({ ...prev, register: "done" }));
+      await deleteDraft(draft.id).catch(() => {});
+      setCreatedSessionId(confirmedSessionId);
+      setConfirmedSessionId(null);
+      setConfirmedTxHash(null);
+      setConfirmedSignature(null);
       return;
     }
+
+    setStage("sign");
+    setStatusMap({ sign: "active", tx: "pending", register: "pending" });
+
+    const sessionId = crypto.randomUUID();
+
+    const amountsMicros = computeAmounts();
+    if (!amountsMicros) { fail("Couldn't compute split."); return; }
 
     const expiresAt = Date.now() + draft.expiresInMinutes * 60_000;
 
@@ -129,6 +175,12 @@ export function CreateSheet({ draft, open, onClose }: Props) {
       fail(err instanceof Error ? err.message : "Transaction did not confirm.");
       return;
     }
+
+    // Persist before attempting registration — if registration fails, retry
+    // will use these values instead of creating a new on-chain session.
+    setConfirmedSessionId(sessionId);
+    setConfirmedTxHash(txHash);
+    setConfirmedSignature(signature);
     advance("register");
 
     try {
@@ -152,6 +204,9 @@ export function CreateSheet({ draft, open, onClose }: Props) {
     setStatusMap((prev) => ({ ...prev, register: "done" }));
     await deleteDraft(draft.id).catch(() => {});
     setCreatedSessionId(sessionId);
+    setConfirmedSessionId(null);
+    setConfirmedTxHash(null);
+    setConfirmedSignature(null);
   };
 
   return (
