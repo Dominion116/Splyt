@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react"
-import { motion } from "motion/react"
+import { motion, type Variants } from "motion/react"
 import { cn } from "@/lib/utils"
 import { LucideIcon } from "lucide-react"
 
@@ -26,7 +26,7 @@ interface DockIconButtonProps {
   iconClassName?: string
 }
 
-const floatingAnimation = {
+const floatingAnimation: Variants = {
   initial: { y: 0 },
   animate: {
     y: [-2, 2, -2],
