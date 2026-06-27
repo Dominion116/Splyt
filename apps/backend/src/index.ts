@@ -23,8 +23,8 @@ try {
   console.error(`[startup] ✗ Environment validation failed: ${error}`);
   process.exit(1);
 }
-if (!process.env.CUSD_ADDRESS) {
-  console.info("[startup] CUSD_ADDRESS not set — defaulting to mainnet cUSD: 0x765de816845861e75a25fca122bb6898b8b1282a");
+if (!process.env.USDM_ADDRESS) {
+  console.info("[startup] USDM_ADDRESS not set — defaulting to mainnet USDm: 0x765de816845861e75a25fca122bb6898b8b1282a");
 }
 
 // ---------------------------------------------------------------------------

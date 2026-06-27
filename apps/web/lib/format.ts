@@ -14,7 +14,7 @@ export function microsToDecimalString(value: Micros): string {
   return `${whole.toString()}.${frac}`;
 }
 
-export function formatCUSD(micros: Micros | string, opts: { compact?: boolean } = {}): string {
+export function formatUSDm(micros: Micros | string, opts: { compact?: boolean } = {}): string {
   const value = typeof micros === "string" ? BigInt(micros) : micros;
   const whole = value / MICRO_MULTIPLIER;
   const frac = (value % MICRO_MULTIPLIER).toString().padStart(6, "0");

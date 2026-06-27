@@ -14,7 +14,7 @@ export interface ParsedReceipt {
   subtotal: string;
   tax: string;
   total: string;
-  currency: "cUSD";
+  currency: "USDm";
 }
 
 export interface SessionMember {

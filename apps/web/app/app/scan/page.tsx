@@ -33,7 +33,7 @@ export default function ScanPage() {
       subtotal: "0.000000",
       tax: "0.000000",
       total: "0.000000",
-      currency: "cUSD"
+      currency: "USDm"
     };
     await putDraft({
       id: draftId,

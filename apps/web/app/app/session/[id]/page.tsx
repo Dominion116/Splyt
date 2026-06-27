@@ -10,7 +10,7 @@ import { Countdown } from "@/components/app/common/Countdown";
 import { ExpiryBanner } from "@/components/app/common/ExpiryBanner";
 import { MemberStatusList } from "@/components/app/session/MemberStatusList";
 import { CloseAction } from "@/components/app/session/CloseAction";
-import { formatCUSD } from "@/lib/format";
+import { formatUSDm } from "@/lib/format";
 import type { Address, LiveMember, SessionDetail } from "@/lib/types";
 
 interface Props {
@@ -90,7 +90,7 @@ export default function SessionRoomPage({ params }: Props) {
     const memberCount = members?.length ?? session.members.length;
     const paidCount = members?.filter((m) => m.paid).length ?? memberCount;
     const text = [
-      `Splyt · ${formatCUSD(session.total)}`,
+      `Splyt · ${formatUSDm(session.total)}`,
       `${paidCount}/${memberCount} member${memberCount !== 1 ? "s" : ""} · all paid ✓`,
       "Settled on Celo",
       link
@@ -157,7 +157,7 @@ export default function SessionRoomPage({ params }: Props) {
             <Countdown expiresAt={session.expiresAt} />
           </div>
           <span className="font-serif text-4xl italic tracking-tight">
-            {formatCUSD(session.total)}
+            {formatUSDm(session.total)}
           </span>
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <LiveDot connected={live.connected} />

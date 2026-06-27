@@ -10,7 +10,7 @@ import { celo } from "viem/chains";
 
 export const RPC_URL = process.env.NEXT_PUBLIC_CELO_RPC_URL ?? "https://forno.celo.org";
 export const CONTRACT_ADDRESS = (process.env.NEXT_PUBLIC_CONTRACT_ADDRESS ?? "") as Address;
-export const CUSD_ADDRESS = (process.env.NEXT_PUBLIC_CUSD_ADDRESS ??
+export const USDM_ADDRESS = (process.env.NEXT_PUBLIC_USDM_ADDRESS ??
   "0x765de816845861e75a25fca122bb6898b8b1282a") as Address;
 
 export const MICROS_TO_WEI = 10n ** 12n;
@@ -203,12 +203,12 @@ export async function markPaidTx(
   });
 }
 
-export async function approveCusdTx(
+export async function approveUSDmTx(
   walletClient: WalletClient,
   amountWei: bigint
 ): Promise<Hex> {
   return walletClient.writeContract({
-    address: CUSD_ADDRESS,
+    address: USDM_ADDRESS,
     abi: ERC20_ABI,
     functionName: "approve",
     account: walletClient.account!,
@@ -217,9 +217,9 @@ export async function approveCusdTx(
   });
 }
 
-export async function getCusdAllowance(owner: Address): Promise<bigint> {
+export async function getUSDmAllowance(owner: Address): Promise<bigint> {
   const allowance = await getPublicClient().readContract({
-    address: CUSD_ADDRESS,
+    address: USDM_ADDRESS,
     abi: ERC20_ABI,
     functionName: "allowance",
     args: [owner, CONTRACT_ADDRESS]

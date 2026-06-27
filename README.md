@@ -74,7 +74,7 @@ Frontend and backend are deployed independently.
 - Host: Vercel or any Next.js-capable platform
 - Build: `npm run build -w apps/web`
 - Start: `npm run start -w apps/web`
-- Required env vars: `NEXT_PUBLIC_BACKEND_URL`, `NEXT_PUBLIC_CELO_RPC_URL`, `NEXT_PUBLIC_CONTRACT_ADDRESS`, `NEXT_PUBLIC_CUSD_ADDRESS`
+- Required env vars: `NEXT_PUBLIC_BACKEND_URL`, `NEXT_PUBLIC_CELO_RPC_URL`, `NEXT_PUBLIC_CONTRACT_ADDRESS`, `NEXT_PUBLIC_USDM_ADDRESS`
 
 ### Backend
 
@@ -93,7 +93,7 @@ After deploy, update `NEXT_PUBLIC_CONTRACT_ADDRESS` and `SPLYT_SESSION_CONTRACT`
 
 ### Tokens
 
-- Mainnet cUSD: `0x765de816845861e75a25fca122bb6898b8b1282a`
+- Mainnet USDm: `0x765de816845861e75a25fca122bb6898b8b1282a`
 
 ### Pre-ship checklist
 
@@ -107,7 +107,7 @@ See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ## Proof of Ship Tracks
 
-- [x] MiniPay (mini-app detection, cUSD payments)
+- [x] MiniPay (mini-app detection, USDm payments)
 - [x] AI Agent (split computation via Groq vision)
 - [x] Direct payments (contract calls, per-member collection)
 

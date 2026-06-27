@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { CheckCircle2, CircleX, Timer } from "lucide-react";
-import { formatCUSD } from "@/lib/format";
+import { formatUSDm } from "@/lib/format";
 
 type Kind = "paid" | "expired" | "settled";
 
@@ -50,7 +50,7 @@ export function TerminalState({ kind, amountMicros, txHash }: Props) {
         {copy.body}
         {amountMicros ? (
           <span className="ml-1 font-mono">
-            ({formatCUSD(amountMicros)} settled)
+            ({formatUSDm(amountMicros)} settled)
           </span>
         ) : null}
       </p>

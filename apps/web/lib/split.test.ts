@@ -18,7 +18,7 @@ export function makeReceipt(
     return sum + BigInt(whole) * 1_000_000n + BigInt(`${frac}000000`.slice(0, 6));
   }, 0n);
   const subtotal = `${subtotalMicros / 1_000_000n}.${(subtotalMicros % 1_000_000n).toString().padStart(6, "0")}`;
-  return { items, subtotal, tax, total: total ?? subtotal, currency: "cUSD" };
+  return { items, subtotal, tax, total: total ?? subtotal, currency: "USDm" };
 }
 
 describe("computeItemisedSplit", () => {

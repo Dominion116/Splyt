@@ -8,7 +8,7 @@ import "../src/SplytSession.sol";
 contract Deploy is Script {
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-        address token = vm.envOr("CUSD_TOKEN", address(0x765DE816845861e75A25fCA122bb6898B8B1282a));
+        address token = vm.envOr("USDM_TOKEN", address(0x765DE816845861e75A25fCA122bb6898B8B1282a));
 
         vm.startBroadcast(deployerPrivateKey);
         SplytSession deployed = new SplytSession(token);

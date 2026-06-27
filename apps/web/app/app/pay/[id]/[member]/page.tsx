@@ -11,7 +11,7 @@ import { OweCard } from "@/components/app/pay/OweCard";
 import { ApproveAction } from "@/components/app/pay/ApproveAction";
 import { PayAction } from "@/components/app/pay/PayAction";
 import { TerminalState } from "@/components/app/pay/TerminalState";
-import { getCusdAllowance, microsToWei } from "@/lib/chain";
+import { getUSDmAllowance, microsToWei } from "@/lib/chain";
 import { useWallet } from "@/lib/wallet";
 import { shortAddress } from "@/lib/format";
 import type { Address, SessionDetail } from "@/lib/types";
@@ -45,7 +45,7 @@ export default function PayPage({ params }: Props) {
     try {
       const price = await getMemberPrice(id, member);
       const amountWei = microsToWei(BigInt(price.price));
-      const allowance = await getCusdAllowance(member);
+      const allowance = await getUSDmAllowance(member);
       if (allowance >= amountWei) {
         setPhase({ kind: "ready-to-pay", amountMicros: price.price, allowanceSufficient: true });
       } else {
@@ -208,7 +208,7 @@ function renderPhase(args: {
         <PayAction sessionId={sessionId} member={member} step={payStep} onPaid={onPaid} />
       )}
       <p className="text-xs text-muted-foreground">
-        Your wallet sends cUSD directly to the Splyt contract. The host can&apos;t collect until everyone pays.
+        Your wallet sends USDm directly to the Splyt contract. The host can&apos;t collect until everyone pays.
       </p>
     </>
   );

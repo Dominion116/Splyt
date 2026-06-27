@@ -2,7 +2,7 @@
 
 import { Trash2 } from "lucide-react";
 import { useMemo } from "react";
-import { formatCUSD, microsFromDecimalString, microsToDecimalString } from "@/lib/format";
+import { formatUSDm, microsFromDecimalString, microsToDecimalString } from "@/lib/format";
 import type { ParsedReceipt, ReceiptItem } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -110,7 +110,7 @@ export function ReviewEditor({ receipt, onChange }: Props) {
         </p>
       ) : (
         <p className="text-xs text-muted-foreground">
-          Items sum to {formatCUSD(sum)}. Total is the source of truth — Splyt splits the total.
+          Items sum to {formatUSDm(sum)}. Total is the source of truth — Splyt splits the total.
         </p>
       )}
     </div>

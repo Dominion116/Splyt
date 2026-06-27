@@ -2,7 +2,7 @@
 
 import { Loader2, ShieldCheck } from "lucide-react";
 import { useState } from "react";
-import { approveCusdTx, getPublicClient, MAX_UINT256 } from "@/lib/chain";
+import { approveUSDmTx, getPublicClient, MAX_UINT256 } from "@/lib/chain";
 import { useWallet } from "@/lib/wallet";
 
 interface Props {
@@ -22,7 +22,7 @@ export function ApproveAction({ onApproved }: Props) {
     setBusy(true);
     setError(null);
     try {
-      const txHash = await approveCusdTx(walletClient, MAX_UINT256);
+      const txHash = await approveUSDmTx(walletClient, MAX_UINT256);
       await getPublicClient().waitForTransactionReceipt({ hash: txHash });
       onApproved();
     } catch (err) {
@@ -42,12 +42,12 @@ export function ApproveAction({ onApproved }: Props) {
       >
         <span className="flex items-center gap-2">
           <ShieldCheck size={16} />
-          {busy ? "Approving cUSD…" : "Approve cUSD (one-time)"}
+          {busy ? "Approving USDm…" : "Approve USDm (one-time)"}
         </span>
         {busy ? <Loader2 size={14} className="animate-spin" /> : <span className="text-xs opacity-70">Step 1 of 2</span>}
       </button>
       <p className="text-xs text-muted-foreground">
-        Allows Splyt to move your cUSD when you confirm payment. You approve once per wallet.
+        Allows Splyt to move your USDm when you confirm payment. You approve once per wallet.
       </p>
       {error ? (
         <p className="rounded-md bg-destructive/10 px-3 py-2 text-xs text-destructive">{error}</p>

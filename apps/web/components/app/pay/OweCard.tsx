@@ -1,7 +1,7 @@
 "use client";
 
 import { Countdown } from "@/components/app/common/Countdown";
-import { formatCUSD } from "@/lib/format";
+import { formatUSDm } from "@/lib/format";
 
 interface Props {
   amountMicros: string;
@@ -18,9 +18,9 @@ export function OweCard({ amountMicros, total, expiresAt, paidCount, memberCount
         <span className="text-xs uppercase tracking-wider text-muted-foreground">You owe</span>
         <Countdown expiresAt={expiresAt} />
       </div>
-      <span className="font-serif text-5xl italic tracking-tight">{formatCUSD(amountMicros)}</span>
+      <span className="font-serif text-5xl italic tracking-tight">{formatUSDm(amountMicros)}</span>
       <span className="text-xs text-muted-foreground">
-        of {formatCUSD(total)} bill · {paidCount}/{memberCount} paid
+        of {formatUSDm(total)} bill · {paidCount}/{memberCount} paid
       </span>
     </div>
   );

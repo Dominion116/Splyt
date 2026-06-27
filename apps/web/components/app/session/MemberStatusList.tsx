@@ -2,7 +2,7 @@
 
 import { Bell, Check, Clock, Pencil, Share2 } from "lucide-react";
 import { useState } from "react";
-import { formatCUSD, shortAddress } from "@/lib/format";
+import { formatUSDm, shortAddress } from "@/lib/format";
 import type { Address, LiveMember } from "@/lib/types";
 import { LinkSheet } from "./LinkSheet";
 import { getContactName, setContactName } from "@/lib/contacts";
@@ -40,7 +40,7 @@ function MemberRow({
 
   const handleNudge = async () => {
     const greeting = name.trim() ? `Hey ${name.trim()}` : "Hey";
-    const text = `${greeting}! Your share for this Splyt is ${formatCUSD(member.amountDue)} — link expires soon: ${link}`;
+    const text = `${greeting}! Your share for this Splyt is ${formatUSDm(member.amountDue)} — link expires soon: ${link}`;
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
         await navigator.share({ title: "Splyt payment reminder", text });
@@ -92,7 +92,7 @@ function MemberRow({
           </div>
         )}
         <span className="font-mono text-[10px] text-muted-foreground/60" title={member.address}>{shortAddress(member.address as Address)}</span>
-        <span className="font-mono text-xs text-muted-foreground">{formatCUSD(member.amountDue)}</span>
+        <span className="font-mono text-xs text-muted-foreground">{formatUSDm(member.amountDue)}</span>
       </div>
       <div className="flex items-center gap-2">
         <StatusPill paid={member.paid} />

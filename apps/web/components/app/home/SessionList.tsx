@@ -5,7 +5,7 @@ import { ArrowUpRight, Check, Loader2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Address } from "viem";
 import { ApiRequestError, listSessions } from "@/lib/api";
-import { formatCUSD, formatRelativeTime } from "@/lib/format";
+import { formatUSDm, formatRelativeTime } from "@/lib/format";
 import type { SessionSummary } from "@/lib/types";
 
 type SessionFilter = "all" | "open" | "settled" | "expired";
@@ -169,7 +169,7 @@ function SessionRow({ session }: { session: SessionSummary }) {
         className="group flex items-center justify-between gap-3 rounded-2xl border border-border/40 bg-card p-4 transition hover:border-border"
       >
         <div className="flex flex-col gap-1">
-          <span className="text-sm font-medium">{formatCUSD(session.total)}</span>
+          <span className="text-sm font-medium">{formatUSDm(session.total)}</span>
           <span className="text-xs text-muted-foreground">
             {paidCount}/{total} paid · {formatRelativeTime(session.createdAt)}
           </span>

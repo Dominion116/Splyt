@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { computeSplit, computeItemisedSplit } from "@/lib/split";
-import { formatCUSD, microsFromDecimalString, microsToDecimalString, shortAddress } from "@/lib/format";
+import { formatUSDm, microsFromDecimalString, microsToDecimalString, shortAddress } from "@/lib/format";
 import type { Address, DraftSession, SplitMode } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { getContactName } from "@/lib/contacts";
@@ -141,7 +141,7 @@ export function SplitEditor({ draft, onChange }: Props) {
             Per-member ({draft.members.length})
           </span>
           <span className="font-mono text-xs text-muted-foreground">
-            Total {formatCUSD(totalMicros)}
+            Total {formatUSDm(totalMicros)}
           </span>
         </div>
         <ul className="flex flex-col divide-y divide-border/40">
@@ -165,7 +165,7 @@ export function SplitEditor({ draft, onChange }: Props) {
                 />
               ) : (
                 <span className="font-mono text-sm tabular-nums">
-                  {formatCUSD(computed.get(address) ?? 0n)}
+                  {formatUSDm(computed.get(address) ?? 0n)}
                 </span>
               )}
             </li>
@@ -179,7 +179,7 @@ export function SplitEditor({ draft, onChange }: Props) {
               sum === totalMicros ? "text-muted-foreground" : "text-destructive"
             )}
           >
-            Sum {formatCUSD(sum)} {sum === totalMicros ? "matches total" : "must equal total"}
+            Sum {formatUSDm(sum)} {sum === totalMicros ? "matches total" : "must equal total"}
           </p>
         ) : null}
       </div>
@@ -216,7 +216,7 @@ function ItemAssignmentSection({ receipt, members, assignments, onChange }: Item
             <div className="flex items-center justify-between gap-2">
               <span className="truncate text-sm">{item.name}</span>
               <span className="shrink-0 font-mono text-xs text-muted-foreground">
-                {formatCUSD(microsFromDecimalString(item.amount))}
+                {formatUSDm(microsFromDecimalString(item.amount))}
               </span>
             </div>
             <div className="flex flex-wrap gap-1">

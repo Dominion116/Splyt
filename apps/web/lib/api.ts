@@ -104,7 +104,7 @@ export async function parseReceipt(imageBase64: string, mimeType: string): Promi
 }
 
 export async function getMemberPrice(sessionId: string, memberAddress: Address) {
-  return request<{ price: string; currency: "cUSD"; decimals: number; blockchainAmount: string }>(
+  return request<{ price: string; currency: "USDm"; decimals: number; blockchainAmount: string }>(
     `/api/pay/${sessionId}/${memberAddress}/price`
   );
 }

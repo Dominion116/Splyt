@@ -130,7 +130,7 @@ router.get("/:sessionId/:memberAddress/price", async (req, res) => {
   // Return real-time price data
   res.json({
     price: memberEntry.amount.toString(),
-    currency: "cUSD",
+    currency: "USDm",
     decimals: 6,
     blockchainAmount: blockchainStatus.amountDue.toString()
   });

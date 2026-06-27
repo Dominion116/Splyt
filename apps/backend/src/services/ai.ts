@@ -76,7 +76,7 @@ function normalizeParsedReceipt(raw: ParsedReceipt): ParsedReceipt {
     subtotal: sanitizeAmount(raw.subtotal),
     tax: sanitizeAmount(raw.tax),
     total: sanitizeAmount(raw.total),
-    currency: "cUSD"
+    currency: "USDm"
   };
 }
 
@@ -106,7 +106,7 @@ export async function parseReceipt(imageBase64: string, mimeType: string): Promi
             type: "text",
             text: [
               "Extract this receipt into JSON using schema:",
-              '{"items":[{"name":"string","amount":"string","quantity":"number?","unitPrice":"string?"}],"subtotal":"string","tax":"string","total":"string","currency":"cUSD"}',
+              '{"items":[{"name":"string","amount":"string","quantity":"number?","unitPrice":"string?"}],"subtotal":"string","tax":"string","total":"string","currency":"USDm"}',
               "All amounts must have 6 decimals.",
               "For each line item, `amount` must be the line total, not the per-unit price.",
               "If the receipt shows a quantity like `2 x Coffee @ $0.01`, return `name` as `Coffee`, `quantity` as 2, `unitPrice` as `0.010000`, and `amount` as `0.020000`."

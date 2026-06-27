@@ -4,7 +4,7 @@ import { celo } from "viem/chains";
 const RPC_URL = process.env.CELO_RPC_URL ?? "https://forno.celo.org";
 const CONTRACT_ADDRESS = (process.env.SPLYT_SESSION_CONTRACT ?? "0x0000000000000000000000000000000000000000") as Address;
 
-// cUSD on Celo is an 18-decimal ERC-20. The off-chain backend works in
+// USDm on Celo is an 18-decimal ERC-20. The off-chain backend works in
 // 6-decimal micros, so every uint256 amount that crosses the chain boundary
 // (amountDue, payoutAmount) must be divided by 10^12 to land in micros.
 // Frontend wallet calls scale the inverse direction before sending.

@@ -5,7 +5,7 @@ import { ClipboardList, Trash2 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { deleteDraft, listDrafts, purgeOldDrafts } from "@/lib/draft";
-import { formatCUSD, formatRelativeTime, microsFromDecimalString } from "@/lib/format";
+import { formatUSDm, formatRelativeTime, microsFromDecimalString } from "@/lib/format";
 import type { DraftSession } from "@/lib/types";
 
 export function DraftRecoveryList() {
@@ -95,14 +95,14 @@ export function DraftRecoveryList() {
           >
             <Link
               href={`/app/review/${draft.id}`}
-              aria-label={`Resume draft — ${formatCUSD(microsFromDecimalString(draft.receipt.total))}`}
+              aria-label={`Resume draft — ${formatUSDm(microsFromDecimalString(draft.receipt.total))}`}
               className="flex min-w-0 flex-1 items-center gap-3"
             >
               <ClipboardList size={14} className="shrink-0 text-muted-foreground" />
               <div className="flex min-w-0 flex-col gap-0.5">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium">
-                    {formatCUSD(microsFromDecimalString(draft.receipt.total))}
+                    {formatUSDm(microsFromDecimalString(draft.receipt.total))}
                   </span>
                   <span className="rounded-full bg-muted px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
                     {draft.mode}

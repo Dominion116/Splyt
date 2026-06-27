@@ -41,7 +41,7 @@ export const openApiDocument = swaggerJSDoc({
             subtotal: { type: "string" },
             tax: { type: "string" },
             total: { type: "string" },
-            currency: { type: "string", enum: ["cUSD"] }
+            currency: { type: "string", enum: ["USDm"] }
           }
         }
       }

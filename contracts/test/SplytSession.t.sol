@@ -5,8 +5,8 @@ import "forge-std/Test.sol";
 import "../src/SplytSession.sol";
 
 contract MockERC20 {
-    string public name = "Mock cUSD";
-    string public symbol = "mcUSD";
+    string public name = "Mock USDm";
+    string public symbol = "mUSDm";
     uint8 public decimals = 18;
 
     mapping(address => uint256) public balanceOf;
