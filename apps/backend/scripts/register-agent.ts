@@ -303,20 +303,31 @@ async function main() {
     );
   } else {
     console.log("[register-agent] ✓ agentId:", agentId.toString());
-    const owner = await publicClient.readContract({
-      address: registry,
-      abi: IDENTITY_REGISTRY_ABI,
-      functionName: "ownerOf",
-      args: [agentId]
-    });
-    const uri = await publicClient.readContract({
-      address: registry,
-      abi: IDENTITY_REGISTRY_ABI,
-      functionName: "tokenURI",
-      args: [agentId]
-    });
-    console.log("[register-agent] ownerOf:", owner);
-    console.log("[register-agent] tokenURI:", uri);
+    // Best-effort reads (some RPC nodes lag right after mint)
+    try {
+      const owner = await publicClient.readContract({
+        address: registry,
+        abi: IDENTITY_REGISTRY_ABI,
+        functionName: "ownerOf",
+        args: [agentId]
+      });
+      const uri = await publicClient.readContract({
+        address: registry,
+        abi: IDENTITY_REGISTRY_ABI,
+        functionName: "tokenURI",
+        args: [agentId]
+      });
+      console.log("[register-agent] ownerOf:", owner);
+      console.log(
+        "[register-agent] tokenURI:",
+        String(uri).length > 120 ? `${String(uri).slice(0, 120)}…` : uri
+      );
+    } catch (readErr) {
+      console.warn(
+        "[register-agent] post-mint ownerOf/tokenURI read failed (tx still succeeded):",
+        readErr instanceof Error ? readErr.message : readErr
+      );
+    }
   }
 
   console.log("\n# Save for docs / env:");

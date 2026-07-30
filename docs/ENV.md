@@ -33,8 +33,8 @@ ALLOWED_ORIGINS=http://localhost:3000
 # AGENT_URI=ipfs://...             # or use: npm run register-agent -- --embed-metadata
 # ERC8004_IDENTITY_REGISTRY=       # optional override
 # CELO_SEPOLIA_RPC_URL=https://forno.celo-sepolia.celo-testnet.org
-# AGENT_ID=                        # filled after successful register
-# REGISTER_TX=                     # registration transaction hash
+# AGENT_ID=9750                    # mainnet registration (2026-07-30)
+# REGISTER_TX=0x30d1ff630302e18db2301d7edfec22a4d620cd7ec57c3460568adab6257f7941
 ```
 
 ### Register agent (Phase B)

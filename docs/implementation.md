@@ -163,12 +163,12 @@ Create `agent/metadata.json` (or `docs/agent/metadata.json`) and pin to IPFS.
   "services": [
     {
       "name": "web",
-      "endpoint": "https://YOUR_PRODUCTION_FRONTEND",
+      "endpoint": "https://splytpay.vercel.app",
       "version": "1.0"
     },
     {
       "name": "MCP",
-      "endpoint": "https://YOUR_PRODUCTION_BACKEND/api/v1/agent",
+      "endpoint": "https://splyt.onrender.com/api/v1/agent",
       "version": "1.0"
     }
   ],
@@ -217,14 +217,15 @@ After mainnet registration:
 - [x] Compliant `agent/metadata.json` + offline validator script  
 - [x] Registration tooling: `apps/backend/scripts/register-agent.ts`  
 - [x] Env + operator docs (`docs/ENV.md`, `agent/README.md`, README)  
-- [ ] Metadata pinned; CID immutable for a given version *(operator step — pin + set `AGENT_URI`)*  
-- [ ] Registration tx confirmed on Sepolia (test) then Mainnet *(operator step — run script with funded key)*  
-- [ ] `agentId` recorded in README + ENV after live register *(operator step)*  
+- [x] Metadata written for production (`agent/metadata.json`; agentURI embedded as `data:` on register)  
+- [x] Registration tx confirmed on **Celo Mainnet** — agentId **9750**, tx `0x30d1ff630302e18db2301d7edfec22a4d620cd7ec57c3460568adab6257f7941`  
+- [x] `agentId` recorded in README + ENV  
 - [x] No deprecated metadata fields (validator clean)  
+- [ ] Optional later: pin metadata to IPFS and `setAgentURI` for easier off-chain browsing  
 
 ### B.7 Exit
 
-**Phase B tooling complete.** On-chain registration is an operator action (needs funded key + optional IPFS pin). Reputation feedback can wait until after agent API has real callers (Phase E).
+**Phase B complete on mainnet** (agentId 9750). Optional: re-pin to IPFS. Reputation feedback can wait until after agent API has real callers (Phase E).
 
 ---
 

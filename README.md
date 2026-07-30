@@ -135,8 +135,15 @@ npm run register-agent -w apps/backend -- --embed-metadata
 | Metadata | [`agent/metadata.json`](agent/metadata.json) |
 | Identity registry (mainnet) | `0x8004A169FB4a3325136EB29fA0ceB6D2e539a432` |
 | Identity registry (Sepolia) | `0x8004A818BFB912233c491871b3d84c89A494BD9e` |
-| `agentId` | _TBD after operator registration_ |
-| Registration tx | _TBD_ |
+| Owner | `0x70f77A5C36eBD667360F6021bF4A95d274B3530e` |
+| `agentId` | **9750** |
+| Registration tx | [`0x30d1ff63…7941`](https://celoscan.io/tx/0x30d1ff630302e18db2301d7edfec22a4d620cd7ec57c3460568adab6257f7941) |
+| Metadata update tx | [`0x6b80d7d4…1d29`](https://celoscan.io/tx/0x6b80d7d47dbc9a21af95a7bf8f155e2596e05d10aae0a4199bc6d85fb0fb1d29) (Render API host) |
+| Web service | https://splytpay.vercel.app |
+| Backend / agent host | https://splyt.onrender.com |
+| Agent base URL (machine API) | https://splyt.onrender.com/api/v1/agent |
+
+Agent base URL = root path for **machine** endpoints (planned x402 parse at `…/parse`). Humans use the Vercel app; agents call the Render API.
 
 ## Proof of Ship Tracks
 
