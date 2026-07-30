@@ -22,10 +22,15 @@ REDIS_URL=redis://localhost:6379   # optional
 ALLOWED_ORIGINS=http://localhost:3000
 
 # --- Agent / x402 (Phase C — server only, never NEXT_PUBLIC_*) ---
+# Required on Render for paid agent parse:
 # X402_API_KEY=                    # from https://x402.celo.org (shown once)
-# X402_NETWORK=testnet             # testnet | mainnet
-# SELLER_PAY_TO=                   # wallet that receives agent USDC
+# X402_NETWORK=mainnet             # testnet | mainnet
+# SELLER_PAY_TO=                   # wallet that receives agent USDC (your treasury)
 # X402_PARSE_AMOUNT=10000          # optional; $0.01 USDC in 6-decimal base units
+#
+# Buyer smoke (local only):
+# BUYER_PRIVATE_KEY=
+# AGENT_PARSE_URL=https://splyt.onrender.com/api/v1/agent/parse
 
 # --- ERC-8004 operator (Phase B — scripts only; never commit keys) ---
 # AGENT_OWNER_PRIVATE_KEY=         # 0x… operator EOA that will own the agent NFT
