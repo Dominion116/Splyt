@@ -35,8 +35,12 @@ if (!process.env.USDM_ADDRESS) {
 if (isX402Configured()) {
   try {
     const network = resolveX402Network();
+    // Log payTo (public treasury) only — never log X402_API_KEY.
+    const payTo = process.env.SELLER_PAY_TO ?? "";
+    const payToShort =
+      payTo.length >= 10 ? `${payTo.slice(0, 6)}…${payTo.slice(-4)}` : "(set)";
     console.log(
-      `[startup] ✓ x402 agent parse enabled (network=${network}, payTo=${process.env.SELLER_PAY_TO})`
+      `[startup] ✓ x402 agent parse enabled (network=${network}, payTo=${payToShort})`
     );
   } catch (error) {
     console.error(`[startup] ✗ x402 config invalid: ${error}`);
