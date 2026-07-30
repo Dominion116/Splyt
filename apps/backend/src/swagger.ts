@@ -14,6 +14,7 @@ export const openApiDocument = swaggerJSDoc({
     ],
     tags: [
       { name: "parse" },
+      { name: "agent" },
       { name: "session" },
       { name: "payment" },
       { name: "status" }
@@ -50,14 +51,38 @@ export const openApiDocument = swaggerJSDoc({
       "/api/parse": {
         post: {
           tags: ["parse"],
-          summary: "Parse receipt image",
-          description: "Parse a receipt image with Groq Vision and return normalized JSON.",
+          summary: "Parse receipt image (free UI)",
+          description:
+            "Human MiniPay/browser path — free + rate-limited. Machine clients use /api/v1/agent/parse.",
           operationId: "parseReceipt",
           responses: {
             "200": { description: "Parsed receipt", content: { "application/json": { schema: { $ref: "#/components/schemas/ParsedReceipt" } } } },
             "400": { description: "Invalid request", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
             "422": { description: "Parse failed", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
             "500": { description: "Server error", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } }
+          }
+        }
+      },
+      "/api/v1/agent/health": {
+        get: {
+          tags: ["agent"],
+          summary: "Agent API health + x402 quote",
+          operationId: "agentHealth"
+        }
+      },
+      "/api/v1/agent/parse": {
+        post: {
+          tags: ["agent"],
+          summary: "Parse receipt (x402 paid, USDC)",
+          description:
+            "Machine path. Returns 402 without payment; with X-PAYMENT settles via Celo facilitator then runs the same parseReceipt core as free UI.",
+          operationId: "agentParseReceipt",
+          responses: {
+            "200": { description: "Parsed receipt after payment", content: { "application/json": { schema: { $ref: "#/components/schemas/ParsedReceipt" } } } },
+            "402": { description: "Payment required (x402)" },
+            "415": { description: "Invalid image format" },
+            "422": { description: "Parse failed" },
+            "503": { description: "x402 not configured on server" }
           }
         }
       },
