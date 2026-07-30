@@ -3,10 +3,13 @@ import cors from "cors";
 import express, { NextFunction, Request, Response } from "express";
 import swaggerUi from "swagger-ui-express";
 import parseRoute from "./routes/parse.js";
+import agentParseRoute from "./routes/agentParse.js";
 import payRoute from "./routes/pay.js";
 import sessionRoute from "./routes/session.js";
 import statusRoute from "./routes/status.js";
 import { openApiDocument } from "./swagger.js";
+import { isX402Configured, resolveX402Network } from "./x402/config.js";
+import { createAgentParsePaymentMiddleware } from "./x402/middleware.js";
 
 const app = express();
 const port = Number(process.env.PORT ?? "3001");
@@ -24,27 +27,33 @@ try {
   process.exit(1);
 }
 if (!process.env.USDM_ADDRESS) {
-  console.info("[startup] USDM_ADDRESS not set — defaulting to mainnet USDm: 0x765de816845861e75a25fca122bb6898b8b1282a");
+  console.info(
+    "[startup] USDM_ADDRESS not set — defaulting to mainnet USDm: 0x765de816845861e75a25fca122bb6898b8b1282a"
+  );
+}
+
+if (isX402Configured()) {
+  try {
+    const network = resolveX402Network();
+    // Log payTo (public treasury) only — never log X402_API_KEY.
+    const payTo = process.env.SELLER_PAY_TO ?? "";
+    const payToShort =
+      payTo.length >= 10 ? `${payTo.slice(0, 6)}…${payTo.slice(-4)}` : "(set)";
+    console.log(
+      `[startup] ✓ x402 agent parse enabled (network=${network}, payTo=${payToShort})`
+    );
+  } catch (error) {
+    console.error(`[startup] ✗ x402 config invalid: ${error}`);
+    process.exit(1);
+  }
+} else {
+  console.warn(
+    "[startup] ⚠ x402 not configured — POST /api/v1/agent/parse returns 503 until X402_API_KEY + SELLER_PAY_TO are set"
+  );
 }
 
 // ---------------------------------------------------------------------------
-// Middleware
-// ---------------------------------------------------------------------------
-
-// ---------------------------------------------------------------------------
-// CORS — restricted to explicitly configured origins.
-//
-// Set ALLOWED_ORIGINS as a comma-separated list in the environment, e.g.:
-//   ALLOWED_ORIGINS=https://splyt.app,https://www.splyt.app
-//
-// Requests with no Origin header (SSR fetches, server-to-server, some mobile
-// webviews) are allowed unconditionally — Origin is a browser-only header and
-// omitting it does not weaken the browser CORS enforcement that this is meant
-// to provide.
-//
-// Unknown origins receive no Access-Control-Allow-Origin header, causing the
-// browser to block the response. We call callback(null, false) rather than
-// callback(new Error()) to avoid a 500 for what is a routine browser probe.
+// CORS — browser clients + x402 payment headers for agent tooling UIs.
 // ---------------------------------------------------------------------------
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS ?? "http://localhost:3000")
   .split(",")
@@ -60,13 +69,25 @@ app.use(
       callback(null, false);
     },
     methods: ["GET", "POST", "OPTIONS"],
-    allowedHeaders: ["Content-Type"],
+    allowedHeaders: [
+      "Content-Type",
+      "X-PAYMENT",
+      "X-PAYMENT-RESPONSE",
+      "PAYMENT-SIGNATURE",
+      "X-Api-Key"
+    ],
+    exposedHeaders: [
+      "X-PAYMENT-RESPONSE",
+      "PAYMENT-RESPONSE",
+      "payment-response",
+      "PAYMENT-REQUIRED",
+      "payment-required"
+    ],
     credentials: false
   })
 );
 
-// Conservative global body limit — /api/parse overrides this with its own
-// express.json({ limit: "3mb" }) middleware mounted before validateBody.
+// Conservative global body limit — parse routes mount their own 3mb json parser.
 app.use(express.json({ limit: "512kb" }));
 
 // ---------------------------------------------------------------------------
@@ -74,16 +95,28 @@ app.use(express.json({ limit: "512kb" }));
 // ---------------------------------------------------------------------------
 
 app.get("/health", (_req, res) => {
-  res.json({ ok: true, service: "splyt-backend" });
+  res.json({
+    ok: true,
+    service: "splyt-backend",
+    x402Configured: isX402Configured()
+  });
 });
 
-// Mount the Swagger UI only outside of production. The interactive UI is a
-// fully-clickable attack surface against every endpoint, and we don't want
-// crawlers or curious visitors to discover it on the production hostname.
+// Mount the Swagger UI only outside of production.
 if (process.env.NODE_ENV !== "production") {
   app.use("/docs", swaggerUi.serve, swaggerUi.setup(openApiDocument));
 }
+
+// Free human UI parse — never attach x402 here.
 app.use("/api/parse", parseRoute);
+
+// Agent path: x402 payment middleware (when configured) then handlers.
+// Must run before the agent router so unpaid requests get 402.
+if (isX402Configured()) {
+  app.use(createAgentParsePaymentMiddleware());
+}
+app.use("/api/v1/agent", agentParseRoute);
+
 app.use("/api/session", sessionRoute);
 app.use("/api/pay", payRoute);
 app.use("/api/status", statusRoute);
@@ -93,9 +126,6 @@ app.use("/api/status", statusRoute);
 // ---------------------------------------------------------------------------
 
 app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
-  // Log the full error server-side for debugging, but never echo the raw
-  // message to clients. Library errors (MongoDB auth failures, viem RPC
-  // failures, etc.) include credentials and internal URLs in their messages.
   console.error("[global error handler]", error);
   res.status(500).json({
     error: "InternalServerError",

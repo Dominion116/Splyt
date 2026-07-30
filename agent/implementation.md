@@ -351,17 +351,18 @@ X402_PARSE_AMOUNT=10000       # optional override ($0.01)
 
 ### C.10 Acceptance criteria
 
-- [ ] `curl -i POST /api/v1/agent/parse` without payment → **402** + machine-readable requirements  
-- [ ] Buyer script with USDC → **200** + same schema as UI parse  
-- [ ] UI `POST /api/parse` still works **without** payment headers  
-- [ ] Facilitator credit decrements on settle; dashboard reflects usage  
-- [ ] No USDm in x402 path; no x402 on default UI path  
-- [ ] Swagger/OpenAPI documents agent route and 402  
-- [ ] `docs/API.md` + `docs/ENV.md` updated  
+- [x] Route `POST /api/v1/agent/parse` + shared `parseReceipt` core  
+- [x] x402 middleware (`@x402/express` v2) with explicit USDC price object  
+- [x] Free UI `POST /api/parse` unchanged (no x402)  
+- [x] Buyer script `scripts/x402-buyer-parse.ts`  
+- [x] Swagger documents agent route + 402  
+- [x] Agent health `GET /api/v1/agent/health`  
+- [ ] Operator: set `X402_API_KEY` + `SELLER_PAY_TO` on Render  
+- [ ] Live: unpaid call → **402**; buyer script → **200** + settle  
 
 ### C.11 Exit
 
-Agents can pay to parse. Humans still free. Ready to advertise `services` endpoint in ERC-8004 metadata (update CID + `setAgentURI` if Phase B already shipped).
+**Phase C code complete.** Enable on Render with facilitator key; smoke unpaid 402 + paid buyer. Humans remain free.
 
 ---
 
@@ -576,7 +577,7 @@ Who is calling?
 | — | Self Agent ID | **Skipped** |
 | **A** | Dual-path architecture lock | **Done** |
 | **B** | ERC-8004 identity tooling | **Done** (live register = operator; branch `feat/phase-b-erc8004-identity`) |
-| **C** | x402 agent API | Pending |
+| **C** | x402 agent API | **Done** (code; enable via X402_* env on Render) |
 | **D** | Wallet roles, attribution, agent card | Pending |
 | **E** | Public ship & verification | Pending |
 | **F** | Post-MVP backlog | Not started |

@@ -107,7 +107,7 @@ Dual payment paths and system notes: [`agent.md`](agent.md). Multi-phase plan: [
 
 ## AI agent on Celo
 
-Splyt uses a **dual payment path**: humans settle bill shares in **USDm** via MiniPay; other agents will pay for parse via **x402 USDC** (planned).
+Splyt uses a **dual payment path**: humans settle bill shares in **USDm** via MiniPay; other agents pay for parse via **x402 USDC**.
 
 | Doc | Purpose |
 | --- | --- |
@@ -142,9 +142,32 @@ npm run register-agent -w apps/backend -- --embed-metadata
 | Backend / agent host | https://splyt.onrender.com |
 | Agent base URL (machine API) | https://splyt.onrender.com/api/v1/agent |
 
-Agent base URL = root path for **machine** endpoints (planned x402 parse at `…/parse`). Humans use the Vercel app; agents call the Render API.
+| Free UI parse | `POST /api/parse` |
+| Paid agent parse | `POST /api/v1/agent/parse` (x402 USDC) |
+| Agent health / quote | `GET /api/v1/agent/health` |
 
-View on [Celoscan registration tx](https://celoscan.io/tx/0x30d1ff630302e18db2301d7edfec22a4d620cd7ec57c3460568adab6257f7941) or [8004scan](https://www.8004scan.io).
+Humans use the Vercel app; agents call the Render API. Agent base URL = machine root (`…/api/v1/agent`).
+
+### x402 seller env (Render backend)
+
+```bash
+X402_API_KEY=x402_...          # https://x402.celo.org (shown once)
+X402_NETWORK=mainnet           # or testnet
+SELLER_PAY_TO=0x...            # wallet that receives agent USDC
+# X402_PARSE_AMOUNT=10000      # optional, $0.01 default
+```
+
+```bash
+# Local smoke: unpaid agent parse should return 402 when x402 is configured
+curl -i -X POST https://splyt.onrender.com/api/v1/agent/parse \
+  -H "Content-Type: application/json" \
+  -d "{\"imageBase64\":\"...\",\"mimeType\":\"image/jpeg\"}"
+
+# Buyer script (needs BUYER_PRIVATE_KEY + USDC)
+npm run x402-buyer-parse -w apps/backend
+```
+
+View identity on [Celoscan registration tx](https://celoscan.io/tx/0x30d1ff630302e18db2301d7edfec22a4d620cd7ec57c3460568adab6257f7941) or [8004scan](https://www.8004scan.io).
 
 ## Proof of Ship Tracks
 

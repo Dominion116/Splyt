@@ -2,7 +2,7 @@
 
 Splyt is becoming a **Celo onchain AI agent**: humans split bills in MiniPay with **USDm**, while other agents call a machine API with **x402 / USDC**.
 
-This document is the Phase A design lock for the dual-path agent model. Full phased plan: [`implementation.md`](./implementation.md).
+This document is the Phase A design lock for the dual-path agent model. Full phased plan: [`agent/implementation.md`](./agent/implementation.md).
 
 ---
 
@@ -91,12 +91,14 @@ Ops
 
 ## Planned agent API (not implemented in Phase A)
 
-### `POST /api/v1/agent/parse`
+### `POST /api/v1/agent/parse` (Phase C — implemented)
 
 - **Body:** same as UI parse (`imageBase64`, `mimeType`: jpeg | png | webp).  
-- **Without payment:** HTTP **402** + machine-readable payment requirements.  
-- **With payment:** client signs EIP-3009 USDC authorization; retries with payment header; facilitator verifies/settles; response matches free parse JSON.  
-- **Seller env (future):** `X402_API_KEY`, `X402_NETWORK`, `SELLER_PAY_TO`, optional `X402_PARSE_AMOUNT`.
+- **Without payment:** HTTP **402** + machine-readable payment requirements (`payment-required` header).  
+- **With payment:** client signs EIP-3009 USDC authorization; retries with `X-PAYMENT`; facilitator verifies/settles; response matches free parse JSON.  
+- **Seller env:** `X402_API_KEY`, `X402_NETWORK`, `SELLER_PAY_TO`, optional `X402_PARSE_AMOUNT`.  
+- **Health:** `GET /api/v1/agent/health` — config + price quote (no payment).  
+- **Buyer smoke:** `npm run x402-buyer-parse -w apps/backend`
 
 ### Identity (Phase B)
 
@@ -143,6 +145,6 @@ Who is calling?
 | — | Self Agent ID | Skipped |
 | **A** | Dual-path architecture lock + this guide | **Done** |
 | **B** | ERC-8004 identity | Pending |
-| **C** | x402 agent API | Pending |
+| **C** | x402 agent API | **Done** (set env on Render to go live) |
 | **D** | Attribution / agent card | Pending |
 | **E** | Public ship & verification | Pending |
