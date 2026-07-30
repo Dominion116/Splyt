@@ -8,7 +8,9 @@
     "build": "tsc -p tsconfig.json",
     "start": "node dist/index.js",
     "lint": "echo \"No linter configured\"",
-    "test": "echo \"No tests configured\""
+    "test": "echo \"No tests configured\"",
+    "register-agent": "tsx scripts/register-agent.ts",
+    "validate-agent-metadata": "tsx scripts/validate-agent-metadata.ts"
   },
   "dependencies": {
     "clarityxo-ai": "^0.1.0",

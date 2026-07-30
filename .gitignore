@@ -23,3 +23,10 @@ config.bat
 
 # Local planning docs
 plan.md
+
+# AI agent skills (install locally with: npx skills add celo-org/celopedia-skills)
+.agents/
+.claude/skills/
+skills-lock.json
+**/.agents/
+**/.claude/skills/
