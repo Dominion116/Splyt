@@ -13,11 +13,16 @@ Source file: [`metadata.json`](./metadata.json)
 | each service | `name` + `endpoint` (not `url`) |
 | `agentURI` | Prefer `ipfs://…` or `data:…` (content-addressed) |
 
-Update placeholders before mainnet registration:
+### Live mainnet registration
 
-- `image` → IPFS CID of logo  
-- `services[web].endpoint` → production frontend URL  
-- `services[MCP].endpoint` → production agent API base (Phase C)  
+| | Value |
+|--|--------|
+| `agentId` | **9750** |
+| Owner | `0x70f77A5C36eBD667360F6021bF4A95d274B3530e` |
+| Web | https://splytpay.vercel.app |
+| Agent base | https://splyt.onrender.com/api/v1/agent |
+| Register tx | https://celoscan.io/tx/0x30d1ff630302e18db2301d7edfec22a4d620cd7ec57c3460568adab6257f7941 |
+| Metadata update | https://celoscan.io/tx/0x6b80d7d47dbc9a21af95a7bf8f155e2596e05d10aae0a4199bc6d85fb0fb1d29 |
 
 ## Registries
 
