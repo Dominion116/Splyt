@@ -1,0 +1,19 @@
+{
+  "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
+  "name": "Splyt",
+  "description": "AI bill-splitting agent on Celo: parse receipts with vision, compute member shares, and settle group payments in USDm via MiniPay-friendly SplytSession. Machine clients will pay for parse via x402 USDC (separate path from human bill settlement).",
+  "image": "ipfs://REPLACE_WITH_LOGO_CID",
+  "services": [
+    {
+      "name": "web",
+      "endpoint": "https://REPLACE_WITH_FRONTEND_URL",
+      "version": "1.0"
+    },
+    {
+      "name": "MCP",
+      "endpoint": "https://REPLACE_WITH_BACKEND_URL/api/v1/agent",
+      "version": "1.0"
+    }
+  ],
+  "supportedTrust": ["reputation"]
+}

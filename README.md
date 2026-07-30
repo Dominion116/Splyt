@@ -105,6 +105,39 @@ After deploy, update `NEXT_PUBLIC_CONTRACT_ADDRESS` and `SPLYT_SESSION_CONTRACT`
 
 See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
+## AI agent on Celo
+
+Splyt uses a **dual payment path**: humans settle bill shares in **USDm** via MiniPay; other agents will pay for parse via **x402 USDC** (planned).
+
+| Doc | Purpose |
+| --- | --- |
+| [`agent.md`](agent.md) | Agent design lock + Celopedia install |
+| [`docs/agent.md`](docs/agent.md) | Same guide under docs/ |
+| [`agent/metadata.json`](agent/metadata.json) | ERC-8004 registration metadata |
+| [`agent/README.md`](agent/README.md) | How to pin metadata and register on-chain |
+| [`docs/implementation.md`](docs/implementation.md) | Multi-phase implementation plan |
+
+```bash
+# Load Celo ecosystem skills for agent work (local only; gitignored)
+npx skills add celo-org/celopedia-skills
+
+# Validate ERC-8004 metadata shape
+npm run validate-agent-metadata -w apps/backend
+
+# Register agent NFT (needs AGENT_OWNER_PRIVATE_KEY; see agent/README.md)
+npm run register-agent -w apps/backend -- --embed-metadata
+```
+
+### ERC-8004 identity
+
+| | Value |
+| --- | --- |
+| Metadata | [`agent/metadata.json`](agent/metadata.json) |
+| Identity registry (mainnet) | `0x8004A169FB4a3325136EB29fA0ceB6D2e539a432` |
+| Identity registry (Sepolia) | `0x8004A818BFB912233c491871b3d84c89A494BD9e` |
+| `agentId` | _TBD after operator registration_ |
+| Registration tx | _TBD_ |
+
 ## Proof of Ship Tracks
 
 - [x] MiniPay (mini-app detection, USDm payments)
