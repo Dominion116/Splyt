@@ -105,6 +105,21 @@ After deploy, update `NEXT_PUBLIC_CONTRACT_ADDRESS` and `SPLYT_SESSION_CONTRACT`
 
 See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
+## AI agent on Celo
+
+Splyt uses a **dual payment path**: humans settle bill shares in **USDm** via MiniPay; other agents will pay for parse via **x402 USDC** (planned).
+
+| Doc | Purpose |
+| --- | --- |
+| [`agent.md`](agent.md) | Agent design lock + Celopedia install |
+| [`docs/agent.md`](docs/agent.md) | Same guide under docs/ |
+| [`docs/implementation.md`](docs/implementation.md) | Multi-phase implementation plan |
+
+```bash
+# Load Celo ecosystem skills for agent work
+npx skills add celo-org/celopedia-skills
+```
+
 ## Proof of Ship Tracks
 
 - [x] MiniPay (mini-app detection, USDm payments)

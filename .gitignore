@@ -24,3 +24,7 @@ config.bat
 # Local planning docs
 plan.md
 /docs
+
+# Local Copilot skills and metadata
+.agents/
+skills-lock.json
